@@ -25,7 +25,12 @@ int InicioJogo( int NumNavesInvasoras) {
 	for (int i = 0; i < NumNavesInvasoras; i++) {
 
 		NavesInimigas[i].NavesInv = CreateThread(NULL,
-													0,
+													0,    
+
+
+
+
+
 													(LPTHREAD_START_ROUTINE)GestorNavesInimigas,
 													(LPVOID)&NavesInimigas[i],
 													0,
