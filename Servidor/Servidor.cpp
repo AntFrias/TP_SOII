@@ -12,6 +12,12 @@ int GestorNavesInimigas(LPVOID navesInimigas) {
 // vai preparar o Ambiente do Jogo
 int InicioJogo( int NumNavesInvasoras) {
 
+
+
+
+
+
+
 	navesInvasoras *NavesInimigas;
 
 	NavesInimigas = (NavesInvasoras*)malloc(sizeof(NavesInvasoras) * NumNavesInvasoras);
