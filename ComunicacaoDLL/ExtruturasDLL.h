@@ -40,7 +40,7 @@ typedef struct EleMapa {
 
 }Elemento;
 
-typedef struct Packet {
+typedef struct Packt {
 
 	int tipo;
 	int session_id;
@@ -54,4 +54,4 @@ typedef struct Packet {
 			PowerUpp PowerUp;
 	}dataPacket;
 
-};
+}Packet;
