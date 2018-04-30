@@ -11,6 +11,30 @@
 #include <wchar.h>
 #include <shellapi.h>
 
+// extrutura Configuraçao Inicial do Jogo
+typedef struct ConfiguracaoInicialJogo {
+
+	int MaxJogadores;
+	int MaxNavesInimigas;
+	int MaxPowerups;
+	int DuracaoPowerup;
+	int Vidas;
+}confInitJogo;
+
+// Extrutura Jogador
+typedef struct Clientes_Info {
+
+	TCHAR nome[10];
+	int pontuacao;
+	int tempo;
+	int posicao[2];
+	int vidas;
+	int sessionId;
+	confInitJogo jogo;
+	//naveDefensora nave;
+	//PowerUp Powerup;
+}clientesInfo;
+
 // Extrutura com os dados do servidor;
 typedef struct Gestao_servidor{
 	int NumNavesInvasoras;
@@ -20,25 +44,7 @@ typedef struct Gestao_servidor{
 	HANDLE ComGateway;
 	BOOL inicioJogo;
 	HANDLE LerMemoriaMutex;
-	
-
-}Gestor;
-// extrutura das naves invasoras
-typedef struct NavesInvasoras {
-	DWORD NaveInvthreadId;																				
-	HANDLE NavesInv;
-	int tipoNave;
-	int Alive;
-
-}navesInvasoras;
-// ideia da primeira extrutura com dados para por na DLL acerca dos semaforos entre o servidor e o gateway para lerem o que está no 
-// vector circular
-typedef struct DadosMemoriaPartilhada {
-
-	HANDLE LerMemoriaMutex;
-	HANDLE EscreveMemoriaMutex;
-
-}MemoriaPartilhada;
+}gestao_servidor;
 
 // extrutura TOP10
 typedef struct Top10 {
