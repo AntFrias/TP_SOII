@@ -8,7 +8,7 @@ int GestorNavesInimigas(LPVOID navesInimigas) {
 	naveInimiga = ((NavesInvasoras*) navesInimigas);
 
 	return 0; 
-}
+}//ki
 // vai preparar o Ambiente do Jogo
 int InicioJogo( int NumNavesInvasoras) {
 
