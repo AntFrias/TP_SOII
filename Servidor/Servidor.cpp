@@ -12,12 +12,6 @@ int GestorNavesInimigas(LPVOID navesInimigas) {
 // vai preparar o Ambiente do Jogo
 int InicioJogo( int NumNavesInvasoras) {
 
-
-
-
-
-
-
 	navesInvasoras *NavesInimigas;
 
 	NavesInimigas = (NavesInvasoras*)malloc(sizeof(NavesInvasoras) * NumNavesInvasoras);
@@ -62,15 +56,15 @@ int comunicaoGateway(LPVOID partilha /*vai ficar aqui o contacto com a DLL*/) {
 }
 // inicia os serviços e a configuraçao do Servidor;
 
-int InicioServidor() {
+int IniciarServidor() {
 
 	TCHAR c;
 	
-	Gestor optionServidor;
+	gestao_servidor optionServidor;
 	
 	MemoriaPartilhada Partilha;
 
-	_tprintf(TEXT("\n\nOlá Eu sou o Servidor e estou a inicar\n\n"));
+	_tprintf(TEXT("\n\nOlá Eu sou o Servidor e estou a iniciar\n\n"));
 
 	_tprintf(TEXT("\n\n Iniciar Thread Para Tratar os pedidos do Gateway\n\n"));
 
@@ -103,8 +97,7 @@ int _tmain(int argc, LPTSTR argv[]) {
 	_setmode(_fileno(stdout), _O_WTEXT);
 #endif	
 
-	InicioServidor();
+	IniciarServidor();
 
 	return 0;
-	
 }
