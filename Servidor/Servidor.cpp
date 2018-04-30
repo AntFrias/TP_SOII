@@ -9,6 +9,7 @@ int GestorNavesInimigas(LPVOID navesInimigas) {
 
 	return 0;
 }
+
 // vai preparar o Ambiente do Jogo
 int InicioJogo( int NumNavesInvasoras) {
 
@@ -44,8 +45,8 @@ int InicioJogo( int NumNavesInvasoras) {
 	}
 
 }
-// vai lançar a Thread que vai ficar a comunicar com o Gateway
 
+// vai lançar a Thread que vai ficar a comunicar com o Gateway
 int comunicaoGateway(LPVOID partilha /*vai ficar aqui o contacto com a DLL*/) {
 
 	MemoriaPartilhada *Partilha;
@@ -54,8 +55,8 @@ int comunicaoGateway(LPVOID partilha /*vai ficar aqui o contacto com a DLL*/) {
 	
 	return 0;
 }
-// inicia os serviços e a configuraçao do Servidor;
 
+// inicia os serviços e a configuraçao do Servidor;
 int IniciarServidor() {
 
 	TCHAR c;
