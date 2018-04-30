@@ -7,8 +7,8 @@ int GestorNavesInimigas(LPVOID navesInimigas) {
 
 	naveInimiga = ((NavesInvasoras*) navesInimigas);
 
-	return 0; 
-}//ki
+	return 0;
+}//.(/
 // vai preparar o Ambiente do Jogo
 int InicioJogo( int NumNavesInvasoras) {
 
@@ -25,7 +25,12 @@ int InicioJogo( int NumNavesInvasoras) {
 	for (int i = 0; i < NumNavesInvasoras; i++) {
 
 		NavesInimigas[i].NavesInv = CreateThread(NULL,
-													0,
+													0,    
+
+
+
+
+
 													(LPTHREAD_START_ROUTINE)GestorNavesInimigas,
 													(LPVOID)&NavesInimigas[i],
 													0,
