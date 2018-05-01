@@ -42,6 +42,7 @@ int InicioJogo( int NumNavesInvasoras) {
 	HANDLE *ArrayHandleNavesInim;
 
 	ArrayHandleNavesInim = (HANDLE*)malloc(sizeof(HANDLE)*ninimigas);
+
 	if (ArrayHandleNavesInim == NULL) {
 		_tprintf(TEXT("\n Erro ao criar o array de Handles das Naves inimigas"));
 	}
