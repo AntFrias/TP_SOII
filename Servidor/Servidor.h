@@ -37,10 +37,6 @@ typedef struct MemoriaPartilhada {
 
 };
 
-
-
-
-
 // Estrutura para ser apagada -> vai para a DLL
 typedef struct nav {
 	int tipo;
