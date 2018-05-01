@@ -22,7 +22,7 @@ typedef struct ConfiguracaoInicialJogo {
 }confInitJogo;
 
 // Extrutura Jogador
-typedef struct Clientes_Info {
+typedef struct Jogador_Info {
 
 	TCHAR nome[10];
 	int pontuacao;
@@ -33,17 +33,24 @@ typedef struct Clientes_Info {
 	confInitJogo jogo;
 	//naveDefensora nave;
 	//PowerUp Powerup;
-}clientesInfo;
+}jogadorinfo;
+
+//extrutura cria registry to put option server on = 1
+typedef struct RegistryServer {
+
+	HKEY Chave;
+	DWORD statServer, ServerUp;
+	
+}registryServer;
 
 // Extrutura com os dados do servidor;
 typedef struct Gestao_servidor{
-	int NumNavesInvasoras;
-	int NumClients;
-	int NumJogadores;
-	DWORD ComGatewaythreadId;
-	HANDLE ComGateway;
+
+	int NumMaxClientes;
 	BOOL inicioJogo;
-	HANDLE LerMemoriaMutex;
+	confInitJogo initJogo;
+	RegistryInfo ServerUp;
+
 }gestao_servidor;
 
 // extrutura TOP10
