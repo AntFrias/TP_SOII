@@ -16,6 +16,7 @@ int GestorNavesInimigas(LPVOID navesInimigas) {
 
 	return 0;
 }
+
 // vai preparar o Ambiente do Jogo
 int InicioJogo( int NumNavesInvasoras) {
 
@@ -52,9 +53,13 @@ int InicioJogo( int NumNavesInvasoras) {
 	}
 
 }
-// vai lançar a Thread que vai ficar a comunicar com o Gateway
 
+<<<<<<< HEAD
+// vai lançar a Thread que vai ficar a comunicar com o Gateway
+int comunicaoGateway(LPVOID partilha /*vai ficar aqui o contacto com a DLL*/) {
+=======
 //int comunicaoGateway(LPVOID partilha /*vai ficar aqui o contacto com a DLL*/) {
+>>>>>>> Frias
 
 	//MemoriaPartilhada *Partilha;
 
@@ -84,7 +89,12 @@ int criaStatusServerRegistry(int n) {
 	}
 	return 0;
 }
+<<<<<<< HEAD
+
+// inicia os serviços e a configuraçao do Servidor;
+=======
 // inicia serviços no servidor 
+>>>>>>> Frias
 int IniciarServidor() {
 
 	TCHAR c;

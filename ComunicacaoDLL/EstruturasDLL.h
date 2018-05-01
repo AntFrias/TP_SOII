@@ -8,6 +8,8 @@ typedef struct nav {
 	int vida;
 	int escudo;
 	int sessionId;
+	HANDLE NaveInvasoras;
+	DWORD NaveInvthreadId;
 
 }Nave;
 
@@ -55,3 +57,9 @@ typedef struct Packet {
 	}dataPacket;
 
 }packet;
+
+typedef struct AuxSinc {
+
+	//handles para os semaforaos 
+
+}AuxSincronize;
