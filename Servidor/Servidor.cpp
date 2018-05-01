@@ -19,11 +19,11 @@ int GestorNavesInimigas(LPVOID navesInimigas) {
 
 	do {
 
-		Sleep(10000);
+		Sleep(1000);
 		naveInimiga->vida--;
-
+		
 	} while (naveInimiga->vida > 0);
-
+	_tprintf(TEXT(" MORRI  %d"), GetCurrentThreadId());
 	return 0;
 }
 // verificacao se as naves estao na posicaçao correta
@@ -34,11 +34,21 @@ void verificaPosicaoNaves(Nave *naves) {
 	}
 }
 // vai preparar o Ambiente do Jogo
+// fazer um array de HANDLES das threads DAS NAVES INIMIGAS ---------------------------------------------> waitformultipleobject
 int InicioJogo( int NumNavesInvasoras) {
 
 	Nave *navesInimigas;
+	
+	HANDLE *ArrayHandleNavesInim;
+
+	ArrayHandleNavesInim = (HANDLE*)malloc(sizeof(HANDLE)*ninimigas);
+
+	if (ArrayHandleNavesInim == NULL) {
+		_tprintf(TEXT("\n Erro ao criar o array de Handles das Naves inimigas"));
+	}
 
 	int coord_x = CoordWindow_x, coord_y = CoordWindow_y;
+	
 	
 	navesInimigas = (Nave*)malloc(sizeof(Nave) * NumNavesInvasoras);
 
@@ -82,11 +92,12 @@ int InicioJogo( int NumNavesInvasoras) {
 			return -1;
 		
 		}
-		
+		ArrayHandleNavesInim[i] = navesInimigas[i].NaveInvasoras;
 		_tprintf(TEXT("\nCriei Thread %d"), i);
 
 	}
 	verificaPosicaoNaves(navesInimigas);
+	WaitForMultipleObjects(ninimigas, ArrayHandleNavesInim, TRUE, INFINITY);
 	return 0;
 }
 // vai lançar a Thread que vai ficar a comunicar com o Gateway
@@ -160,6 +171,6 @@ int _tmain(int argc, LPTSTR argv[]) {
 #endif	
 
 	IniciarServidor();
-	Sleep(50000);
+	Sleep(90000);
 	return 0;
 }
