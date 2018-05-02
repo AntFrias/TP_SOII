@@ -21,7 +21,7 @@ ptrbufferMsg CriaShareBuffer(HANDLE hBuffer, LPCTSTR nomeBuffer) {
 		 _tprintf(TEXT("\nErro a criar Buffer %s na memoria Partilhada "), nomeBuffer);
 	 }
 	 else if (GetLastError()== ERROR_ALREADY_EXISTS){
-		 _tprintf(TEXT("\nEste buffer ja foi criado\n"));
+		 _tprintf(TEXT("\nEste buffer -> %s ja foi criado\n"), nomeBuffer);
 	 }
 	 // mapear a memoria para a mensagem
 	 auxBuffer = (ptrbufferMsg)MapViewOfFile(hBuffer, FILE_MAP_WRITE, 0, 0, sizeof(bufferMsg));
@@ -91,13 +91,6 @@ int GestorNavesInimigas(LPVOID navesInimigas) {
 	_tprintf(TEXT(" MORRI  %d"), GetCurrentThreadId());
 	return 0;
 }
-// verificacao se as naves estao na posicaçao correta
-void verificaPosicaoNaves(Nave *naves) {
-
-	for (int i = 0; i < ninimigas; i++) {
-		//_tprintf(TEXT("%d,%d\n"), i, naves[i].x, naves[i].y);_______________________________________________
-	}
-}
 // vai preparar o Ambiente do Jogo
 // fazer um array de HANDLES das threads DAS NAVES INIMIGAS ---------------------------------------------> waitformultipleobject
 int IniciaNavesInimigas( int NumNavesInvasoras) {
@@ -161,20 +154,9 @@ int IniciaNavesInimigas( int NumNavesInvasoras) {
 		_tprintf(TEXT("\nCriei Thread %d"), i);
 		
 	}
-	verificaPosicaoNaves(navesInimigas);
 	WaitForMultipleObjects(ninimigas, ArrayHandleNavesInim, TRUE, INFINITY);
 	return 0;
 }
-// vai lançar a Thread que vai ficar a comunicar com o Gateway
-/*int comunicaoGateway(LPVOID partilha vai ficar aqui o contacto com a DLL) {
-int comunicaoGateway(LPVOID partilha vai ficar aqui o contacto com a DLL) {
-
-	MemoriaPartilhada *Partilha;
-
-	Partilha = (MemoriaPartilhada *)partilha;
-
-	return 0;
-}*/
 // inicia os serviços e a configuraçao do Servidor no registry;
 int criaStatusServerRegistry(int n) {
 
@@ -195,11 +177,32 @@ int criaStatusServerRegistry(int n) {
 		}
 		return 0;
 	}
+
+// Funcao que vai ficar a ler os pacotes do Buffer --> GwtoSer
+
+void LerPacote(Packet *Pacote) {
+
+		
+
+}
+void LerBufferGwtoSer(LPVOID Pacote) {
+
+	Packet *auxPacote;
+
+	auxPacote = (Packet*)Pacote;
+		
+	auxPacote->
+	while (1) {
+
+		LerPacote(auxPacote);
+	}
+}
 // inicia os serviços e a configuraçao do Servidor;
 int IniciarServidor() {
 
 	bufferMsg *auxSertoGw;
 	bufferMsg *auxGwtoSer;
+	BufferMsg auxPacote;
 
 	auxSertoGw = (ptrbufferMsg)malloc(sizeof(bufferMsg));
 	auxGwtoSer = (ptrbufferMsg)malloc(sizeof(bufferMsg));
@@ -213,14 +216,14 @@ int IniciarServidor() {
 	criaMemoriaPartilhada(auxSertoGw, auxGwtoSer);
 	dadosServidor.comSertoGw = auxSertoGw;
 	dadosServidor.comGwtoSer = auxGwtoSer;
-/*
-	optionServidor.ComGateway = CreateThread( NULL,
+
+	dadosServidor.hThreadSerToGw = CreateThread( NULL,
 												 0,
-												(LPTHREAD_START_ROUTINE)comunicaoGateway,
-												(LPVOID)&Partilha,
+												(LPTHREAD_START_ROUTINE)LerBufferGwtoSer,
+												(LPVOID)&auxPacote,
 												0,
-												&optionServidor.ComGatewaythreadId);
-	*/											
+												&dadosServidor.IdThreadSertoGw);
+											
 
 		_tprintf(TEXT(" 2.iniciar jogo ? "));
 
