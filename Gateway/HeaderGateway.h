@@ -14,14 +14,39 @@
 
 //Define
 #define Buffer_size 32
-TCHAR nomeSrtoGW[] = TEXT("Buffer SrToGw");
+
 TCHAR nomeGwtoSr[] = TEXT("Buffer GwToSr");
+TCHAR nomeSrtoGW[] = TEXT("Buffer SrToGw");
+
+
+TCHAR semGwLer[] = TEXT("semaforoGwLer");
+TCHAR semGwEscrever[] = TEXT("semaforoGwEscrever");
+TCHAR mutexGwtoSer[] = TEXT("mutexGwtoSer");
+
+TCHAR semSerLer[] = TEXT("semaforoSerLer");
+TCHAR semSerEscrever[] = TEXT("semaforoSerEscrever");
+TCHAR mutexSertoGw[] = TEXT("mutexSertoGw");
+////////////////////////////////////////////
 
 //prototipos
 
 void IniciarGateway();
 
 //Estruturas
+
+typedef struct synbuff {
+	 
+	HANDLE SemGwLer;
+	HANDLE SemGwEscrever;
+	HANDLE MutexGwtoSer;
+	
+	HANDLE SemSerLer;
+	HANDLE SemSerEscrever;
+	HANDLE MutexSertoGw;
+
+}synBuffer;
+
+
 
 typedef struct Packet {
 
@@ -50,6 +75,8 @@ typedef struct Gestao_gateway {
 
 
 	int sessionID;
+	HANDLE hThreadGwtoSer;
+	DWORD idThreadGwtoSer;
 	bufferMsg *comSertoGw;
 	bufferMsg *comGwtoSer;
 
