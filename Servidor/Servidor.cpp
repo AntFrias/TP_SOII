@@ -36,9 +36,9 @@ ptrbufferMsg CriaShareBuffer(HANDLE hBuffer, LPCTSTR nomeBuffer) {
 
 }
 // funcao que vai Pedir para criar os buffers  na memoria partilhada
-int criaMemoriaPartilhada() {
+int criaMemoriaPartilhada(ptrbufferMsg stg, ptrbufferMsg gts) {
 
-	ptrbufferMsg stg, gts;
+	//ptrbufferMsg stg, gts;
 	
 	stg = (ptrbufferMsg)malloc(sizeof(bufferMsg));
 
@@ -60,8 +60,6 @@ int criaMemoriaPartilhada() {
 	stg = CriaShareBuffer(stg, nomeSrtoGW);
 	gts = CriaShareBuffer(gts, nomeGwtoSr);
 
-	dadosServidor.comSertoGw = stg;
-	dadosServidor.comGwtoSer = gts;
 	return 0;
 }
  //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -102,7 +100,7 @@ void verificaPosicaoNaves(Nave *naves) {
 }
 // vai preparar o Ambiente do Jogo
 // fazer um array de HANDLES das threads DAS NAVES INIMIGAS ---------------------------------------------> waitformultipleobject
-int InicioJogo( int NumNavesInvasoras) {
+int IniciaNavesInimigas( int NumNavesInvasoras) {
 
 	Nave *navesInimigas;
 	
@@ -200,14 +198,21 @@ int criaStatusServerRegistry(int n) {
 // inicia os serviços e a configuraçao do Servidor;
 int IniciarServidor() {
 
+	bufferMsg *auxSertoGw;
+	bufferMsg *auxGwtoSer;
+
+	auxSertoGw = (ptrbufferMsg)malloc(sizeof(bufferMsg));
+	auxGwtoSer = (ptrbufferMsg)malloc(sizeof(bufferMsg));
+
 	TCHAR c;
 	
-
 	_tprintf(TEXT("\n\n Inicializaçao do Servidor\n\n"));
 
 	criaStatusServerRegistry( 1 );
 	
-	criaMemoriaPartilhada();
+	criaMemoriaPartilhada(auxSertoGw, auxGwtoSer);
+	dadosServidor.comSertoGw = auxSertoGw;
+	dadosServidor.comGwtoSer = auxGwtoSer;
 /*
 	optionServidor.ComGateway = CreateThread( NULL,
 												 0,
@@ -225,7 +230,7 @@ int IniciarServidor() {
 
 		dadosServidor.initJogo.MaxNavesInimigas = ninimigas;
 
-		InicioJogo(dadosServidor.initJogo.MaxNavesInimigas);
+		IniciaNavesInimigas(dadosServidor.initJogo.MaxNavesInimigas);
 	}
 	
 	criaStatusServerRegistry (0 );
