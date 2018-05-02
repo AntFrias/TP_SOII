@@ -100,7 +100,7 @@ void verificaPosicaoNaves(Nave *naves) {
 }
 // vai preparar o Ambiente do Jogo
 // fazer um array de HANDLES das threads DAS NAVES INIMIGAS ---------------------------------------------> waitformultipleobject
-int InicioJogo( int NumNavesInvasoras) {
+int IniciaNavesInimigas( int NumNavesInvasoras) {
 
 	Nave *navesInimigas;
 	
@@ -230,7 +230,7 @@ int IniciarServidor() {
 
 		dadosServidor.initJogo.MaxNavesInimigas = ninimigas;
 
-		InicioJogo(dadosServidor.initJogo.MaxNavesInimigas);
+		IniciaNavesInimigas(dadosServidor.initJogo.MaxNavesInimigas);
 	}
 	
 	criaStatusServerRegistry (0 );
