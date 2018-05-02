@@ -21,6 +21,15 @@
 TCHAR nomeSrtoGW[] = TEXT("Buffer SrToGw");
 TCHAR nomeGwtoSr[] = TEXT("Buffer GwToSr");
 
+// Nome dos Semaforos para comunicacao nos Buffers de mensagens
+TCHAR semGwLer[] = TEXT("semaforoGwLer");
+TCHAR semGwEscrever[] = TEXT("semaforoGwEscrever");
+TCHAR mutexGwtoSer[] = TEXT("mutexGwtoSer");
+
+TCHAR semSerLer[] = TEXT("semaforoSerLer");
+TCHAR semSerEscrever[] = TEXT("semaforoSerEscrever");
+TCHAR mutexSertoGw[] = TEXT("mutexSertoGw");
+
 //Tamanho do Buffer de mensagens na memoria partilhada
 #define Buffer_size 32
 //numero de naves inimigas apenas para testes
@@ -32,6 +41,18 @@ TCHAR nomeGwtoSr[] = TEXT("Buffer GwToSr");
 // define as dimensoes do mapa onde ocorrerá o jogo
 #define dimMapa_x 20
 #define dimMapa_y 30
+
+typedef struct synbuff {
+
+	HANDLE SemGwLer;
+	HANDLE SemGwEscrever;
+	HANDLE MutexGwtoSer;
+
+	HANDLE SemSerLer;
+	HANDLE SemSerEscrever;
+	HANDLE MutexSertoGw;
+
+}synBuffer;
 
 typedef struct Packet {
 
@@ -114,6 +135,8 @@ typedef struct Gestao_servidor{
 	registryServer ServerUp;
 	bufferMsg *comSertoGw;
 	bufferMsg *comGwtoSer;
+	HANDLE hThreadSerToGw;
+	DWORD IdThreadSertoGw;
 
 
 }dataServer;
