@@ -1,5 +1,72 @@
 #include "Servidor.h"
+//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
+dataServer dadosServidor;
+
+void CriaMapViewer(){
+
+
+}
+
+// cria Buffer na memoria partilhada 
+ptrbufferMsg CriaShareBuffer(HANDLE hBuffer, LPCTSTR nomeBuffer) {
+
+	 ptrbufferMsg auxBuffer;
+
+	 //criar a memoria partilhada 
+	 hBuffer = CreateFileMapping(INVALID_HANDLE_VALUE, NULL, PAGE_READWRITE, 0, sizeof(bufferMsg), nomeBuffer );
+	 if (hBuffer == NULL) {
+		 _tprintf(TEXT("\nErro a criar Buffer %s na memoria Partilhada "), nomeBuffer);
+	 }
+	 else if (GetLastError()== ERROR_ALREADY_EXISTS){
+		 _tprintf(TEXT("\nEste buffer ja foi criado\n"));
+	 }
+	 // mapear a memoria para a mensagem
+	 auxBuffer = (ptrbufferMsg)MapViewOfFile(hBuffer, FILE_MAP_WRITE, 0, 0, sizeof(bufferMsg));
+	 if (auxBuffer == NULL) {
+		 _tprintf(TEXT("Erro a mapear Buffer de mensagem"));
+	 }
+	 
+	 auxBuffer->in = Buffer_size;
+	 auxBuffer->out = 0;
+
+		 return auxBuffer;
+
+}
+// funcao que vai Pedir para criar os buffers  na memoria partilhada
+int criaMemoriaPartilhada() {
+
+	ptrbufferMsg stg, gts;
+	
+	stg = (ptrbufferMsg)malloc(sizeof(bufferMsg));
+
+	if (stg == NULL) {
+
+		_tprintf(TEXT(" Erro a alocar Buffer de Mensagem"));
+		
+		return -1;
+	}
+	gts = (ptrbufferMsg)malloc(sizeof(bufferMsg));
+
+	if (gts == NULL) {
+
+		_tprintf(TEXT("Erro a alocar Buffer de Mensagem"));
+		
+		return -1;
+	}
+
+	stg = CriaShareBuffer(stg, nomeSrtoGW);
+	gts = CriaShareBuffer(gts, nomeGwtoSr);
+
+	dadosServidor.comSertoGw = stg;
+	dadosServidor.comGwtoSer = gts;
+	return 0;
+}
+ //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+ //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 // funcao dada nas aulas para posicionar o cursor num determinado sitio;
 void gotoxy(int x, int y) {
 	static HANDLE hStdout = NULL;
@@ -30,7 +97,7 @@ int GestorNavesInimigas(LPVOID navesInimigas) {
 void verificaPosicaoNaves(Nave *naves) {
 
 	for (int i = 0; i < ninimigas; i++) {
-		_tprintf(TEXT("%d,%d\n"), i, naves[i].x, naves[i].y);
+		//_tprintf(TEXT("%d,%d\n"), i, naves[i].x, naves[i].y);_______________________________________________
 	}
 }
 // vai preparar o Ambiente do Jogo
@@ -94,7 +161,7 @@ int InicioJogo( int NumNavesInvasoras) {
 		}
 		ArrayHandleNavesInim[i] = navesInimigas[i].NaveInvasoras;
 		_tprintf(TEXT("\nCriei Thread %d"), i);
-
+		
 	}
 	verificaPosicaoNaves(navesInimigas);
 	WaitForMultipleObjects(ninimigas, ArrayHandleNavesInim, TRUE, INFINITY);
@@ -135,11 +202,12 @@ int IniciarServidor() {
 
 	TCHAR c;
 	
-	gestao_servidor optionServidor;
 
 	_tprintf(TEXT("\n\n Inicializaçao do Servidor\n\n"));
 
 	criaStatusServerRegistry( 1 );
+	
+	criaMemoriaPartilhada();
 /*
 	optionServidor.ComGateway = CreateThread( NULL,
 												 0,
@@ -155,9 +223,9 @@ int IniciarServidor() {
 	
 	if (c == 's' || c == 'S') {
 
-		optionServidor.initJogo.MaxNavesInimigas = ninimigas;
+		dadosServidor.initJogo.MaxNavesInimigas = ninimigas;
 
-		InicioJogo(optionServidor.initJogo.MaxNavesInimigas);
+		InicioJogo(dadosServidor.initJogo.MaxNavesInimigas);
 	}
 	
 	criaStatusServerRegistry (0 );

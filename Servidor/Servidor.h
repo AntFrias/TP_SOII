@@ -17,6 +17,12 @@
 //////////////////////////////////////////////////////////////////////////////////////////////////
 //////////////////////////////////////////////////////////////////////////////////////////////////
 
+//Nome do Buffer Server to Gateway
+TCHAR nomeSrtoGW[] = TEXT("Buffer SrToGw");
+TCHAR nomeGwtoSr[] = TEXT("Buffer GwToSr");
+
+//Tamanho do Buffer de mensagens na memoria partilhada
+#define Buffer_size 32
 //numero de naves inimigas apenas para testes
 #define ninimigas 100
 
@@ -27,15 +33,28 @@
 #define dimMapa_x 20
 #define dimMapa_y 30
 
+typedef struct Packet {
 
-typedef struct MemoriaPartilhada {
+	int tipo;
+	int session_id;
+	int pontuacao;
 
-	HANDLE ptrGWtoServer;
-	HANDLE ptrServertoGW;
-	HANDLE ptrMapJogo;
+	union datPacket
+	{
+		TCHAR nome[10];
+		int movimento;
+		int tiro;
+		//PowerUpp PowerUp;
+	}dataPacket;
 
+}packet;
+// Representaçao do Buffer
+typedef struct BufferMsg {
 
-};
+	packet array[Buffer_size];
+	unsigned int in, out;
+
+}bufferMsg, *ptrbufferMsg;
 
 // Estrutura para ser apagada -> vai para a DLL
 typedef struct nav {
@@ -49,6 +68,7 @@ typedef struct nav {
 
 }Nave;
 
+//////////////////////////////////////////////////////////////////////////////////////////////////
 //////////////////////////////////////////////////////////////////////////////////////////////////
 //////////////////////////////////////////////////////////////////////////////////////////////////
 //////////////////////////////////////////////////////////////////////////////////////////////////
@@ -92,8 +112,11 @@ typedef struct Gestao_servidor{
 	BOOL inicioJogo;
 	confInitJogo initJogo;
 	registryServer ServerUp;
+	bufferMsg *comSertoGw;
+	bufferMsg *comGwtoSer;
 
-}gestao_servidor;
+
+}dataServer;
 
 // extrutura TOP10
 typedef struct Top10 {
