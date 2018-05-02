@@ -1,6 +1,15 @@
 #include "HeaderGateway.h"
 
 
+dataGw dadosGw;
+
+void IniciarGateway() {
+
+	 
+
+
+
+}
 int _tmain(int argc, LPTSTR argv[]) {
 
 #ifdef UNICODE  //UNICODE
@@ -8,7 +17,7 @@ int _tmain(int argc, LPTSTR argv[]) {
 	_setmode(_fileno(stdout), _O_WTEXT);
 #endif	
 	 
-	M teste;
+	
 
 	_tprintf(TEXT("\n\n Inicializaçao do Gateway\n\n"));
 
