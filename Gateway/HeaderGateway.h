@@ -13,6 +13,11 @@
 #include <shellapi.h>
 
 
+
+//prototipos
+
+void IniciarGateway();
+
 typedef struct MemoriaPartilhada {
 
 	HANDLE ptrGWtoServer;
