@@ -258,6 +258,8 @@ void LerBufferGwtoSer() {
 // inicia os servi�os e a configura�ao do Servidor;
 int IniciarServidor() {
 
+	_tprintf(TEXT("\n\conta: %d \n"), sum(1, 1)); 
+
 	dadosServidor.ServidorUp = 1;
 
 	bufferMsg *auxSertoGw;
@@ -305,7 +307,7 @@ int _tmain(int argc, LPTSTR argv[]) {
 	_setmode(_fileno(stdin), _O_WTEXT);
 	_setmode(_fileno(stdout), _O_WTEXT);
 #endif	
-	_tprintf(TEXT("\n\conta: %d \n"), sum(1, 1));
+	
 	IniciarServidor();
 	Sleep(90000);
 	return 0;
