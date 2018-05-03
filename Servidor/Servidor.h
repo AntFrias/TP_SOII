@@ -10,6 +10,7 @@
 #include <malloc.h>
 #include <wchar.h>
 #include <shellapi.h>
+#include <winbase.h>
 
 //////////////////////////////////////////////////////////////////////////////////////////////////
 //////////////////////////////////////////////////////////////////////////////////////////////////
@@ -44,8 +45,8 @@ TCHAR mutexSertoGw[] = TEXT("mutexSertoGw");
 
 typedef struct synbuff {
 
-	HANDLE SemGwLer;
-	HANDLE SemGwEscrever;
+	HANDLE SemGwtoSerPack;
+	HANDLE SemGwtoSerPos;
 	HANDLE MutexGwtoSer;
 
 	HANDLE SemSerLer;
@@ -69,16 +70,16 @@ typedef struct Packet {
 	}dataPacket;
 
 }packet;
-// Representaçao do Buffer
-typedef struct BufferMsg {
+
+typedef struct BufferMsg {						    // Representaçao do Buffer 
 
 	packet array[Buffer_size];
-	unsigned int in, out;
+	int in, out;
 
 }bufferMsg, *ptrbufferMsg;
 
-// Estrutura para ser apagada -> vai para a DLL
-typedef struct nav {
+											
+typedef struct nav {								// Estrutura para ser apagada -> vai para a DLL
 	int tipo;
 	int x, y;
 	int vida;
@@ -94,8 +95,8 @@ typedef struct nav {
 //////////////////////////////////////////////////////////////////////////////////////////////////
 //////////////////////////////////////////////////////////////////////////////////////////////////
 //////////////////////////////////////////////////////////////////////////////////////////////////
-// extrutura Configuraçao Inicial do Jogo
-typedef struct ConfiguracaoInicialJogo {
+
+typedef struct ConfiguracaoInicialJogo {				// extrutura Configuraçao Inicial do Jogo
 
 	int MaxJogadores;
 	int MaxNavesInimigas;
@@ -104,8 +105,8 @@ typedef struct ConfiguracaoInicialJogo {
 	int Vidas;
 }confInitJogo;
 
-// Extrutura Jogador
-typedef struct Jogador_Info {
+
+typedef struct Jogador_Info {							// Extrutura Jogador
 
 	TCHAR nome[10];
 	int pontuacao;
@@ -118,19 +119,20 @@ typedef struct Jogador_Info {
 	//PowerUp Powerup;
 }jogadorinfo;
 
-//extrutura cria registry to put option server on = 1
-typedef struct RegistryServer {
+
+typedef struct RegistryServer {							//extrutura cria registry to put option server on = 1
 
 	HKEY Chave;
 	DWORD statServer, ServerUp;
 	
 }registryServer;
 
-// Extrutura com os dados do servidor;
-typedef struct Gestao_servidor{
+
+typedef struct Gestao_servidor{							// Extrutura com os dados do servidor;
 
 	int NumMaxClientes;
 	BOOL inicioJogo;
+	BOOL ServidorUp;
 	confInitJogo initJogo;
 	registryServer ServerUp;
 	bufferMsg *comSertoGw;
@@ -138,11 +140,10 @@ typedef struct Gestao_servidor{
 	HANDLE hThreadSerToGw;
 	DWORD IdThreadSertoGw;
 
-
 }dataServer;
 
-// extrutura TOP10
-typedef struct Top10 {
+
+typedef struct Top10 {								// extrutura TOP10
 	TCHAR name[10];
 	int	pontuacao;
 }top10;
