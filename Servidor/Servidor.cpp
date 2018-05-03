@@ -30,7 +30,7 @@ int CriaSyncMemoria() {
 		_tprintf(TEXT("Erro ao criar Mutex %s"), mutexGwtoSer);
 		return -1;
 	}
-	return 0
+	return 0;
 }
 
 
