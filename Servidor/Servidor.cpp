@@ -7,7 +7,7 @@
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 
-dataServer dadosServidor;
+dataServer *dadosServidor;
 synBuffer sync;
 
 
@@ -228,9 +228,9 @@ void LeituraPacotesBuffer() {
 
 	Packet PacoteLido;
 
-	int *out = &dadosServidor.comGwtoSer->out;
+	int *out = &dadosServidor->comGwtoSer->out;
 
-	PacoteLido = dadosServidor.comGwtoSer->array[*out];
+	PacoteLido = dadosServidor->comGwtoSer->array[*out];
 
 	TrataPacoteLido(&PacoteLido);
 
@@ -241,7 +241,7 @@ void LeituraPacotesBuffer() {
 // funcao que vai estar a ler do Buffer GwtoSer
 void LerBufferGwtoSer() {
 
-		while (dadosServidor.ServidorUp == 1) {
+		while (dadosServidor->ServidorUp == 1) {
 			
 			WaitForSingleObject(sync.SemGwtoSerPack, INFINITE);
 
@@ -256,7 +256,7 @@ int IniciarServidor() {
 
 	_tprintf(TEXT("\n\conta: %d \n"), sum(1, 1)); 
 
-	dadosServidor.ServidorUp = 1;
+	dadosServidor->ServidorUp = 1;
 
 	bufferMsg *auxSertoGw;
 	bufferMsg *auxGwtoSer;
@@ -271,16 +271,16 @@ int IniciarServidor() {
 
 	criaStatusServerRegistry( 1 );										// cria parametro no Registry para mostrar que o servidor est� 
 	criaMemoriaPartilhada(auxSertoGw, auxGwtoSer);						// cria os Buffers na memoria partilhada
-	dadosServidor.comSertoGw = auxSertoGw;								// APonta os buffers par os pontos na estrutura Gestao do Servidor
-	dadosServidor.comGwtoSer = auxGwtoSer;
+	dadosServidor->comSertoGw = auxSertoGw;								// APonta os buffers par os pontos na estrutura Gestao do Servidor
+	dadosServidor->comGwtoSer = auxGwtoSer;
 	CriaSyncMemoria();													// cria a syncroniza�ao que ser� usada nos Buffers
 																		// inicia a thread que ir� tratar os pedidos enviados pelo GW
-	dadosServidor.hThreadSerToGw = CreateThread( NULL,
+	dadosServidor->hThreadSerToGw = CreateThread( NULL,
 												 0,
 												(LPTHREAD_START_ROUTINE)LerBufferGwtoSer,
 												(LPVOID) NULL,
 												0,
-												&dadosServidor.IdThreadSertoGw);
+												&dadosServidor->IdThreadSertoGw);
 											
 
 		_tprintf(TEXT(" 2.iniciar jogo ? "));
@@ -289,21 +289,27 @@ int IniciarServidor() {
 	
 	if (c == 's' || c == 'S') {
 
-		dadosServidor.initJogo.MaxNavesInimigas = ninimigas;
+		dadosServidor->initJogo.MaxNavesInimigas = ninimigas;
 
-		IniciaNavesInimigas(dadosServidor.initJogo.MaxNavesInimigas);
+		IniciaNavesInimigas(dadosServidor->initJogo.MaxNavesInimigas);
 	}
 	
 	criaStatusServerRegistry (0 );
 	return 0;
 }
+
+void Alocacoes() {
+	dadosServidor = (dataServer*)malloc(sizeof(dataServer));
+}
+
+
 int _tmain(int argc, LPTSTR argv[]) {
 
 #ifdef UNICODE  //UNICODE
 	_setmode(_fileno(stdin), _O_WTEXT);
 	_setmode(_fileno(stdout), _O_WTEXT);
 #endif	
-	
+	Alocacoes();
 	IniciarServidor();
 	Sleep(90000);
 	return 0;
