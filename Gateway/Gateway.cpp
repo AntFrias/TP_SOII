@@ -1,5 +1,7 @@
 #include "HeaderGateway.h"
-
+#include "../AcessoMemDLL/stdafx.h"
+//#include "../x64/Debug/AcessoMemDll.dll"
+#pragma comment(lib, "../x64/Debug/AcessoMemDLL.lib")
 
 dataGw dadosGw;
 
@@ -104,7 +106,10 @@ int _tmain(int argc, LPTSTR argv[]) {
 	_setmode(_fileno(stdin), _O_WTEXT);
 	_setmode(_fileno(stdout), _O_WTEXT);
 #endif	
-	 
+
+	
+	_tprintf(TEXT("\n\conta: %d \n"),sum(1,1));
+
 	IniciarGateway();
 
 	_tprintf(TEXT("\n\n Inicializaçao do Gateway\n\n"));
