@@ -1,4 +1,7 @@
 #include "Servidor.h"
+#include "../AcessoMemDLL/stdafx.h"
+
+#pragma comment(lib, "../x64/Debug/AcessoMemDLL.lib")
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -27,7 +30,7 @@ int CriaSyncMemoria() {
 		_tprintf(TEXT("Erro ao criar Mutex %s"), mutexGwtoSer);
 		return -1;
 	}
-	return 0
+	return 0;
 }
 
 
@@ -187,7 +190,7 @@ int IniciaNavesInimigas( int NumNavesInvasoras) {
 	WaitForMultipleObjects(ninimigas, ArrayHandleNavesInim, TRUE, INFINITY);
 	return 0;
 }
-// inicia os serviços e a configuraçao do Servidor no registry;
+// inicia os serviï¿½os e a configuraï¿½ao do Servidor no registry;
 int criaStatusServerRegistry(int n) {
 
 		registryServer StatServer;
@@ -252,7 +255,7 @@ void LerBufferGwtoSer() {
 
 		}
 }
-// inicia os serviços e a configuraçao do Servidor;
+// inicia os serviï¿½os e a configuraï¿½ao do Servidor;
 int IniciarServidor() {
 
 	dadosServidor.ServidorUp = 1;
@@ -266,14 +269,14 @@ int IniciarServidor() {
 
 	TCHAR c;
 	
-	_tprintf(TEXT("\n\n Inicializaçao do Servidor\n\n"));
+	_tprintf(TEXT("\n\n Inicializaï¿½ao do Servidor\n\n"));
 
-	criaStatusServerRegistry( 1 );										// cria parametro no Registry para mostrar que o servidor está 
+	criaStatusServerRegistry( 1 );										// cria parametro no Registry para mostrar que o servidor estï¿½ 
 	criaMemoriaPartilhada(auxSertoGw, auxGwtoSer);						// cria os Buffers na memoria partilhada
 	dadosServidor.comSertoGw = auxSertoGw;								// APonta os buffers par os pontos na estrutura Gestao do Servidor
 	dadosServidor.comGwtoSer = auxGwtoSer;
-	CriaSyncMemoria();													// cria a syncronizaçao que será usada nos Buffers
-																		// inicia a thread que irá tratar os pedidos enviados pelo GW
+	CriaSyncMemoria();													// cria a syncronizaï¿½ao que serï¿½ usada nos Buffers
+																		// inicia a thread que irï¿½ tratar os pedidos enviados pelo GW
 	dadosServidor.hThreadSerToGw = CreateThread( NULL,
 												 0,
 												(LPTHREAD_START_ROUTINE)LerBufferGwtoSer,
@@ -302,7 +305,7 @@ int _tmain(int argc, LPTSTR argv[]) {
 	_setmode(_fileno(stdin), _O_WTEXT);
 	_setmode(_fileno(stdout), _O_WTEXT);
 #endif	
-
+	_tprintf(TEXT("\n\conta: %d \n"), sum(1, 1));
 	IniciarServidor();
 	Sleep(90000);
 	return 0;
