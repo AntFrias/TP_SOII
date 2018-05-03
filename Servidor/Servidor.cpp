@@ -6,7 +6,33 @@
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
+
 dataServer dadosServidor;
+synBuffer sync;
+
+
+int CriaSyncMemoria() {
+
+	sync.SemGwtoSerPack = CreateSemaphore(NULL, 0, Buffer_size, semGwLer);
+	if (sync.SemGwtoSerPack == NULL) {
+		_tprintf(TEXT("Erro ao criar Semaforo %s"), semGwLer);
+		return -1;
+	}
+
+	sync.SemGwtoSerPos = CreateSemaphore(NULL, 0, Buffer_size, semGwEscrever);
+	if (sync.SemGwtoSerPos == NULL) {
+		_tprintf(TEXT("Erro ao criar Semaforo %s"), semGwEscrever);
+		return -1;
+	}
+
+	sync.MutexGwtoSer = CreateMutex(NULL, 1, mutexGwtoSer);
+	if (sync.MutexGwtoSer == NULL) {
+		_tprintf(TEXT("Erro ao criar Mutex %s"), mutexGwtoSer);
+		return -1;
+	}
+	return 0;
+}
+
 
 void CriaMapViewer(){
 
@@ -20,6 +46,7 @@ ptrbufferMsg CriaShareBuffer(HANDLE hBuffer, LPCTSTR nomeBuffer) {
 
 	 //criar a memoria partilhada 
 	 hBuffer = CreateFileMapping(INVALID_HANDLE_VALUE, NULL, PAGE_READWRITE, 0, sizeof(bufferMsg), nomeBuffer );
+
 	 if (hBuffer == NULL) {
 		 _tprintf(TEXT("\nErro a criar Buffer %s na memoria Partilhada "), nomeBuffer);
 	 }
@@ -28,11 +55,14 @@ ptrbufferMsg CriaShareBuffer(HANDLE hBuffer, LPCTSTR nomeBuffer) {
 	 }
 	 // mapear a memoria para a mensagem
 	 auxBuffer = (ptrbufferMsg)MapViewOfFile(hBuffer, FILE_MAP_WRITE, 0, 0, sizeof(bufferMsg));
+
 	 if (auxBuffer == NULL) {
+
 		 _tprintf(TEXT("Erro a mapear Buffer de mensagem"));
 	 }
 	 
 	 auxBuffer->in = Buffer_size;
+
 	 auxBuffer->out = 0;
 
 		 return auxBuffer;
@@ -61,6 +91,7 @@ int criaMemoriaPartilhada(ptrbufferMsg stg, ptrbufferMsg gts) {
 	}
 
 	stg = CriaShareBuffer(stg, nomeSrtoGW);
+
 	gts = CriaShareBuffer(gts, nomeGwtoSr);
 
 	return 0;
@@ -87,11 +118,10 @@ int GestorNavesInimigas(LPVOID navesInimigas) {
 
 	do {
 
-		Sleep(1000);
 		naveInimiga->vida--;
 		
 	} while (naveInimiga->vida > 0);
-	_tprintf(TEXT(" MORRI  %d"), GetCurrentThreadId());
+
 	return 0;
 }
 // vai preparar o Ambiente do Jogo
@@ -160,7 +190,7 @@ int IniciaNavesInimigas( int NumNavesInvasoras) {
 	WaitForMultipleObjects(ninimigas, ArrayHandleNavesInim, TRUE, INFINITY);
 	return 0;
 }
-// inicia os serviços e a configuraçao do Servidor no registry;
+// inicia os serviï¿½os e a configuraï¿½ao do Servidor no registry;
 int criaStatusServerRegistry(int n) {
 
 		registryServer StatServer;
@@ -181,28 +211,56 @@ int criaStatusServerRegistry(int n) {
 		return 0;
 	}
 
-// Funcao que vai ficar a ler os pacotes do Buffer --> GwtoSer
+void MostraNome(TCHAR nome[10]) {
 
-void LerPacote(Packet *Pacote) {
-
-		
+	_tprintf(TEXT("\n\nMensagem recebida: %s"), nome);
 
 }
-void LerBufferGwtoSer(LPVOID Pacote) {
+// Funcao que vai fazer o tratamento de pacotes
+void TrataPacoteLido(Packet *PacoteaTratar) {
 
-	Packet *auxPacote;
+	switch (PacoteaTratar->tipo) {
 
-	auxPacote = (Packet*)Pacote;
-		
-	//auxPacote->
-	//auxPacote->
-	while (1) {
+	case 1:
+		MostraNome(PacoteaTratar->dataPacket.nome);
 
-		LerPacote(auxPacote);
 	}
 }
-// inicia os serviços e a configuraçao do Servidor;
+// Funcao que vai ficar a ler os pacotes do Buffer --> GwtoSer
+void LeituraPacotesBuffer(int *out) {
+
+	Packet PacoteLido;
+
+	PacoteLido = dadosServidor.comGwtoSer->array[*out];
+
+	TrataPacoteLido(&PacoteLido);
+
+	*out = *out == Buffer_size - 1 ? 0 : *out + 1;
+
+}
+// funcao que vai estar a ler do Buffer GwtoSer
+void LerBufferGwtoSer() {
+
+	int out;
+
+	dadosServidor.comGwtoSer->out = 0;
+
+		while (dadosServidor.ServidorUp == 1) {
+			
+			WaitForSingleObject(sync.SemGwtoSerPack, INFINITE);
+
+			LeituraPacotesBuffer(&dadosServidor.comGwtoSer->out);
+
+			ReleaseSemaphore(sync.SemSerEscrever, 1 , NULL);
+
+		}
+}
+// inicia os serviï¿½os e a configuraï¿½ao do Servidor;
 int IniciarServidor() {
+
+	_tprintf(TEXT("\n\conta: %d \n"), sum(1, 1)); 
+
+	dadosServidor.ServidorUp = 1;
 
 	bufferMsg *auxSertoGw;
 	bufferMsg *auxGwtoSer;
@@ -213,18 +271,18 @@ int IniciarServidor() {
 
 	TCHAR c;
 	
-	_tprintf(TEXT("\n\n Inicializaçao do Servidor\n\n"));
+	_tprintf(TEXT("\n\n Inicializaï¿½ao do Servidor\n\n"));
 
-	criaStatusServerRegistry( 1 );
-	
-	criaMemoriaPartilhada(auxSertoGw, auxGwtoSer);
-	dadosServidor.comSertoGw = auxSertoGw;
+	criaStatusServerRegistry( 1 );										// cria parametro no Registry para mostrar que o servidor estï¿½ 
+	criaMemoriaPartilhada(auxSertoGw, auxGwtoSer);						// cria os Buffers na memoria partilhada
+	dadosServidor.comSertoGw = auxSertoGw;								// APonta os buffers par os pontos na estrutura Gestao do Servidor
 	dadosServidor.comGwtoSer = auxGwtoSer;
-
+	CriaSyncMemoria();													// cria a syncronizaï¿½ao que serï¿½ usada nos Buffers
+																		// inicia a thread que irï¿½ tratar os pedidos enviados pelo GW
 	dadosServidor.hThreadSerToGw = CreateThread( NULL,
 												 0,
 												(LPTHREAD_START_ROUTINE)LerBufferGwtoSer,
-												(LPVOID)&auxPacote,
+												(LPVOID) NULL,
 												0,
 												&dadosServidor.IdThreadSertoGw);
 											
@@ -249,7 +307,7 @@ int _tmain(int argc, LPTSTR argv[]) {
 	_setmode(_fileno(stdin), _O_WTEXT);
 	_setmode(_fileno(stdout), _O_WTEXT);
 #endif	
-	_tprintf(TEXT("\n\conta: %d \n"), sum(1, 1));
+	
 	IniciarServidor();
 	Sleep(90000);
 	return 0;
