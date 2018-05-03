@@ -2,7 +2,7 @@
 #include "../AcessoMemDLL/stdafx.h"
 #pragma comment(lib, "../x64/Debug/AcessoMemDLL.lib")
 
-dataGw dadosGw;
+dataGw *dadosGw;
 synBuffer sync;
 
 int CriaSyncMemoria() {
@@ -75,15 +75,18 @@ int criaMemoriaPartilhada(ptrbufferMsg stg, ptrbufferMsg gts) { // funcao que va
 	return 0;
 }
 void escreveNoBuffer(Packet *pacoteParaEscrita) {
-
-	int *in = &dadosGw.comGwtoSer->in;
-
-	dadosGw.comGwtoSer->array[*in] = *pacoteParaEscrita;
-
+	
+	int *in = &dadosGw->comGwtoSer->in;
+	_tprintf(TEXT("ui2\n"));
+	
+	dadosGw->comGwtoSer->array[*in] = *pacoteParaEscrita;
+	_tprintf(TEXT("ui3\n"));
 	EnterCriticalSection(&sync.MutexGwtoSer);
+	
 	*in = *in == Buffer_size - 1 ? 0 : *in + 1;
+	
 	LeaveCriticalSection(&sync.MutexGwtoSer);
-		
+	
 }
 void escrevebufferGwToSr(LPVOID pacote) {
 
@@ -96,18 +99,17 @@ void escrevebufferGwToSr(LPVOID pacote) {
 	auxPacote->dataPacket.nome;
 
 	do {
-		_tprintf(TEXT("NOME\n"));
-		_tprintf(TEXT("ai\n"));
+		
 		_fgetts(auxPacote->dataPacket.nome, 10,stdin);
-		_tprintf(TEXT("ai2\n"));
+		
 		auxPacote->tipo = 1;
-		_tprintf(TEXT("ai3\n"));
+		
 		WaitForSingleObject(sync.SemGwtoSerPos, INFINITE);
-		_tprintf(TEXT("ai4\n"));
+		
 		escreveNoBuffer(auxPacote);
-		_tprintf(TEXT("ai5\n"));
+		
 		ReleaseSemaphore(sync.SemGwtoSerPack, 1, NULL);
-		_tprintf(TEXT("ai6\n"));
+		
 	} while (1);
 	
 }
@@ -123,14 +125,17 @@ void IniciarGateway() {
 
 	criaMemoriaPartilhada(auxSertoGw, auxGwtoSer);
 
-	dadosGw.comSertoGw = auxSertoGw;
-	dadosGw.comGwtoSer = auxGwtoSer;
+	dadosGw->comSertoGw = auxSertoGw;
+	dadosGw->comGwtoSer = auxGwtoSer;
 
 	//criar a thread que vai "escrever no buffer"
-	dadosGw.hThreadGwtoSer = CreateThread(NULL,0,(LPTHREAD_START_ROUTINE)escrevebufferGwToSr,(LPVOID)&auxPacote,0,&dadosGw.idThreadGwtoSer);
+	dadosGw->hThreadGwtoSer = CreateThread(NULL,0,(LPTHREAD_START_ROUTINE)escrevebufferGwToSr,(LPVOID)&auxPacote,0,&dadosGw->idThreadGwtoSer);
 	//todo esperar que as threads todas terminem
 
 
+}
+void Alocacoes() {
+	dadosGw = (dataGw*) malloc(sizeof(dataGw));
 }
 int _tmain(int argc, LPTSTR argv[]) {
 
@@ -141,7 +146,7 @@ int _tmain(int argc, LPTSTR argv[]) {
 
 	
 	_tprintf(TEXT("\nconta: %d \n"),sum(1,1));
-
+	Alocacoes();
 	IniciarGateway();
 
 	_tprintf(TEXT("\n\n Inicializaçao do Gateway\n\n"));
