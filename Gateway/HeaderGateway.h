@@ -35,17 +35,16 @@ void IniciarGateway();
 //Estruturas
 
 typedef struct synbuff {
-	 
-	HANDLE SemGwLer;
-	HANDLE SemGwEscrever;
-	HANDLE MutexGwtoSer;
-	
+
+	HANDLE SemGwtoSerPack;
+	HANDLE SemGwtoSerPos;
+	CRITICAL_SECTION MutexGwtoSer;
+
 	HANDLE SemSerLer;
 	HANDLE SemSerEscrever;
-	HANDLE MutexSertoGw;
+	CRITICAL_SECTION MutexSertoGw;
 
 }synBuffer;
-
 
 
 typedef struct Packet {
@@ -67,7 +66,7 @@ typedef struct Packet {
 typedef struct BufferMsg {
 
 	packet array[Buffer_size];
-	unsigned int in, out;
+	int in, out;
 
 }bufferMsg, *ptrbufferMsg;
 

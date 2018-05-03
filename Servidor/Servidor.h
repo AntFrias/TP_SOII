@@ -47,11 +47,11 @@ typedef struct synbuff {
 
 	HANDLE SemGwtoSerPack;
 	HANDLE SemGwtoSerPos;
-	HANDLE MutexGwtoSer;
+	CRITICAL_SECTION MutexGwtoSer;
 
 	HANDLE SemSerLer;
 	HANDLE SemSerEscrever;
-	HANDLE MutexSertoGw;
+	CRITICAL_SECTION MutexSertoGw;
 
 }synBuffer;
 
