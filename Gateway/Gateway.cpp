@@ -3,7 +3,26 @@
 #pragma comment(lib, "../x64/Debug/AcessoMemDLL.lib")
 
 dataGw dadosGw;
+synBuffer sync;
 
+int CriaSyncMemoria() {
+
+	sync.SemGwtoSerPack = CreateSemaphore(NULL, 0, Buffer_size, semGwLer);
+	if (sync.SemGwtoSerPack == NULL) {
+		_tprintf(TEXT("Erro ao criar Semaforo %s"), semGwLer);
+		return -1;
+	}
+
+	sync.SemGwtoSerPos = CreateSemaphore(NULL, 0, Buffer_size, semGwEscrever);
+	if (sync.SemGwtoSerPos == NULL) {
+		_tprintf(TEXT("Erro ao criar Semaforo %s"), semGwEscrever);
+		return -1;
+	}
+
+	InitializeCriticalSection(&sync.MutexGwtoSer);
+
+	return 0;
+}
 ptrbufferMsg CriaShareBuffer(HANDLE hBuffer, LPCTSTR nomeBuffer) {  // cria Buffer na memoria partilhada 
 
 	ptrbufferMsg auxBuffer;
@@ -57,9 +76,14 @@ int criaMemoriaPartilhada(ptrbufferMsg stg, ptrbufferMsg gts) { // funcao que va
 }
 void escreveNoBuffer(Packet *pacoteParaEscrita) {
 
-	// função que escreve no buffer
+	int *in = &dadosGw.comGwtoSer->in;
 
+	dadosGw.comGwtoSer->array[*in] = *pacoteParaEscrita;
 
+	EnterCriticalSection(&sync.MutexGwtoSer);
+	*in = *in == Buffer_size - 1 ? 0 : *in + 1;
+	LeaveCriticalSection(&sync.MutexGwtoSer);
+		
 }
 void escrevebufferGwToSr(LPVOID pacote) {
 
@@ -71,12 +95,21 @@ void escrevebufferGwToSr(LPVOID pacote) {
 
 	auxPacote->dataPacket.nome;
 
-	_tprintf(TEXT("escreve coias"));
+	do {
+		_tprintf(TEXT("NOME\n"));
+		_tprintf(TEXT("ai\n"));
+		_fgetts(auxPacote->dataPacket.nome, 10,stdin);
+		_tprintf(TEXT("ai2\n"));
+		auxPacote->tipo = 1;
+		_tprintf(TEXT("ai3\n"));
+		WaitForSingleObject(sync.SemGwtoSerPos, INFINITE);
+		_tprintf(TEXT("ai4\n"));
+		escreveNoBuffer(auxPacote);
+		_tprintf(TEXT("ai5\n"));
+		ReleaseSemaphore(sync.SemGwtoSerPack, 1, NULL);
+		_tprintf(TEXT("ai6\n"));
+	} while (1);
 	
-	escreveNoBuffer(auxPacote);
-
-
-
 }
 
 void IniciarGateway() {
@@ -107,7 +140,7 @@ int _tmain(int argc, LPTSTR argv[]) {
 #endif	
 
 	
-	_tprintf(TEXT("\n\conta: %d \n"),sum(1,1));
+	_tprintf(TEXT("\nconta: %d \n"),sum(1,1));
 
 	IniciarGateway();
 
