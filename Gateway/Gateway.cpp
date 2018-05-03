@@ -1,6 +1,5 @@
 #include "HeaderGateway.h"
 #include "../AcessoMemDLL/stdafx.h"
-//#include "../x64/Debug/AcessoMemDll.dll"
 #pragma comment(lib, "../x64/Debug/AcessoMemDLL.lib")
 
 dataGw dadosGw;
