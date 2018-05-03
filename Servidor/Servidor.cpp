@@ -25,11 +25,8 @@ int CriaSyncMemoria() {
 		return -1;
 	}
 
-	sync.MutexGwtoSer = CreateMutex(NULL, 1, mutexGwtoSer);
-	if (sync.MutexGwtoSer == NULL) {
-		_tprintf(TEXT("Erro ao criar Mutex %s"), mutexGwtoSer);
-		return -1;
-	}
+	InitializeCriticalSection(&sync.MutexGwtoSer);
+
 	return 0;
 }
 
@@ -227,31 +224,30 @@ void TrataPacoteLido(Packet *PacoteaTratar) {
 	}
 }
 // Funcao que vai ficar a ler os pacotes do Buffer --> GwtoSer
-void LeituraPacotesBuffer(int *out) {
+void LeituraPacotesBuffer() {
 
 	Packet PacoteLido;
+
+	int *out = &dadosServidor.comGwtoSer->out;
 
 	PacoteLido = dadosServidor.comGwtoSer->array[*out];
 
 	TrataPacoteLido(&PacoteLido);
 
+	EnterCriticalSection(&sync.MutexGwtoSer);
 	*out = *out == Buffer_size - 1 ? 0 : *out + 1;
-
+	LeaveCriticalSection(&sync.MutexGwtoSer);
 }
 // funcao que vai estar a ler do Buffer GwtoSer
 void LerBufferGwtoSer() {
-
-	int out;
-
-	dadosServidor.comGwtoSer->out = 0;
 
 		while (dadosServidor.ServidorUp == 1) {
 			
 			WaitForSingleObject(sync.SemGwtoSerPack, INFINITE);
 
-			LeituraPacotesBuffer(&dadosServidor.comGwtoSer->out);
+			LeituraPacotesBuffer();
 
-			ReleaseSemaphore(sync.SemSerEscrever, 1 , NULL);
+			ReleaseSemaphore(sync.SemGwtoSerPos, 1 , NULL);
 
 		}
 }
