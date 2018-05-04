@@ -13,8 +13,7 @@
 #include <shellapi.h>
 
 //Define
-#define Buffer_size 32
-
+#define Buffer_size 32 
 TCHAR nomeGwtoSr[] = TEXT("Buffer GwToSr");
 TCHAR nomeSrtoGW[] = TEXT("Buffer SrToGw");
 
@@ -36,8 +35,8 @@ void IniciarGateway();
 
 typedef struct synbuff {
 
-	HANDLE SemGwtoSerPack;
-	HANDLE SemGwtoSerPos;
+	HANDLE SemGwtoServComItem;
+	HANDLE SemGwtoServSemItem;
 	CRITICAL_SECTION MutexGwtoSer;
 
 	HANDLE SemSerLer;
@@ -66,7 +65,9 @@ typedef struct Packet {
 typedef struct BufferMsg {
 
 	packet array[Buffer_size];
-	int in, out;
+	//packet array;
+	int tail;
+	int head;
 
 }bufferMsg, *ptrbufferMsg;
 
@@ -77,7 +78,6 @@ typedef struct Gestao_gateway {
 	HANDLE hThreadGwtoSer;
 	DWORD idThreadGwtoSer;
 	bufferMsg *comSertoGw;
-	bufferMsg *comGwtoSer;
-
+	bufferMsg *comGwtoSer; 
 
 }dataGw;

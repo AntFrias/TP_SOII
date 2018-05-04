@@ -1,20 +1,34 @@
 #include "HeaderGateway.h"
 #include "../AcessoMemDLL/stdafx.h"
 #pragma comment(lib, "../x64/Debug/AcessoMemDLL.lib")
+int * global_int;
+BufferMsg * auxbuff;
+
 
 dataGw *dadosGw;
 synBuffer sync;
 
 int CriaSyncMemoria() {
 
-	sync.SemGwtoSerPack = CreateSemaphore(NULL, 0, Buffer_size, semGwLer);
-	if (sync.SemGwtoSerPack == NULL) {
+
+
+	_tprintf(TEXT("\nVAI CRIAR O SEMAPHORE :  %s"), semGwLer);
+
+
+	sync.SemGwtoServComItem = CreateSemaphore(NULL, 0, Buffer_size, semGwLer);
+	if (sync.SemGwtoServComItem == NULL) {
 		_tprintf(TEXT("Erro ao criar Semaforo %s"), semGwLer);
 		return -1;
 	}
 
-	sync.SemGwtoSerPos = CreateSemaphore(NULL, Buffer_size, Buffer_size, semGwEscrever);
-	if (sync.SemGwtoSerPos == NULL) {
+
+
+
+	_tprintf(TEXT("\nVAI CRIAR O SEMAPHORE :  %s"), semGwEscrever);
+
+
+	sync.SemGwtoServSemItem = CreateSemaphore(NULL, Buffer_size, Buffer_size, semGwEscrever);
+	if (sync.SemGwtoServSemItem == NULL) {
 		_tprintf(TEXT("Erro ao criar Semaforo %s"), semGwEscrever);
 		return -1;
 	}
@@ -22,10 +36,10 @@ int CriaSyncMemoria() {
 	
 	return 0;
 }
-ptrbufferMsg CriaShareBuffer(HANDLE hBuffer, LPCTSTR nomeBuffer) {  // cria Buffer na memoria partilhada 
+ptrbufferMsg CriaShareBuffer(HANDLE hBuffer2, LPCTSTR nomeBuffer) {  // cria Buffer na memoria partilhada 
 
 	ptrbufferMsg auxBuffer;
-
+	HANDLE hBuffer;
 	//criar a memoria partilhada 
 	hBuffer = CreateFileMapping(INVALID_HANDLE_VALUE, NULL, PAGE_READWRITE, 0, sizeof(bufferMsg), nomeBuffer);
 	if (hBuffer == NULL) {
@@ -35,15 +49,18 @@ ptrbufferMsg CriaShareBuffer(HANDLE hBuffer, LPCTSTR nomeBuffer) {  // cria Buff
 		_tprintf(TEXT("\nEste buffer -> %s ja foi criado\n"),nomeBuffer);
 	}
 	// mapear a memoria para a mensagem
-	auxBuffer = (ptrbufferMsg)MapViewOfFile(hBuffer, FILE_MAP_WRITE, 0, 0, sizeof(bufferMsg));
-	if (auxBuffer == NULL) {
+	//auxBuffer = (ptrbufferMsg)MapViewOfFile(hBuffer, FILE_MAP_WRITE, 0, 0, sizeof(bufferMsg));
+	dadosGw->comGwtoSer = (ptrbufferMsg)MapViewOfFile(hBuffer, FILE_MAP_WRITE, 0, 0, sizeof(bufferMsg));
+	if (dadosGw->comGwtoSer  == NULL) {
 		_tprintf(TEXT("Erro a mapear Buffer de mensagem"));
 	}
 
-	auxBuffer->in = Buffer_size;
-	auxBuffer->out = 0;
+	//dadosGw->comGwtoSer->tail  = 0; 
+	dadosGw->comGwtoSer->head = Buffer_size;
+	//auxBuffer->in = Buffer_size;
+	//auxBuffer->out = 0;
 
-	return auxBuffer;
+	return NULL;
 
 }
 
@@ -51,33 +68,30 @@ int criaMemoriaPartilhada(ptrbufferMsg *stg, ptrbufferMsg *gts) { // funcao que 
 
 	//ptrbufferMsg stg, gts;
 
-	*stg = CriaShareBuffer(&stg, nomeSrtoGW);
+	//*stg = CriaShareBuffer(&stg, nomeSrtoGW);
 	*gts = CriaShareBuffer(&gts, nomeGwtoSr);
 
 	return 0;
 }
 void escreveNoBuffer(Packet *pacoteParaEscrita) {
-	
-	int *out = &dadosGw->comGwtoSer->out; //change
-	int *in = &dadosGw->comGwtoSer->in;
+/*	++dadosGw->comGwtoSer->head;
+	int head = dadosGw->comGwtoSer->head; //change
+	int tail = dadosGw->comGwtoSer->tail;
 
-	dadosGw->comGwtoSer->array[*in] = *pacoteParaEscrita;
+	//EnterCriticalSection(&sync.MutexGwtoSer);
+
+			dadosGw->comGwtoSer->array[tail] = *pacoteParaEscrita; 
+			//	strcpy_s(dadosGw->comGwtoSer->array[tail].dataPacket.nome, pacoteParaEscrita->dataPacket.nome); 
+			_tprintf(TEXT("\n   head = %d   \n"), dadosGw->comGwtoSer->head);
+			_tprintf(TEXT("\naquiwewrewrewrewrew\n"));
+			//*in = *in == Buffer_size - 1 ? 0 : *in += 1;
 	
-	EnterCriticalSection(&sync.MutexGwtoSer);
-	_tprintf(TEXT("\naquiwewrewrewrewrew\n"));
-	//*in = *in == Buffer_size - 1 ? 0 : *in += 1;
-	
-	if (dadosGw->comGwtoSer->out < Buffer_size - 2) {
-		*out += 1 ;
-	
-		_tprintf(TEXT("OUT: %d\n"), *out);
-	}else if (*out == Buffer_size - 2) {
-		_tprintf(TEXT("bUFFER CHEIO\n"));
-		*out = *in;
-		*in = 0;
-	}
-	
-	LeaveCriticalSection(&sync.MutexGwtoSer);
+			/*if (dadosGw->comGwtoSer->head == Buffer_size)
+				dadosGw->comGwtoSer->head = dadosGw->comGwtoSer->tail;
+
+			dadosGw->comGwtoSer->tail = ++dadosGw->comGwtoSer->tail % Buffer_size;
+			*/
+	//LeaveCriticalSection(&sync.MutexGwtoSer);
 	
 	
 	_tprintf(TEXT("5\n"));
@@ -87,24 +101,26 @@ void escrevebufferGwToSr(LPVOID pacote) {
 
 	int x = 10;
 
-	Packet *auxPacote = (Packet*)pacote;
-
-	auxPacote->tipo = 1;
-
-	auxPacote->dataPacket.nome;
-	dadosGw->comGwtoSer->in = 0;
+	
 	
 	do {
+		 Packet auxPacote;// = (Packet*)pacote;
+
+		//auxPacote.tipo = 1;
+
+		//auxPacote.dataPacket.nome;
+
+		_fgetts(auxPacote.dataPacket.nome, 10,stdin);
 		
-		_fgetts(auxPacote->dataPacket.nome, 10,stdin);
+		///auxPacote.tipo = x++;
+		auxbuff->head++;
+
+		WaitForSingleObject(sync.SemGwtoServSemItem, INFINITE);
 		
-		auxPacote->tipo = 1;
+		//escreveNoBuffer(&auxPacote);
+		_tprintf(TEXT(" global_int = %d \n "), auxbuff->head);
 		
-		WaitForSingleObject(sync.SemGwtoSerPos, INFINITE);
-		
-		escreveNoBuffer(auxPacote);
-		
-		ReleaseSemaphore(sync.SemGwtoSerPack, 1, NULL);
+		ReleaseSemaphore(sync.SemGwtoServComItem, 1, NULL);
 		
 	} while (1);
 	
@@ -116,18 +132,19 @@ void IniciarGateway() {
 	bufferMsg *auxGwtoSer;
 	Packet auxPacote;
 
-	auxSertoGw = (ptrbufferMsg)malloc(sizeof(bufferMsg));
+	/*auxSertoGw = (ptrbufferMsg)malloc(sizeof(bufferMsg));
 	auxGwtoSer = (ptrbufferMsg)malloc(sizeof(bufferMsg));
+	*/
 
-	criaMemoriaPartilhada(&auxSertoGw, &auxGwtoSer);
+	//criaMemoriaPartilhada(&auxSertoGw, &auxGwtoSer);
 
-	dadosGw->comSertoGw = auxSertoGw;
-	dadosGw->comGwtoSer = auxGwtoSer;
+	/*dadosGw->comSertoGw = auxSertoGw;
+	dadosGw->comGwtoSer = auxGwtoSer;*/
 
-	_tprintf(TEXT("\n\n%d"), dadosGw->comGwtoSer->in);
-	_tprintf(TEXT("\n\n%d"), dadosGw->comGwtoSer->out);
+	//_tprintf(TEXT("\n\n%d"), dadosGw->comGwtoSer->tail);
+	//_tprintf(TEXT("\n\n%d"), dadosGw->comGwtoSer->head);
 
-	//CriaSyncMemoria();
+	CriaSyncMemoria();
 
 	//criar a thread que vai "escrever no buffer"
 	dadosGw->hThreadGwtoSer = CreateThread(NULL,0,(LPTHREAD_START_ROUTINE)escrevebufferGwToSr,(LPVOID)&auxPacote,0,&dadosGw->idThreadGwtoSer);
@@ -138,6 +155,42 @@ void IniciarGateway() {
 void Alocacoes() {
 	dadosGw = (dataGw*) malloc(sizeof(dataGw));
 }
+
+
+bufferMsg * createSharedINT(HANDLE hMemory, LPCTSTR shareMemName)
+{
+	bufferMsg * ptrInt;
+
+	//shared memory				 
+	hMemory = CreateFileMapping(INVALID_HANDLE_VALUE, NULL, PAGE_READWRITE, 0, sizeof(bufferMsg), shareMemName);
+
+	if (hMemory == NULL) {
+		_tprintf(TEXT("\t[ERROR] Unable to create MsgSystem file mapping (%d)\n"), GetLastError());
+		return NULL;
+	}
+	else if (GetLastError() == ERROR_ALREADY_EXISTS)
+	{
+		_tprintf(TEXT("\t[OK] MessageSystem already exists (%d)\n"), GetLastError());
+	}
+
+	// Map the memory
+	ptrInt = (bufferMsg *)MapViewOfFile(hMemory, FILE_MAP_WRITE, 0, 0, sizeof(bufferMsg));
+
+	if (ptrInt == NULL)
+	{
+		_tprintf(TEXT("\t[ERROR] Unable to create shared MsgSystem (%d)\n"), GetLastError());
+		return NULL;
+	} 
+
+	return ptrInt;
+}
+
+
+ 
+
+
+
+
 int _tmain(int argc, LPTSTR argv[]) {
 
 #ifdef UNICODE  //UNICODE
@@ -145,14 +198,26 @@ int _tmain(int argc, LPTSTR argv[]) {
 	_setmode(_fileno(stdout), _O_WTEXT);
 #endif	
 
-	
-	_tprintf(TEXT("\nconta: %d \n"),sum(1,1));
-	InitializeCriticalSection(&sync.MutexGwtoSer);
+	_tprintf(TEXT("side of packet %d "), sizeof(Packet));
 	Alocacoes();
+
+	HANDLE HtoIntSHR = NULL;
+
+	auxbuff = createSharedINT(HtoIntSHR, TEXT("SHRED_INT"));
+	auxbuff->head = 0;
+
+	_tprintf(TEXT("\nconta: %d \n shared int created \n"),sum(1,1));
+
+
+	InitializeCriticalSection(&sync.MutexGwtoSer);
+	
 	IniciarGateway();
+
+
+
 
 	_tprintf(TEXT("\n\n Inicializaçao do Gateway\n\n"));
 
-	Sleep(90000);
+	Sleep(190000);
 	return 0;
 }
