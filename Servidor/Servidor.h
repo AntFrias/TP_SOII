@@ -45,8 +45,8 @@ TCHAR mutexSertoGw[] = TEXT("mutexSertoGw");
 
 typedef struct synbuff {
 
-	HANDLE SemGwtoSerPack;
-	HANDLE SemGwtoSerPos;
+	HANDLE SemGwtoServComItem;
+	HANDLE SemGwtoServSemItem;
 	CRITICAL_SECTION MutexGwtoSer;
 
 	HANDLE SemSerLer;
@@ -71,10 +71,12 @@ typedef struct Packet {
 
 }packet;
 
-typedef struct BufferMsg {						    // Representaçao do Buffer 
+typedef struct BufferMsg {
 
 	packet array[Buffer_size];
-	int in, out;
+	//packet arrays;
+	int tail;
+	int head;
 
 }bufferMsg, *ptrbufferMsg;
 
