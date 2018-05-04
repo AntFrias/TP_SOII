@@ -63,19 +63,19 @@ void escreveNoBuffer(Packet *pacoteParaEscrita) {
 	int tail = dadosGw.comGwtoSer->tail;
 
 	EnterCriticalSection(&sync.MutexGwtoSer);
-
+	
 				dadosGw.comGwtoSer->array[tail] = *pacoteParaEscrita;
 			
 				wcscpy_s(dadosGw.comGwtoSer->array[tail].dataPacket.nome,pacoteParaEscrita->dataPacket.nome);
 			 
-				//_tprintf(TEXT("\n   head = %d tail =%d  \n"), dadosGw.comGwtoSer->head, dadosGw.comGwtoSer->tail);
+		
 			
 
 				if (dadosGw.comGwtoSer->head == Buffer_size)
 					dadosGw.comGwtoSer->head = dadosGw.comGwtoSer->tail;
 
 				dadosGw.comGwtoSer->tail = ++dadosGw.comGwtoSer->tail % Buffer_size;
-				_tprintf(TEXT("\n   head = %d tail =%d  \n"), dadosGw.comGwtoSer->head, dadosGw.comGwtoSer->tail);
+			
 	LeaveCriticalSection(&sync.MutexGwtoSer);
 	
 }

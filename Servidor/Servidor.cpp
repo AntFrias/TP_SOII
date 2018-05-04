@@ -194,28 +194,32 @@ void LerBufferGwtoSer() {
 	
 		Packet PacoteLido;
 
-		int head = dadosServidor.comGwtoSer->head;
-		int tail = dadosServidor.comGwtoSer->tail;
+		
 		
 		EnterCriticalSection(&sync.MutexGwtoSer);
 
 
 				while (1) {
-			
+
+					int head = dadosServidor.comGwtoSer->tail;
+					int tail = dadosServidor.comGwtoSer->head;
+
+					
+					
 					WaitForSingleObject(sync.SemGwtoServComItem, INFINITE);
 
-							PacoteLido = dadosServidor.comGwtoSer->array[head];
+							PacoteLido = dadosServidor.comGwtoSer->array[head]; //head
 							
 							_tprintf(TEXT("\n\nMensagem recebida: %s"),dadosServidor.comGwtoSer->array[head].dataPacket.nome);
 							//TrataPacoteLido(PacoteLido);
-							//tprintf(TEXT("\n   head = %d tail =%d  \n"), dadosServidor.comGwtoSer->head, dadosServidor.comGwtoSer->tail);//para debug
+							
 
 							dadosServidor.comGwtoSer->head = ++dadosServidor.comGwtoSer->head % Buffer_size;
 
 							if (dadosServidor.comGwtoSer->head == dadosServidor.comGwtoSer->tail) {
 								dadosServidor.comGwtoSer->head = Buffer_size;
 							}
-							_tprintf(TEXT("\n   head = %d tail =%d  \n"), dadosServidor.comGwtoSer->head, dadosServidor.comGwtoSer->tail);//para debug
+							
 					ReleaseSemaphore(sync.SemGwtoServSemItem, 1 , NULL);
 				}
 
