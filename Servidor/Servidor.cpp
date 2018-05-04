@@ -2,25 +2,27 @@
 #include "../AcessoMemDLL/stdafx.h"
 
 #pragma comment(lib, "../x64/Debug/AcessoMemDLL.lib")
-//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-
-dataServer *dadosServidor;
+dataServer dadosServidor;
 synBuffer sync;
-
+//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 int CriaSyncMemoria() {
 
-	sync.SemGwtoSerPack = CreateSemaphore(NULL, 0, Buffer_size, semGwLer);
-	if (sync.SemGwtoSerPack == NULL) {
+	_tprintf(TEXT("\nVAI CRIAR O SEMAPHORE :  %s"), semGwLer);
+
+	sync.SemGwtoServComItem = CreateSemaphore(NULL, 0, Buffer_size, semGwLer);
+	if (sync.SemGwtoServComItem == NULL) {
 		_tprintf(TEXT("Erro ao criar Semaforo %s"), semGwLer);
 		return -1;
 	}
 
-	sync.SemGwtoSerPos = CreateSemaphore(NULL, Buffer_size, Buffer_size, semGwEscrever);
-	if (sync.SemGwtoSerPos == NULL) {
+	_tprintf(TEXT("\nVAI CRIAR O SEMAPHORE :  %s"), semGwEscrever);
+
+	sync.SemGwtoServSemItem = CreateSemaphore(NULL, Buffer_size, Buffer_size, semGwEscrever);
+	if (sync.SemGwtoServSemItem == NULL) {
 		_tprintf(TEXT("Erro ao criar Semaforo %s"), semGwEscrever);
 		return -1;
 	}
@@ -30,17 +32,10 @@ int CriaSyncMemoria() {
 	return 0;
 }
 
-
-void CriaMapViewer(){
-
-
-}
-
 // cria Buffer na memoria partilhada 
-ptrbufferMsg CriaShareBuffer(HANDLE hBuffer, LPCTSTR nomeBuffer) {
+void criaMemoriaPartilhada(ptrbufferMsg *aux, LPCTSTR nomeBuffer) {
 
-	 ptrbufferMsg auxBuffer;
-
+	 HANDLE hBuffer = NULL;
 	 //criar a memoria partilhada 
 	 hBuffer = CreateFileMapping(INVALID_HANDLE_VALUE, NULL, PAGE_READWRITE, 0, sizeof(bufferMsg), nomeBuffer );
 
@@ -49,35 +44,22 @@ ptrbufferMsg CriaShareBuffer(HANDLE hBuffer, LPCTSTR nomeBuffer) {
 	 }
 	 else if (GetLastError()== ERROR_ALREADY_EXISTS){
 		 _tprintf(TEXT("\nEste buffer -> %s ja foi criado\n"), nomeBuffer);
+		 
 	 }
 	 // mapear a memoria para a mensagem
-	 auxBuffer = (ptrbufferMsg)MapViewOfFile(hBuffer, FILE_MAP_WRITE, 0, 0, sizeof(bufferMsg));
+	 *aux = (ptrbufferMsg)MapViewOfFile(hBuffer, FILE_MAP_WRITE, 0, 0, sizeof(bufferMsg));
 
-	 if (auxBuffer == NULL) {
+	 if (*aux == NULL) {
 
 		 _tprintf(TEXT("Erro a mapear Buffer de mensagem"));
 	 }
 	 
-	 auxBuffer->in = Buffer_size;
+	 (*aux)->tail = 0;
 
-	 auxBuffer->out = 0;
-
-		 return auxBuffer;
+	 (*aux)->head = Buffer_size;
 
 }
-// funcao que vai Pedir para criar os buffers  na memoria partilhada
-int criaMemoriaPartilhada(ptrbufferMsg *stg, ptrbufferMsg *gts) {
 
-	
-	*stg = CriaShareBuffer(&stg, nomeSrtoGW);
-
-	*gts = CriaShareBuffer(&gts, nomeGwtoSr);
-
-	return 0;
-}
- //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
- //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 // funcao dada nas aulas para posicionar o cursor num determinado sitio;
 void gotoxy(int x, int y) {
 	static HANDLE hStdout = NULL;
@@ -192,97 +174,87 @@ int criaStatusServerRegistry(int n) {
 
 void MostraNome(TCHAR nome[10]) {
 
-	_tprintf(TEXT("\n\nMensagem recebida: %s"), nome);
+	
 
 }
 // Funcao que vai fazer o tratamento de pacotes
-void TrataPacoteLido(Packet *PacoteaTratar) {
-
-	switch (PacoteaTratar->tipo) {
+void TrataPacoteLido(Packet PacoteaTratar) {
+	
+	switch (PacoteaTratar.tipo) {
 
 	case 1:
-		MostraNome(PacoteaTratar->dataPacket.nome);
+		MostraNome(PacoteaTratar.dataPacket.nome);
 
 	}
 }
-// Funcao que vai ficar a ler os pacotes do Buffer --> GwtoSer
-void LeituraPacotesBuffer() {
-	_tprintf(TEXT("LeituraPacotesBuffer\n\n"));
-	Packet PacoteLido;
 
-	int *out = &dadosServidor->comGwtoSer->out; //aqui change
-	int *in = &dadosServidor->comGwtoSer->in;
 
-	PacoteLido = dadosServidor->comGwtoSer->array[*in];
-	_tprintf(TEXT("li %s"), PacoteLido.dataPacket.nome);
-	TrataPacoteLido(&PacoteLido);
-
-	EnterCriticalSection(&sync.MutexGwtoSer);
-	
-	//*out = *out == Buffer_size - 1 ? 0 : *out += 1;
-	
-	if (*in < Buffer_size - 2) {
-		*in += 1;
-	}
-	else if (*in == Buffer_size - 1) {
-		_tprintf(TEXT("bUFFER CHEIO\n"));
-		*in = *out;
-		*out = 0;
-	}
-	
-	
-	
-	LeaveCriticalSection(&sync.MutexGwtoSer);
-}
 // funcao que vai estar a ler do Buffer GwtoSer
 void LerBufferGwtoSer() {
-	_tprintf(TEXT("LerBufferGwtoSer\n\n"));
-	int count = 10;
-	dadosServidor->comGwtoSer->out = 0;
+	
+		Packet PacoteLido;
 
-		while (count <= 0) {
-			
-			WaitForSingleObject(sync.SemGwtoSerPack, INFINITE);
+		
+		
+		EnterCriticalSection(&sync.MutexGwtoSer);
 
-			LeituraPacotesBuffer();
 
-			ReleaseSemaphore(sync.SemGwtoSerPos, 1 , NULL);
-			Sleep(1000);
-		}
+				while (1) {
+
+					int head = dadosServidor.comGwtoSer->tail;
+					int tail = dadosServidor.comGwtoSer->head;
+
+					
+					
+					WaitForSingleObject(sync.SemGwtoServComItem, INFINITE);
+
+							PacoteLido = dadosServidor.comGwtoSer->array[head]; //head
+							
+							_tprintf(TEXT("\n\nMensagem recebida: %s"),dadosServidor.comGwtoSer->array[head].dataPacket.nome);
+							//TrataPacoteLido(PacoteLido);
+							
+
+							dadosServidor.comGwtoSer->head = ++dadosServidor.comGwtoSer->head % Buffer_size;
+
+							if (dadosServidor.comGwtoSer->head == dadosServidor.comGwtoSer->tail) {
+								dadosServidor.comGwtoSer->head = Buffer_size;
+							}
+							
+					ReleaseSemaphore(sync.SemGwtoServSemItem, 1 , NULL);
+				}
+
+				
+
+		LeaveCriticalSection(&sync.MutexGwtoSer); 
+
+
 }
 // inicia os servi�os e a configura�ao do Servidor;
 int IniciarServidor() {
 
 	_tprintf(TEXT("\nconta: %d \n"), sum(1, 1)); 
 
-	dadosServidor->ServidorUp = 1;
-
-	bufferMsg *auxSertoGw;
-	bufferMsg *auxGwtoSer;
-
-	auxSertoGw = (ptrbufferMsg)malloc(sizeof(bufferMsg));
-	auxGwtoSer = (ptrbufferMsg)malloc(sizeof(bufferMsg));
-
+	dadosServidor.ServidorUp = 1;
+	
 	TCHAR c;
 	
-	_tprintf(TEXT("\n\n Inicializa�ao do Servidor\n\n"));
+	_tprintf(TEXT("\n\n Inicialização do Servidor\n\n"));
 
-	criaStatusServerRegistry( 1 );										// cria parametro no Registry para mostrar que o servidor est� 
-	criaMemoriaPartilhada(&auxSertoGw, &auxGwtoSer);						// cria os Buffers na memoria partilhada
-	dadosServidor->comSertoGw = auxSertoGw;								// APonta os buffers par os pontos na estrutura Gestao do Servidor
-	dadosServidor->comGwtoSer = auxGwtoSer;
+	criaStatusServerRegistry( 1 );														// cria parametro no Registry para mostrar que o servidor est� 
 
-	_tprintf(TEXT("\n\n%d"), dadosServidor->comGwtoSer->in);
-	_tprintf(TEXT("\n\n%d"), dadosServidor->comGwtoSer->out);
+	criaMemoriaPartilhada(&dadosServidor.comGwtoSer, nomeGwtoSr);						// cria os Buffers na memoria partilhada
+	
 
-	CriaSyncMemoria();													// cria a syncroniza�ao que ser� usada nos Buffers
-																		// inicia a thread que ir� tratar os pedidos enviados pelo GW
-	dadosServidor->hThreadSerToGw = CreateThread( NULL,
+	CriaSyncMemoria();																	// cria a syncroniza�ao que ser� usada nos Buffers
+	
+	InitializeCriticalSection(&sync.MutexGwtoSer);
+																						
+	dadosServidor.hThreadSerToGw = CreateThread( NULL,									// inicia a thread que ir� tratar os pedidos enviados pelo GW
 												 0,
 												(LPTHREAD_START_ROUTINE)LerBufferGwtoSer,
 												(LPVOID) NULL,
 												0,
-												&dadosServidor->IdThreadSertoGw);
+												&dadosServidor.IdThreadSertoGw);
 											
 
 		_tprintf(TEXT(" 2.iniciar jogo ? "));
@@ -291,17 +263,13 @@ int IniciarServidor() {
 	
 	if (c == 's' || c == 'S') {
 
-		dadosServidor->initJogo.MaxNavesInimigas = ninimigas;
+		dadosServidor.initJogo.MaxNavesInimigas = ninimigas;
 
-		IniciaNavesInimigas(dadosServidor->initJogo.MaxNavesInimigas);
+		IniciaNavesInimigas(dadosServidor.initJogo.MaxNavesInimigas);
 	}
 	
 	criaStatusServerRegistry (0 );
 	return 0;
-}
-
-void Alocacoes() {
-	dadosServidor = (dataServer*)malloc(sizeof(dataServer));
 }
 
 
@@ -312,8 +280,9 @@ int _tmain(int argc, LPTSTR argv[]) {
 	_setmode(_fileno(stdin), _O_WTEXT);
 	_setmode(_fileno(stdout), _O_WTEXT);
 #endif	
-	Alocacoes();
+
+
 	IniciarServidor();
-	Sleep(90000);
+	Sleep(190000);
 	return 0;
 }
