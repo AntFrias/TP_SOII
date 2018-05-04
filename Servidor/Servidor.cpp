@@ -252,7 +252,7 @@ void LerBufferGwtoSer() {
 			_tprintf(TEXT("\n\n\n WaitForSingleObject(sync.SemGwtoServComItem, INFINITE);  %d \n\n"), ++count);
 			WaitForSingleObject(sync.SemGwtoServComItem, INFINITE);
 
-			_tprintf(TEXT("\n O global_int = %d \n"), auxbuff->head);
+			_tprintf(TEXT("\n O global_int = %s \n"), auxbuff->array[0].dataPacket.nome);
 
 			ReleaseSemaphore(sync.SemGwtoServSemItem, 1 , NULL);
 			//Sleep(1000);

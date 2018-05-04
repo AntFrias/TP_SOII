@@ -117,8 +117,9 @@ void escrevebufferGwToSr(LPVOID pacote) {
 
 		WaitForSingleObject(sync.SemGwtoServSemItem, INFINITE);
 		
+		wcscpy_s(auxbuff->array[0].dataPacket.nome, TEXT("olaolaola"));
 		//escreveNoBuffer(&auxPacote);
-		_tprintf(TEXT(" global_int = %d \n "), auxbuff->head);
+		_tprintf(TEXT(" global_int = %s \n "), auxbuff->array[0].dataPacket.nome);
 		
 		ReleaseSemaphore(sync.SemGwtoServComItem, 1, NULL);
 		
