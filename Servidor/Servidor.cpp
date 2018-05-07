@@ -11,15 +11,11 @@ synBuffer sync;
 
 int CriaSyncMemoria() {
 
-	_tprintf(TEXT("\nVAI CRIAR O SEMAPHORE :  %s"), semGwLer);
-
 	sync.SemGwtoServComItem = CreateSemaphore(NULL, 0, Buffer_size, semGwLer);
 	if (sync.SemGwtoServComItem == NULL) {
 		_tprintf(TEXT("Erro ao criar Semaforo %s"), semGwLer);
 		return -1;
 	}
-
-	_tprintf(TEXT("\nVAI CRIAR O SEMAPHORE :  %s"), semGwEscrever);
 
 	sync.SemGwtoServSemItem = CreateSemaphore(NULL, Buffer_size, Buffer_size, semGwEscrever);
 	if (sync.SemGwtoServSemItem == NULL) {
@@ -188,14 +184,11 @@ void TrataPacoteLido(Packet PacoteaTratar) {
 	}
 }
 
-
 // funcao que vai estar a ler do Buffer GwtoSer
 void LerBufferGwtoSer() {
 	
 		Packet PacoteLido;
-
-		
-		
+	
 		EnterCriticalSection(&sync.MutexGwtoSer);
 
 
@@ -232,14 +225,10 @@ void LerBufferGwtoSer() {
 // inicia os servi�os e a configura�ao do Servidor;
 int IniciarServidor() {
 
-	_tprintf(TEXT("\nconta: %d \n"), sum(1, 1)); 
-
 	dadosServidor.ServidorUp = 1;
 	
 	TCHAR c;
 	
-	_tprintf(TEXT("\n\n Inicialização do Servidor\n\n"));
-
 	criaStatusServerRegistry( 1 );														// cria parametro no Registry para mostrar que o servidor est� 
 
 	criaMemoriaPartilhada(&dadosServidor.comGwtoSer, nomeGwtoSr);						// cria os Buffers na memoria partilhada
@@ -281,8 +270,10 @@ int _tmain(int argc, LPTSTR argv[]) {
 	_setmode(_fileno(stdout), _O_WTEXT);
 #endif	
 
+	_tprintf(TEXT("\n\n Inicialização do Servidor\n\n"));
 
 	IniciarServidor();
+
 	Sleep(190000);
 	return 0;
 }

@@ -73,7 +73,6 @@ typedef struct BufferMsg {
 
 typedef struct Gestao_gateway {
 
-
 	int sessionID;
 	HANDLE hThreadGwtoSer;
 	DWORD idThreadGwtoSer;

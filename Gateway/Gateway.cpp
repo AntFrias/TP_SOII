@@ -9,16 +9,11 @@ synBuffer sync;
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 int CriaSyncMemoria() {
 
-	_tprintf(TEXT("\nVAI CRIAR O SEMAPHORE :  %s"), semGwLer);
-
 	sync.SemGwtoServComItem = CreateSemaphore(NULL, 0, Buffer_size, semGwLer);
 	if (sync.SemGwtoServComItem == NULL) {
 		_tprintf(TEXT("Erro ao criar Semaforo %s"), semGwLer);
 		return -1;
 	}
-
-
-	_tprintf(TEXT("\nVAI CRIAR O SEMAPHORE :  %s"), semGwEscrever);
 
 	sync.SemGwtoServSemItem = CreateSemaphore(NULL, Buffer_size, Buffer_size, semGwEscrever);
 	if (sync.SemGwtoServSemItem == NULL) {
@@ -68,9 +63,6 @@ void escreveNoBuffer(Packet *pacoteParaEscrita) {
 			
 				wcscpy_s(dadosGw.comGwtoSer->array[tail].dataPacket.nome,pacoteParaEscrita->dataPacket.nome);
 			 
-		
-			
-
 				if (dadosGw.comGwtoSer->head == Buffer_size)
 					dadosGw.comGwtoSer->head = dadosGw.comGwtoSer->tail;
 
@@ -84,7 +76,6 @@ void escrevebufferGwToSr() {
 	
 	Packet auxPacote;
 	
-
 	do {
 		
 		auxPacote.tipo = 1;
@@ -119,17 +110,9 @@ int _tmain(int argc, LPTSTR argv[]) {
 	_setmode(_fileno(stdin), _O_WTEXT);
 	_setmode(_fileno(stdout), _O_WTEXT);
 #endif	
-
-	_tprintf(TEXT("side of packet %d "), sizeof(Packet));
-	
-
-	_tprintf(TEXT("\nconta: %d \n shared int created \n"),sum(1,1));
-	
-	IniciarGateway();
-
-
-
 	_tprintf(TEXT("\n\n Inicializaçao do Gateway\n\n"));
+
+	IniciarGateway();
 
 	Sleep(190000);
 	return 0;
