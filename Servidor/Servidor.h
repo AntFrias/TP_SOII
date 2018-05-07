@@ -13,75 +13,8 @@
 #include <winbase.h>
 
 //////////////////////////////////////////////////////////////////////////////////////////////////
-//////////////////////////////////////////////////////////////////////////////////////////////////
-//									POR NA DLL
-//////////////////////////////////////////////////////////////////////////////////////////////////
-//////////////////////////////////////////////////////////////////////////////////////////////////
-
-//Nome do Buffer Server to Gateway
-TCHAR nomeSrtoGW[] = TEXT("Buffer SrToGw");
-TCHAR nomeGwtoSr[] = TEXT("Buffer GwToSr");
-
-// Nome dos Semaforos para comunicacao nos Buffers de mensagens
-TCHAR semGwLer[] = TEXT("semaforoGwLer");
-TCHAR semGwEscrever[] = TEXT("semaforoGwEscrever");
-TCHAR mutexGwtoSer[] = TEXT("mutexGwtoSer");
-
-TCHAR semSerLer[] = TEXT("semaforoSerLer");
-TCHAR semSerEscrever[] = TEXT("semaforoSerEscrever");
-TCHAR mutexSertoGw[] = TEXT("mutexSertoGw");
-
-//Tamanho do Buffer de mensagens na memoria partilhada
-#define Buffer_size 32
-//numero de naves inimigas apenas para testes
-#define ninimigas 100
-
-// define as coordenadas no ecran para Mostrar as naves inimigas
-#define CoordWindow_x 80
-#define CoordWindow_y 1
-// define as dimensoes do mapa onde ocorrerá o jogo
-#define dimMapa_x 20
-#define dimMapa_y 30
-
-typedef struct synbuff {
-
-	HANDLE SemGwtoServComItem;
-	HANDLE SemGwtoServSemItem;
-	CRITICAL_SECTION MutexGwtoSer;
-
-	HANDLE SemSerLer;
-	HANDLE SemSerEscrever;
-	CRITICAL_SECTION MutexSertoGw;
-
-}synBuffer;
-
-typedef struct Packet {
-
-	int tipo;
-	int session_id;
-	int pontuacao;
-
-	union datPacket
-	{
-		TCHAR nome[10];
-		int movimento;
-		int tiro;
-		//PowerUpp PowerUp;
-	}dataPacket;
-
-}packet;
-
-typedef struct BufferMsg {
-
-	packet array[Buffer_size];
-	//packet arrays;
-	int tail;
-	int head;
-
-}bufferMsg, *ptrbufferMsg;
-
-											
-typedef struct nav {								// Estrutura para ser apagada -> vai para a DLL
+// Estrutura de suporte ás naves
+typedef struct naves {
 	int tipo;
 	int x, y;
 	int vida;
@@ -91,14 +24,8 @@ typedef struct nav {								// Estrutura para ser apagada -> vai para a DLL
 	DWORD NaveInvthreadId;
 
 }Nave;
-
-//////////////////////////////////////////////////////////////////////////////////////////////////
-//////////////////////////////////////////////////////////////////////////////////////////////////
-//////////////////////////////////////////////////////////////////////////////////////////////////
-//////////////////////////////////////////////////////////////////////////////////////////////////
-//////////////////////////////////////////////////////////////////////////////////////////////////
-
-typedef struct ConfiguracaoInicialJogo {				// extrutura Configuraçao Inicial do Jogo
+// extrutura Configuraçao Inicial do Jogo
+typedef struct ConfiguracaoInicialJogo {				
 
 	int MaxJogadores;
 	int MaxNavesInimigas;
@@ -107,8 +34,8 @@ typedef struct ConfiguracaoInicialJogo {				// extrutura Configuraçao Inicial do
 	int Vidas;
 }confInitJogo;
 
-
-typedef struct Jogador_Info {							// Extrutura Jogador
+// Extrutura Jogador
+typedef struct Jogador_Info {							
 
 	TCHAR nome[10];
 	int pontuacao;
@@ -121,31 +48,29 @@ typedef struct Jogador_Info {							// Extrutura Jogador
 	//PowerUp Powerup;
 }jogadorinfo;
 
-
-typedef struct RegistryServer {							//extrutura cria registry to put option server on = 1
+//extrutura cria registry to put option server on = 1
+typedef struct RegistryServer {							
 
 	HKEY Chave;
 	DWORD statServer, ServerUp;
 	
 }registryServer;
 
-
-typedef struct Gestao_servidor{							// Extrutura com os dados do servidor;
+// Extrutura com os dados do servidor;
+typedef struct Gestao_servidor{							
 
 	int NumMaxClientes;
 	BOOL inicioJogo;
 	BOOL ServidorUp;
 	confInitJogo initJogo;
 	registryServer ServerUp;
-	bufferMsg *comSertoGw;
-	bufferMsg *comGwtoSer;
 	HANDLE hThreadSerToGw;
 	DWORD IdThreadSertoGw;
 
 }dataServer;
 
-
-typedef struct Top10 {								// extrutura TOP10
+// extrutura TOP10
+typedef struct Top10 {								
 	TCHAR name[10];
 	int	pontuacao;
 }top10;
