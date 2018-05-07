@@ -84,6 +84,7 @@ void escrevebufferGwToSr() {
 	
 	Packet auxPacote;
 	
+
 	do {
 		
 		auxPacote.tipo = 1;
