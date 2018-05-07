@@ -115,7 +115,7 @@ void TrataPacotesGwtoServ() {
 	Packet *aux;
 
 	while (1) {
-		Sleep(1000);
+		//Sleep(1000);//para debug
 		aux = LerBufferGwtoSer();
 	
 		switch (aux->tipo) {
