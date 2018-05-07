@@ -4,6 +4,7 @@
 
 dataServer dadosServidor;
 
+
 // vai fazer a gestao de todas as naves inimigas
 int GestorNavesInimigas(LPVOID navesInimigas) {
 
