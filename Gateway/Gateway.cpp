@@ -15,9 +15,7 @@ void EncaminhamentoPacotesGwtoServ() {
 // fun�ao que inicia os servi�os do Gateway
 void IniciarGateway() {
 
-	Packet Pacote;
-
-	_tprintf(TEXT("\n\n Inicializa�ao do Gateway\n\n"));
+	_tprintf(TEXT("\n\nGateway\n\n"));
 
 	CriaMemoriaPartilhada();
 
