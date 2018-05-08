@@ -4,10 +4,16 @@ Microsoft Visual Studio Solution File, Format Version 12.00
 VisualStudioVersion = 15.0.26730.16
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "Gateway", "Gateway\Gateway.vcxproj", "{296EE0B1-8A00-4C4E-B6CF-FA0B4DE8A497}"
+	ProjectSection(ProjectDependencies) = postProject
+		{B682F7AB-27D2-4744-B5F2-88F790EA9880} = {B682F7AB-27D2-4744-B5F2-88F790EA9880}
+	EndProjectSection
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "Cliente", "Cliente\Cliente.vcxproj", "{0F6A09DC-7F09-400F-ADDC-37A39A5026D1}"
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "Servidor", "Servidor\SOII_TP.vcxproj", "{1D218A46-7EEF-44C4-BBD8-B3D868674259}"
+	ProjectSection(ProjectDependencies) = postProject
+		{B682F7AB-27D2-4744-B5F2-88F790EA9880} = {B682F7AB-27D2-4744-B5F2-88F790EA9880}
+	EndProjectSection
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "AcessoMemDLL", "AcessoMemDLL\AcessoMemDLL.vcxproj", "{B682F7AB-27D2-4744-B5F2-88F790EA9880}"
 EndProject
