@@ -4,18 +4,41 @@
 
 dataServer dadosServidor;
 
-
 // vai fazer a gestao de todas as naves inimigas
 int GestorNavesInimigas(LPVOID navesInimigas) {
 
 	Nave *naveInimiga;
-
+	int coord_x = CoordWindow_x, coord_y = CoordWindow_y;
 	naveInimiga = ((Nave*)navesInimigas);
 
 	do {
+		
+		gotoxy(naveInimiga->x, naveInimiga->y);
+
+		//if (navePodeMexer(naveInimiga)==1) {
+				
+		if (coord_x < CoordWindow_x + dimMapa_x) {
+			gotoxy(coord_x, coord_y);
+			_tprintf(TEXT("I"));
+			naveInimiga->x = coord_x;
+			naveInimiga->x = coord_y;
+			coord_x++;
+
+		}
+		else {
+			coord_x = CoordWindow_x;
+			naveInimiga->x = coord_x;
+			coord_y++;
+			naveInimiga->x = coord_y;
+
+			gotoxy(coord_x, coord_y);
+			_tprintf(TEXT("I"));
+		}
+
+		//}
 
 		naveInimiga->vida--;
-		
+
 	} while (naveInimiga->vida > 0);
 
 	return 0;
@@ -47,7 +70,7 @@ int IniciaNavesInimigas( int NumNavesInvasoras) {
 	}
 	for (int i = 0; i < NumNavesInvasoras; i++) {
 
-		navesInimigas[i].vida = 5;
+		navesInimigas[i].vida = 200;
 		if (coord_x < CoordWindow_x + dimMapa_x) {
 			gotoxy(coord_x, coord_y);
 			_tprintf(TEXT("I"));
@@ -171,7 +194,7 @@ int _tmain(int argc, LPTSTR argv[]) {
 	_setmode(_fileno(stdin), _O_WTEXT);
 	_setmode(_fileno(stdout), _O_WTEXT);
 #endif	
-
+	
 	IniciarServidor();
 
 	Sleep(190000);
