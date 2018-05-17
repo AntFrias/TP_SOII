@@ -12,6 +12,13 @@
 #include <shellapi.h>
 #include <winbase.h>
 
+// Inicio do ID para as naves
+#define StartIDNave 2000
+// Inicio do ID para os jogadores
+#define StartIdJogador 1000
+
+
+
 //////////////////////////////////////////////////////////////////////////////////////////////////
 // Estrutura de suporte ás naves
 typedef struct naves {
@@ -19,7 +26,7 @@ typedef struct naves {
 	int x, y;
 	int vida;
 	int escudo;
-	int sessionId;
+	int IdNave;
 	HANDLE NaveInvasoras;
 	DWORD NaveInvthreadId;
 
@@ -42,9 +49,8 @@ typedef struct Jogador_Info {
 	int tempo;
 	int posicao[2];
 	int vidas;
-	int sessionId;
-	confInitJogo jogo;
-	//naveDefensora nave;
+	int IdJogador;
+	Nave nave;
 	//PowerUp Powerup;
 }jogadorinfo;
 
