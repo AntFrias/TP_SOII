@@ -12,7 +12,7 @@
 #include <wchar.h>
 #include <shellapi.h>
 
-#define PipeName TEXT("\\.\\Pipe\\PipeCliente")
+#define PIPE_NAME TEXT("\\\\.\\pipe\\teste")
 #define MaxClientes 5
 
 //prototipos
