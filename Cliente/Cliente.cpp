@@ -11,10 +11,11 @@ void Envia(LPVOID NUUL) {
 	DWORD n;
 	packet PacoteEnvio;
 	
-	Cliente.pipe = CreateFile(PipeName, GENERIC_READ | GENERIC_WRITE, 0, NULL, OPEN_EXISTING, FILE_ATTRIBUTE_NORMAL, NULL);
+	Cliente.pipe = CreateFile(PIPE_NAME, GENERIC_READ | GENERIC_WRITE, 0, NULL, OPEN_EXISTING, FILE_ATTRIBUTE_NORMAL, NULL);
 
 	if (Cliente.pipe == INVALID_HANDLE_VALUE) {
 		_tprintf(TEXT("[ERRO] Criar Named Pipe! (CreateNamedPipe)"));
+		Sleep(10000);
 		exit(-1);
 	}
 
@@ -50,8 +51,6 @@ int _tmain(int argc, LPTSTR argv[]) {
 
 
 	WaitForSingleObject(Cliente.ht, INFINITE);
-
-
 
 
 	return 0;

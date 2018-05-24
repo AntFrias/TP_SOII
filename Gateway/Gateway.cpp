@@ -49,7 +49,7 @@ int IniciaNamedPipe() {
 
 	do {
 
-		hPipe = CreateNamedPipe(PipeName, PIPE_ACCESS_DUPLEX, PIPE_WAIT | PIPE_TYPE_MESSAGE | PIPE_READMODE_MESSAGE, MaxClientes, sizeof(packet), sizeof(packet), INFINITE, NULL);
+		hPipe = CreateNamedPipe(PIPE_NAME, PIPE_ACCESS_DUPLEX, PIPE_WAIT | PIPE_TYPE_MESSAGE | PIPE_READMODE_MESSAGE, MaxClientes, sizeof(packet), sizeof(packet), INFINITE, NULL);
 
 		if (hPipe == NULL) {
 
@@ -92,6 +92,8 @@ void IniciarGateway() {
 	CriaMemoriaPartilhada();
 
 	CriaSyncMemoria();
+
+	IniciaNamedPipe();
 
 	//dadosGw.hThreadGwtoSer = CreateThread(NULL, 0, (LPTHREAD_START_ROUTINE)EncaminhamentoPacotesGwtoServ, (LPVOID)NULL, 0, &dadosGw.idThreadGwtoSer);
 
