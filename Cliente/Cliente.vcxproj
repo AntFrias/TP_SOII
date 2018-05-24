@@ -18,6 +18,12 @@
       <Platform>x64</Platform>
     </ProjectConfiguration>
   </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="Cliente.cpp" />
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="HeaderCliente.h" />
+  </ItemGroup>
   <PropertyGroup Label="Globals">
     <VCProjectVersion>15.0</VCProjectVersion>
     <ProjectGuid>{0F6A09DC-7F09-400F-ADDC-37A39A5026D1}</ProjectGuid>
