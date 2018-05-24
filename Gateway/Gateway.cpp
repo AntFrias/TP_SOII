@@ -79,6 +79,8 @@ int IniciaNamedPipe() {
 
 	} while (dadosGw.nClientes < MaxClientes);
 
+	// fazer o array de threads e por aqui o waitformultipleobjetct
+
 }
 
 
