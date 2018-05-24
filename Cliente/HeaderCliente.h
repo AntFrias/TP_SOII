@@ -12,8 +12,7 @@
 #include <shellapi.h>
 #include <winbase.h>
 
-#define PipeName TEXT("\\\\.\\Pipe\\PipeCliente")
-
+#define PIPE_NAME TEXT("\\\\.\\pipe\\teste")
 
 typedef struct estrCli {
 
