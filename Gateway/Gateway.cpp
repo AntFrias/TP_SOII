@@ -9,34 +9,38 @@ void EncaminhamentoPacotesGwtoServ() {
 
 }
 
-void RecebePipeCliente(Clientes *Cliente) {
+void RecebePipeCliente(LPVOID *Cliente) {
+
+	Clientes * aux = (Clientes *)Cliente;
 
 	Packet Pacote;
 	
 	DWORD nbytes;
 
-	do {
+	_tprintf(TEXT("\n\nCheguei aqui"));
 
-		ReadFile(Cliente->hPipe, &Pacote, sizeof(Packet), &nbytes, NULL);
+	while (aux->Thread.Alive == 1) {
+
+		ReadFile(aux->hPipe, &Pacote, sizeof(Packet), &nbytes, NULL);
+		
+		_tprintf(TEXT("\n\nCheguei aqui e li um pacote"));
 		
 		escrevebufferGwToSr(&Pacote);
 
-	} while (Cliente->Thread.Alive == 1);
-
+	} 
+	Sleep(10000);
 }
 
 clientes * criaSuporteComunicacaoCliente(clientes *arrayClientes, int nclientes) {
 
-	clientes *aux;
-
-	aux = (clientes *) malloc(sizeof(clientes)*nclientes);
+	clientes *aux = NULL;
 	
-	for (int i = 0; i < nclientes ; i++ ){
+	aux = (clientes * ) malloc(sizeof(clientes)*(nclientes));
+	
+	aux = arrayClientes;
 
-		aux[i] = arrayClientes[i];
-
-	}
 	return aux;
+	
 }
 
 int IniciaNamedPipe() {
@@ -47,41 +51,60 @@ int IniciaNamedPipe() {
 
 	HANDLE hPipe;
 
+	arrayClientes = (clientes *)malloc(sizeof(Clientes));
+
+	if (arrayClientes == NULL) {
+	
+		_tprintf(TEXT("\n\nErro a alocar memoria para inicio do Array de Clientes"));
+		
+		return -1;
+	}
+
 	do {
 
 		hPipe = CreateNamedPipe(PIPE_NAME, PIPE_ACCESS_DUPLEX, PIPE_WAIT | PIPE_TYPE_MESSAGE | PIPE_READMODE_MESSAGE, MaxClientes, sizeof(packet), sizeof(packet), INFINITE, NULL);
 
 		if (hPipe == NULL) {
 
-			_tprintf(TEXT("\n Erro ao criar Pipe Para Cliente %d"), dadosGw.nClientes);
+			_tprintf(TEXT("\n\n Erro ao criar Pipe Para Cliente %d"), dadosGw.nClientes);
 			return -1;
 		}
 		else {
 
-			_tprintf(TEXT("\nPipe Para Cliente %d Criado com sucesso"), dadosGw.nClientes);
+			_tprintf(TEXT("\n\nPipe Para Cliente %d Criado com sucesso"), dadosGw.nClientes);
 		}
-
 
 		if (!ConnectNamedPipe(hPipe, NULL)) {
 
-			_tprintf(TEXT("[ERRO] Ligação ao leitor! (ConnectNamedPipe\n"));
+			_tprintf(TEXT("\n\n ERRO na Ligaçao ao Cliente  (ConnectNamedPipe)\n"));
 
 			return - 1 ;
 		}
+		else {
+
+			_tprintf(TEXT("\n\nConectando o Cliente %d\n"), dadosGw.nClientes);
+
+		}
 
 		dadosGw.nClientes++;
-
+	
 		arrayClientes = criaSuporteComunicacaoCliente( arrayClientes, dadosGw.nClientes );
 
 		arrayClientes[ dadosGw.nClientes - 1 ].hPipe = hPipe;
 	
+		arrayClientes[dadosGw.nClientes - 1].Thread.Alive = 1;
+
+		
 		arrayClientes[ dadosGw.nClientes - 1 ].Thread.hThread = CreateThread( NULL, 0, (LPTHREAD_START_ROUTINE)RecebePipeCliente, (LPVOID)&arrayClientes[ dadosGw.nClientes - 1 ], 0, &arrayClientes[dadosGw.nClientes - 1].Thread.ThreadID );
 
-	} while (dadosGw.nClientes < MaxClientes);
+	} while (dadosGw.nClientes < MaxClientes || dadosGw.ServerUp == 1);
 
+	WaitForSingleObject(arrayClientes->Thread.hThread, INFINITE);
 	// fazer o array de threads e por aqui o waitformultipleobjetct
 
+
 }
+
 
 
 // fun�ao que inicia os servi�os do Gateway
@@ -92,6 +115,8 @@ void IniciarGateway() {
 	CriaMemoriaPartilhada();
 
 	CriaSyncMemoria();
+
+	dadosGw.ServerUp = 1;
 
 	IniciaNamedPipe();
 
