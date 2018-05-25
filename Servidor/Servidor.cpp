@@ -3,6 +3,7 @@
 #pragma comment(lib, "../x64/Debug/AcessoMemDLL.lib")
 
 dataServer dadosServidor;
+jogadorinfo *ArrayJogadores;
 
 // vai fazer a gestao de todas as naves inimigas
 int GestorNavesInimigas(LPVOID navesInimigas) {
@@ -132,10 +133,24 @@ void MostraNome(TCHAR *nome) {
 }
 // Funcao que vai fazer o tratamento de pacotes
 
+void ColocaCliArray(packet *aux,int pos) {
+
+	_tprintf(TEXT("Naquiiiiiiiiiiiiiiiii1\n"));
+	//ArrayJogadores[pos].IdJogador = aux->session_id;
+	_tprintf(TEXT("id -> %d\n",ArrayJogadores[pos].id));
+
+	//ArrayJogadores[pos].pontuacao = aux->pontuacao;
+	_tprintf(TEXT("pontuação -> %d\n", ArrayJogadores[pos].pontuacao));
+	
+	wcscpy_s(ArrayJogadores[pos].nome, aux->dataPacket.nome); //ESTÁ A MORRER AQUI
+	MostraNome(aux->dataPacket.nome);
+
+}
 
 void TrataPacotesGwtoServ() {
 
-	Packet *aux;
+	packet *aux;
+	
 
 	while (1) {
 		//Sleep(1000);//para debug
@@ -143,18 +158,40 @@ void TrataPacotesGwtoServ() {
 	
 		switch (aux->tipo) {
 
-		case 1:
-			MostraNome(aux->dataPacket.nome);
+		case 1: //TIPO -> 1 -> LOGIN
+			if (dadosServidor.NumCliNoArray == 0) {// se for o primeiro cliente -> 
+				ColocaCliArray(aux, 0);
+			}
+			//_tprintf(TEXT("Nome do 1º player %s\n"), ArrayJogadores[0].nome);
+			//MostraNome(aux->dataPacket.nome);
 
 		}
 	}
 
 }
+jogadorinfo * iniciaArrayCli(){
+	
+	jogadorinfo *Aux;
 
+	Aux = (jogadorinfo*)malloc(sizeof(jogadorinfo));
+
+
+	if (Aux = NULL) {
+		_tprintf(TEXT("Erro a Inicializar o Array de Jogadores\n"));
+		return NULL;
+	}
+	return Aux;
+}
 // inicia os servi�os e a configura�ao do Servidor;
 int IniciarServidor() {
 
+	ArrayJogadores = NULL;
+
 	dadosServidor.ServidorUp = 1;
+	dadosServidor.NumCliNoArray = 0;
+	
+	ArrayJogadores = iniciaArrayCli();
+	
 	
 	TCHAR c;
 	
@@ -163,7 +200,6 @@ int IniciarServidor() {
 	criaStatusServerRegistry( 1 );														// cria parametro no Registry para mostrar que o servidor est� 
 
 	CriaMemoriaPartilhada();															// cria os Buffers na memoria partilhada
-	
 
 	CriaSyncMemoria();																	// cria a syncroniza�ao que ser� usada nos Buffers
 	
