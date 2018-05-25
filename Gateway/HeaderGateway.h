@@ -29,7 +29,8 @@ typedef struct Gestao_gateway {
 	HANDLE hThreadGwtoSer;
 	HANDLE *ArrayThreadClientes;
 	DWORD idThreadGwtoSer;
-	unsigned int nClientes;
+	int nClientes;
+	unsigned int ServerUp;
 
 }dataGw;
 
