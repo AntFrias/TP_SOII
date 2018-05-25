@@ -4,10 +4,10 @@
 
 dataGw dadosGw;
 
-Thread *ThredsCliente;
+Thread *ThreadsCliente;
 
 clientes *arrayClientes;
-
+// funcao que recebe pacotes do Pipe que veem do Cliente
 void RecebePipeCliente(LPVOID *PosCliente) {
 
 	int *posCliente = (int *)PosCliente;
@@ -16,7 +16,7 @@ void RecebePipeCliente(LPVOID *PosCliente) {
 	
 	DWORD nbytes;
 
-	while (arrayClientes[*posCliente].Thread.Alive == 1) {
+	while (ThreadsCliente[*posCliente].Alive == 1) {
 
 		ReadFile(arrayClientes[*posCliente].hPipe, &Pacote, sizeof(Packet), &nbytes, NULL);
 		
@@ -24,6 +24,7 @@ void RecebePipeCliente(LPVOID *PosCliente) {
 
 	} 
 }
+// Cria Thread para Respetivo Cliente
 Thread * criaThreadParaCliente(Thread *threadsCliente, int nClientes) {
 
 	Thread *aux;
@@ -35,7 +36,7 @@ Thread * criaThreadParaCliente(Thread *threadsCliente, int nClientes) {
 		return aux;
 
 }
-
+// adiciona novo Cliente ao Array de Clientes
 clientes * AdicionaClienteArray(clientes *arrayClientes, int nclientes) {
 
 	clientes *aux = NULL;
@@ -47,6 +48,7 @@ clientes * AdicionaClienteArray(clientes *arrayClientes, int nclientes) {
 	return aux;
 	
 }
+//adiciona mais um Handle ao Array de Handles para a Thread
 HANDLE * criaArrayHandlesThreads() {
 
 	HANDLE *aux;
@@ -60,7 +62,21 @@ HANDLE * criaArrayHandlesThreads() {
 		return aux;
 	}
 }
+// cria nova Thread para comunicaçao com Cliente atraves de namedPipe
+HANDLE * CriaHandleParaNovaThread(HANDLE * hThreads, int nClientes) {
+	
+	HANDLE *aux;
 
+	aux = (HANDLE *)malloc(sizeof(HANDLE)*nClientes);
+	if (aux == NULL) {
+		_tprintf(TEXT("\n\nErro a alocar Memoria Para Array de Handles da Thread "));
+		exit(-1);
+	}
+	else {
+		return aux;
+	}
+}
+//Cria Thread Inicial para receber Primeiro Cliente
 Thread * criaThreadInicial() {
 
 	Thread *aux;
@@ -74,6 +90,7 @@ Thread * criaThreadInicial() {
 		return aux;
 	}
 }
+// cria espaço no array dos Clientes para o primeiro Cliente
 Clientes * CriaClienteInicial() {
 
 	Clientes *aux;
@@ -86,7 +103,37 @@ Clientes * CriaClienteInicial() {
 		return aux;
 	}
 }
-int IniciaNamedPipe() {
+// cria namedPipe/instancias para comunicaçao com os Clientes
+HANDLE criaNamedPipe() {
+
+	HANDLE hPipe = CreateNamedPipe(PIPE_NAME, PIPE_ACCESS_DUPLEX, PIPE_WAIT | PIPE_TYPE_MESSAGE | PIPE_READMODE_MESSAGE, MaxClientes, sizeof(packet), sizeof(packet), INFINITE, NULL);
+
+	if (hPipe == NULL) {
+
+		_tprintf(TEXT("\n\n Erro ao criar Pipe Para Cliente %d"), dadosGw.nClientes);
+		return NULL;
+	}
+	else {
+
+		_tprintf(TEXT("\n\nPipe Para Cliente %d Criado com sucesso"), dadosGw.nClientes);
+	}
+
+	if (!ConnectNamedPipe(hPipe, NULL)) {
+
+		_tprintf(TEXT("\n\n ERRO na Ligaçao ao Cliente  (ConnectNamedPipe)\n"));
+
+		return NULL;
+	}
+	else {
+
+		_tprintf(TEXT("\n\nConectando o Cliente %d\n"), dadosGw.nClientes);
+
+	}
+	return hPipe;
+
+}
+//inicia Comunicaçao com CLiente
+int criaComunicaçaoClienteGateway() {
 
 	dadosGw.nClientes = 0;
 
@@ -96,55 +143,35 @@ int IniciaNamedPipe() {
 
 	int PosCliente = 0;
 
-	arrayClientes = CriaClienteInicial();
+	arrayClientes = CriaClienteInicial();					// Inicio da criaçao do array de clientes
+				
+	ThreadsCliente = criaThreadInicial();					// cria thread inicial para atender os Clientes
 
-	ThredsCliente = criaThreadInicial();
-
-	hThreads = criaArrayHandlesThreads();
+	hThreads = criaArrayHandlesThreads();					// cria inicio do Array de Handles para o waitformultipleobject
 
 	do {
 
-		hPipe = CreateNamedPipe(PIPE_NAME, PIPE_ACCESS_DUPLEX, PIPE_WAIT | PIPE_TYPE_MESSAGE | PIPE_READMODE_MESSAGE, MaxClientes, sizeof(packet), sizeof(packet), INFINITE, NULL);
+		hPipe = criaNamedPipe();				// cria named pipe ou instancia chega Cliente
 
-		if (hPipe == NULL) {
+		dadosGw.nClientes++;					// adiciona um Cliente a mais para iniciar a configuraçao das Threads
 
-			_tprintf(TEXT("\n\n Erro ao criar Pipe Para Cliente %d"), dadosGw.nClientes);
-			return -1;
-		}
-		else {
+		PosCliente = dadosGw.nClientes - 1;		// Posiçao onde irá ficar o novo Cliente no array das threads, handles de threads, array de clientes
 
-			_tprintf(TEXT("\n\nPipe Para Cliente %d Criado com sucesso"), dadosGw.nClientes);
-		}
+		arrayClientes = AdicionaClienteArray(arrayClientes, dadosGw.nClientes);			//adiciona novo cliente ao array
 
-		if (!ConnectNamedPipe(hPipe, NULL)) {
+		arrayClientes[PosCliente].hPipe = hPipe;			//adiciona  a instancia para o novo cliente
 
-			_tprintf(TEXT("\n\n ERRO na Ligaçao ao Cliente  (ConnectNamedPipe)\n"));
+		ThreadsCliente = criaThreadParaCliente(ThreadsCliente, dadosGw.nClientes);		// cria thread para a comunicaçao com novo cliente
 
-			return -1;
-		}
-		else {
+		ThreadsCliente[PosCliente].Alive = 1;				// poe a variavel da thread para ficar ativa
 
-			_tprintf(TEXT("\n\nConectando o Cliente %d\n"), dadosGw.nClientes);
-
-		}
-
-		dadosGw.nClientes++;
-
-		arrayClientes = AdicionaClienteArray(arrayClientes, dadosGw.nClientes);
-
-		arrayClientes[dadosGw.nClientes - 1].hPipe = hPipe;
-
-		ThredsCliente = criaThreadParaCliente(ThredsCliente, dadosGw.nClientes);
-
-		arrayClientes[dadosGw.nClientes - 1].Thread.Alive = 1;
-
-		PosCliente = dadosGw.nClientes - 1;
-
-		hThreads[dadosGw.nClientes - 1] = ThredsCliente[dadosGw.nClientes - 1].hThread = CreateThread(NULL, 0, (LPTHREAD_START_ROUTINE)RecebePipeCliente, (LPVOID)&PosCliente, 0, &ThredsCliente[dadosGw.nClientes - 1].ThreadID);
+		hThreads = CriaHandleParaNovaThread(hThreads, dadosGw.nClientes);  // cria novo handle no array de Handles da Thread
+		//inicia a thread de comunicaçao com o respetivo Cliente
+		hThreads[PosCliente] = ThreadsCliente[PosCliente].hThread = CreateThread(NULL, 0, (LPTHREAD_START_ROUTINE)RecebePipeCliente, (LPVOID)&PosCliente, 0, &ThreadsCliente[PosCliente].ThreadID);
 
 	} while (dadosGw.nClientes < MaxClientes || dadosGw.ServerUp == 1);
 
-	WaitForMultipleObjects(20, hThreads, FALSE, INFINITE);
+	WaitForMultipleObjects(NULL, hThreads, FALSE, INFINITE);
 
 	for (int i = 0; i < dadosGw.nClientes; i++) {
 
@@ -156,10 +183,8 @@ int IniciaNamedPipe() {
 	}
 
 	return 0;
-
 }
-
-// fun�ao que inicia os servi�os do Gateway
+// funcao que inicia os servicos do Gateway
 void IniciarGateway() {
 
 	_tprintf(TEXT("\n\nGateway\n\n"));
@@ -170,7 +195,7 @@ void IniciarGateway() {
 
 	dadosGw.ServerUp = 1;
 
-	IniciaNamedPipe();
+	criaComunicaçaoClienteGateway();
 
 }
 
