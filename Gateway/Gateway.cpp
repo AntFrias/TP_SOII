@@ -147,8 +147,10 @@ int IniciaNamedPipe() {
 	WaitForMultipleObjects(20, hThreads, FALSE, INFINITE);
 
 	for (int i = 0; i < dadosGw.nClientes; i++) {
-	
-		DisconnectNamedPipe(&arrayClientes[i].hPipe);
+
+		if ( !DisconnectNamedPipe)
+		
+			DisconnectNamedPipe(&arrayClientes[i].hPipe);
 
 		CloseHandle(&arrayClientes[i].hPipe);
 	}
