@@ -38,6 +38,7 @@ typedef struct Thread {
 
 	DWORD ThreadID;
 	HANDLE hThread;
+	
 	unsigned int Alive;
 
 }ThreadCliente;

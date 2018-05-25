@@ -4,34 +4,39 @@
 
 dataGw dadosGw;
 
-void EncaminhamentoPacotesGwtoServ() {
+Thread *ThredsCliente;
 
+clientes *arrayClientes;
 
-}
+void RecebePipeCliente(LPVOID *PosCliente) {
 
-void RecebePipeCliente(LPVOID *Cliente) {
-
-	Clientes * aux = (Clientes *)Cliente;
+	int *posCliente = (int *)PosCliente;
 
 	Packet Pacote;
 	
 	DWORD nbytes;
 
-	_tprintf(TEXT("\n\nCheguei aqui"));
+	while (arrayClientes[*posCliente].Thread.Alive == 1) {
 
-	while (aux->Thread.Alive == 1) {
-
-		ReadFile(aux->hPipe, &Pacote, sizeof(Packet), &nbytes, NULL);
-		
-		_tprintf(TEXT("\n\nCheguei aqui e li um pacote"));
+		ReadFile(arrayClientes[*posCliente].hPipe, &Pacote, sizeof(Packet), &nbytes, NULL);
 		
 		escrevebufferGwToSr(&Pacote);
 
 	} 
-	Sleep(10000);
+}
+Thread * criaThreadParaCliente(Thread *threadsCliente, int nClientes) {
+
+	Thread *aux;
+
+	aux = (Thread *)malloc(sizeof(Thread)*nClientes);
+	if (aux == NULL)
+		return NULL;
+	else
+		return aux;
+
 }
 
-clientes * criaSuporteComunicacaoCliente(clientes *arrayClientes, int nclientes) {
+clientes * AdicionaClienteArray(clientes *arrayClientes, int nclientes) {
 
 	clientes *aux = NULL;
 	
@@ -42,23 +47,60 @@ clientes * criaSuporteComunicacaoCliente(clientes *arrayClientes, int nclientes)
 	return aux;
 	
 }
+HANDLE * criaArrayHandlesThreads() {
 
+	HANDLE *aux;
+
+	aux = (HANDLE *)malloc(sizeof(HANDLE));
+	if (aux == NULL) {
+		_tprintf(TEXT("\n\nErro a alocar Memoria Para Array de Thread "));
+		exit(-1);
+	}
+	else {
+		return aux;
+	}
+}
+
+Thread * criaThreadInicial() {
+
+	Thread *aux;
+
+	aux = (Thread *)malloc(sizeof(Thread));
+	if (aux == NULL) {
+		_tprintf(TEXT("\n\nErro a alocar Memoria Para Estrutura Thread que irá atende o Cliente"));
+		exit(-1);
+	}
+	else {
+		return aux;
+	}
+}
+Clientes * CriaClienteInicial() {
+
+	Clientes *aux;
+
+	aux = (clientes *)malloc(sizeof(Clientes));
+	if (aux == NULL) {
+		_tprintf(TEXT("\n\nErro a alocar Memoria para Array de Clientes..!"));
+		exit(-1);
+	}	else {
+		return aux;
+	}
+}
 int IniciaNamedPipe() {
 
 	dadosGw.nClientes = 0;
 
-	clientes *arrayClientes = NULL;
-
 	HANDLE hPipe;
 
-	arrayClientes = (clientes *)malloc(sizeof(Clientes));
+	HANDLE *hThreads;
 
-	if (arrayClientes == NULL) {
-	
-		_tprintf(TEXT("\n\nErro a alocar memoria para inicio do Array de Clientes"));
-		
-		return -1;
-	}
+	int PosCliente = 0;
+
+	arrayClientes = CriaClienteInicial();
+
+	ThredsCliente = criaThreadInicial();
+
+	hThreads = criaArrayHandlesThreads();
 
 	do {
 
@@ -78,7 +120,7 @@ int IniciaNamedPipe() {
 
 			_tprintf(TEXT("\n\n ERRO na Ligaçao ao Cliente  (ConnectNamedPipe)\n"));
 
-			return - 1 ;
+			return -1;
 		}
 		else {
 
@@ -87,25 +129,33 @@ int IniciaNamedPipe() {
 		}
 
 		dadosGw.nClientes++;
-	
-		arrayClientes = criaSuporteComunicacaoCliente( arrayClientes, dadosGw.nClientes );
 
-		arrayClientes[ dadosGw.nClientes - 1 ].hPipe = hPipe;
-	
+		arrayClientes = AdicionaClienteArray(arrayClientes, dadosGw.nClientes);
+
+		arrayClientes[dadosGw.nClientes - 1].hPipe = hPipe;
+
+		ThredsCliente = criaThreadParaCliente(ThredsCliente, dadosGw.nClientes);
+
 		arrayClientes[dadosGw.nClientes - 1].Thread.Alive = 1;
 
-		
-		arrayClientes[ dadosGw.nClientes - 1 ].Thread.hThread = CreateThread( NULL, 0, (LPTHREAD_START_ROUTINE)RecebePipeCliente, (LPVOID)&arrayClientes[ dadosGw.nClientes - 1 ], 0, &arrayClientes[dadosGw.nClientes - 1].Thread.ThreadID );
+		PosCliente = dadosGw.nClientes - 1;
+
+		hThreads[dadosGw.nClientes - 1] = ThredsCliente[dadosGw.nClientes - 1].hThread = CreateThread(NULL, 0, (LPTHREAD_START_ROUTINE)RecebePipeCliente, (LPVOID)&PosCliente, 0, &ThredsCliente[dadosGw.nClientes - 1].ThreadID);
 
 	} while (dadosGw.nClientes < MaxClientes || dadosGw.ServerUp == 1);
 
-	WaitForSingleObject(arrayClientes->Thread.hThread, INFINITE);
-	// fazer o array de threads e por aqui o waitformultipleobjetct
+	WaitForMultipleObjects(20, hThreads, FALSE, INFINITE);
 
+	for (int i = 0; i < dadosGw.nClientes; i++) {
+	
+		DisconnectNamedPipe(&arrayClientes[i].hPipe);
+
+		CloseHandle(&arrayClientes[i].hPipe);
+	}
+
+	return 0;
 
 }
-
-
 
 // fun�ao que inicia os servi�os do Gateway
 void IniciarGateway() {
@@ -119,8 +169,6 @@ void IniciarGateway() {
 	dadosGw.ServerUp = 1;
 
 	IniciaNamedPipe();
-
-	//dadosGw.hThreadGwtoSer = CreateThread(NULL, 0, (LPTHREAD_START_ROUTINE)EncaminhamentoPacotesGwtoServ, (LPVOID)NULL, 0, &dadosGw.idThreadGwtoSer);
 
 }
 
