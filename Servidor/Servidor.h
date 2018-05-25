@@ -6,6 +6,7 @@
 #include <time.h>
 #include <iostream>
 #include <string>
+#include <wchar.h>
 #include <stdlib.h>
 #include <malloc.h>
 #include <wchar.h>
@@ -45,11 +46,11 @@ typedef struct ConfiguracaoInicialJogo {
 typedef struct Jogador_Info {							
 
 	TCHAR nome[10];
+	int IdJogador;
 	int pontuacao;
 	int tempo;
 	int posicao[2];
 	int vidas;
-	int IdJogador;
 	Nave nave;
 	//PowerUp Powerup;
 }jogadorinfo;
@@ -66,6 +67,7 @@ typedef struct RegistryServer {
 typedef struct Gestao_servidor{							
 
 	int NumMaxClientes;
+	int NumCliNoArray;
 	BOOL inicioJogo;
 	BOOL ServidorUp;
 	confInitJogo initJogo;
