@@ -37,6 +37,7 @@ typedef struct Gestao_gateway {
 typedef struct Thread {
 
 	DWORD ThreadID;
+	unsigned int ID_CLIENTE;
 	HANDLE hThread;
 	unsigned int Alive;
 
@@ -46,9 +47,7 @@ typedef struct Clientes {
 	
 	unsigned int id;
 	TCHAR nome[10];
-	ThreadCliente Thread;
 	HANDLE hPipe;
-
 
 }clientes;
 
