@@ -125,28 +125,75 @@ int criaStatusServerRegistry(int n) {
 		}
 		return 0;
 	}
-
+//Mostra o nome de um cliente
 void MostraNome(TCHAR *nome) {
 
-	_tprintf(TEXT("\n\nMensagem recebida: %s"), nome);
+	_tprintf(TEXT("Cliente: %s\n"), nome);
 
 }
-// Funcao que vai fazer o tratamento de pacotes
+//verifica se o cliente é repetido 
+int verificaPlayerNoArray(TCHAR *nome) {
 
+	//TODO mutex
+	for (int i = 0; i < dadosServidor.NumCliNoArray; i++) {
+
+		if (wcscmp(ArrayJogadores[i].nome,nome)==0) {
+			//TODO fim mutex
+			return 1; //TODO encontrou 1
+		}
+	}
+	//TODO fim mutex
+	return 0;
+}
+//recebe o pacote filtra a informação e coloca na pos certa do array
 void ColocaCliArray(packet *aux,int pos) {
 
-	_tprintf(TEXT("Naquiiiiiiiiiiiiiiiii1\n"));
-	//ArrayJogadores[pos].IdJogador = aux->session_id;
-	_tprintf(TEXT("id -> %d\n",ArrayJogadores[pos].id));
-
-	//ArrayJogadores[pos].pontuacao = aux->pontuacao;
-	_tprintf(TEXT("pontuação -> %d\n", ArrayJogadores[pos].pontuacao));
+	ArrayJogadores[pos].IdJogador = aux->session_id;
+	ArrayJogadores[pos].pontuacao = aux->pontuacao;
+	wcscpy_s(ArrayJogadores[pos].nome, aux->dataPacket.nome); 
 	
-	wcscpy_s(ArrayJogadores[pos].nome, aux->dataPacket.nome); //ESTÁ A MORRER AQUI
-	MostraNome(aux->dataPacket.nome);
+	dadosServidor.NumCliNoArray += 1;
 
 }
+//aloca espaço para um novo cliente e coloca dentro do array
+void alocaColocaPlayerNoArray(packet *aux) {
 
+	jogadorinfo *arrayAux;
+
+	arrayAux = (jogadorinfo*) malloc(sizeof(jogadorinfo) * (dadosServidor.NumCliNoArray + 1));
+
+	if (arrayAux == NULL) {
+		
+		_tprintf(TEXT("Erro a criar um novo espaço no array\n"));
+		exit(-1);
+	}
+	//mutex TODO
+	// copiar o conteudo de um array para o outro
+	for (int i = 0; i <dadosServidor.NumCliNoArray; i++) {
+		arrayAux[i] = ArrayJogadores[i]; //passar do original para o auxiliar menos o ultimo cliente
+	}
+	//Agora o nosso array já tem mais uma posicao
+	ArrayJogadores = arrayAux;
+	//O numero de jogadores no array é incrementado nesta função
+	ColocaCliArray(aux,dadosServidor.NumCliNoArray);
+}
+//Pedido de Login
+void trataPacoteTipo1(packet *aux){
+	//se for o primeiro cliente ->aloca->coloca
+	if (dadosServidor.NumCliNoArray == 0) {
+		ColocaCliArray(aux, dadosServidor.NumCliNoArray);
+	}
+	//se não for vai ver se já existem algum cliente no o mesmo nome
+	if (verificaPlayerNoArray(aux->dataPacket.nome)) {
+		//envia mensagem a dizer que este player já existe
+	}
+	else//se é um user novo é colocado
+	{
+		alocaColocaPlayerNoArray(aux);
+	}
+	
+}
+// Funcao que vai fazer o tratamento de pacotes
 void TrataPacotesGwtoServ() {
 
 	packet *aux;
@@ -159,44 +206,38 @@ void TrataPacotesGwtoServ() {
 		switch (aux->tipo) {
 
 		case 1: //TIPO -> 1 -> LOGIN
-			if (dadosServidor.NumCliNoArray == 0) {// se for o primeiro cliente -> 
-				ColocaCliArray(aux, 0);
-			}
-			//_tprintf(TEXT("Nome do 1º player %s\n"), ArrayJogadores[0].nome);
-			//MostraNome(aux->dataPacket.nome);
 
+			trataPacoteTipo1(aux); 
+			//_tprintf(TEXT("Exitem estes clientes no array: \n")); //for (int i = 0; i < dadosServidor.NumCliNoArray; i++) {MostraNome(ArrayJogadores[i].nome);}
 		}
+
 	}
 
 }
-jogadorinfo * iniciaArrayCli(){
+jogadorinfo * iniciaArrayCli(){ //Alocação do Array
 	
 	jogadorinfo *Aux;
 
 	Aux = (jogadorinfo*)malloc(sizeof(jogadorinfo));
 
 
-	if (Aux = NULL) {
+	if (Aux == NULL) {
 		_tprintf(TEXT("Erro a Inicializar o Array de Jogadores\n"));
 		return NULL;
 	}
 	return Aux;
+
 }
 // inicia os servi�os e a configura�ao do Servidor;
 int IniciarServidor() {
 
+	TCHAR c;
 	ArrayJogadores = NULL;
-
 	dadosServidor.ServidorUp = 1;
 	dadosServidor.NumCliNoArray = 0;
 	
 	ArrayJogadores = iniciaArrayCli();
 	
-	
-	TCHAR c;
-	
-	_tprintf(TEXT("\n\n Inicializacao do Servidor\n\n"));
-
 	criaStatusServerRegistry( 1 );														// cria parametro no Registry para mostrar que o servidor est� 
 
 	CriaMemoriaPartilhada();															// cria os Buffers na memoria partilhada
@@ -207,7 +248,7 @@ int IniciarServidor() {
 	dadosServidor.hThreadSerToGw = CreateThread( NULL,0,(LPTHREAD_START_ROUTINE)TrataPacotesGwtoServ,(LPVOID) NULL,0,&dadosServidor.IdThreadSertoGw);
 											
 
-		_tprintf(TEXT(" 2.iniciar Naves inimigas para jogo ? "));
+		_tprintf(TEXT(" \n\n\n\n\n2.iniciar Naves inimigas para jogo ? "));
 
 	_tscanf_s(TEXT("%c"), &c, 1);
 	
