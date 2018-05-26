@@ -131,22 +131,60 @@ void MostraNome(TCHAR *nome) {
 	_tprintf(TEXT("\n\nMensagem recebida: %s"), nome);
 
 }
-// Funcao que vai fazer o tratamento de pacotes
+int verificaPlayerNoArray(TCHAR *nome) {
+
+	//TODO mutex
+	for (int i = 0; i < dadosServidor.NumCliNoArray; i++) {
+
+		if (wcscmp(ArrayJogadores[i].nome,nome)==0) {
+			//TODO fim mutex
+			return 1; //TODO encontrou 1
+		}
+	}
+
+	//TODO fim mutex
+	return 0;
+}
 
 void ColocaCliArray(packet *aux,int pos) {
 
-	_tprintf(TEXT("Naquiiiiiiiiiiiiiiiii1\n"));
-	//ArrayJogadores[pos].IdJogador = aux->session_id;
-	_tprintf(TEXT("id -> %d\n",ArrayJogadores[pos].id));
-
-	//ArrayJogadores[pos].pontuacao = aux->pontuacao;
-	_tprintf(TEXT("pontuação -> %d\n", ArrayJogadores[pos].pontuacao));
 	
-	wcscpy_s(ArrayJogadores[pos].nome, aux->dataPacket.nome); //ESTÁ A MORRER AQUI
-	MostraNome(aux->dataPacket.nome);
+	ArrayJogadores[pos].IdJogador = aux->session_id;
+	ArrayJogadores[pos].pontuacao = aux->pontuacao;
+	wcscpy_s(ArrayJogadores[pos].nome, aux->dataPacket.nome); 
+	
+	dadosServidor.NumCliNoArray += 1;
 
 }
 
+void alocaColocaPlayerNoArray(packet *aux) {
+
+	//fazer aqui um ema especie de realloc e depois chamar a func que adiciona o cliente ao array
+
+
+}
+
+void trataPacoteTipo1(packet *aux){
+
+	if (dadosServidor.NumCliNoArray == 0) {
+		ColocaCliArray(aux, dadosServidor.NumCliNoArray);
+	}
+
+
+	if (verificaPlayerNoArray(aux->dataPacket.nome)) {
+		//envia mensagem a dizer que este player já existe
+	}
+	else
+	{
+		alocaColocaPlayerNoArray(aux);
+	}
+
+
+
+
+
+}
+// Funcao que vai fazer o tratamento de pacotes
 void TrataPacotesGwtoServ() {
 
 	packet *aux;
@@ -159,44 +197,40 @@ void TrataPacotesGwtoServ() {
 		switch (aux->tipo) {
 
 		case 1: //TIPO -> 1 -> LOGIN
-			if (dadosServidor.NumCliNoArray == 0) {// se for o primeiro cliente -> 
-				ColocaCliArray(aux, 0);
-			}
-			//_tprintf(TEXT("Nome do 1º player %s\n"), ArrayJogadores[0].nome);
-			//MostraNome(aux->dataPacket.nome);
+
+			trataPacoteTipo1(aux);
+			
+			
+			
 
 		}
 	}
 
 }
-jogadorinfo * iniciaArrayCli(){
+jogadorinfo * iniciaArrayCli(){ //Alocação do Array
 	
 	jogadorinfo *Aux;
 
 	Aux = (jogadorinfo*)malloc(sizeof(jogadorinfo));
 
 
-	if (Aux = NULL) {
+	if (Aux == NULL) {
 		_tprintf(TEXT("Erro a Inicializar o Array de Jogadores\n"));
 		return NULL;
 	}
 	return Aux;
+
 }
 // inicia os servi�os e a configura�ao do Servidor;
 int IniciarServidor() {
 
+	TCHAR c;
 	ArrayJogadores = NULL;
-
 	dadosServidor.ServidorUp = 1;
 	dadosServidor.NumCliNoArray = 0;
 	
 	ArrayJogadores = iniciaArrayCli();
 	
-	
-	TCHAR c;
-	
-	_tprintf(TEXT("\n\n Inicializacao do Servidor\n\n"));
-
 	criaStatusServerRegistry( 1 );														// cria parametro no Registry para mostrar que o servidor est� 
 
 	CriaMemoriaPartilhada();															// cria os Buffers na memoria partilhada
@@ -207,7 +241,7 @@ int IniciarServidor() {
 	dadosServidor.hThreadSerToGw = CreateThread( NULL,0,(LPTHREAD_START_ROUTINE)TrataPacotesGwtoServ,(LPVOID) NULL,0,&dadosServidor.IdThreadSertoGw);
 											
 
-		_tprintf(TEXT(" 2.iniciar Naves inimigas para jogo ? "));
+		_tprintf(TEXT(" \n\n\n\n\n2.iniciar Naves inimigas para jogo ? "));
 
 	_tscanf_s(TEXT("%c"), &c, 1);
 	
