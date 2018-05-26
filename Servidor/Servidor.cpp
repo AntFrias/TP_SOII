@@ -125,12 +125,13 @@ int criaStatusServerRegistry(int n) {
 		}
 		return 0;
 	}
-
+//Mostra o nome de um cliente
 void MostraNome(TCHAR *nome) {
 
-	_tprintf(TEXT("\n\nMensagem recebida: %s"), nome);
+	_tprintf(TEXT("Cliente: %s\n"), nome);
 
 }
+//verifica se o cliente é repetido 
 int verificaPlayerNoArray(TCHAR *nome) {
 
 	//TODO mutex
@@ -141,14 +142,12 @@ int verificaPlayerNoArray(TCHAR *nome) {
 			return 1; //TODO encontrou 1
 		}
 	}
-
 	//TODO fim mutex
 	return 0;
 }
-
+//recebe o pacote filtra a informação e coloca na pos certa do array
 void ColocaCliArray(packet *aux,int pos) {
 
-	
 	ArrayJogadores[pos].IdJogador = aux->session_id;
 	ArrayJogadores[pos].pontuacao = aux->pontuacao;
 	wcscpy_s(ArrayJogadores[pos].nome, aux->dataPacket.nome); 
@@ -156,33 +155,43 @@ void ColocaCliArray(packet *aux,int pos) {
 	dadosServidor.NumCliNoArray += 1;
 
 }
-
+//aloca espaço para um novo cliente e coloca dentro do array
 void alocaColocaPlayerNoArray(packet *aux) {
 
-	//fazer aqui um ema especie de realloc e depois chamar a func que adiciona o cliente ao array
+	jogadorinfo *arrayAux;
 
+	arrayAux = (jogadorinfo*) malloc(sizeof(jogadorinfo) * (dadosServidor.NumCliNoArray + 1));
 
+	if (arrayAux == NULL) {
+		
+		_tprintf(TEXT("Erro a criar um novo espaço no array\n"));
+		exit(-1);
+	}
+	//mutex TODO
+	// copiar o conteudo de um array para o outro
+	for (int i = 0; i <dadosServidor.NumCliNoArray; i++) {
+		arrayAux[i] = ArrayJogadores[i]; //passar do original para o auxiliar menos o ultimo cliente
+	}
+	//Agora o nosso array já tem mais uma posicao
+	ArrayJogadores = arrayAux;
+	//O numero de jogadores no array é incrementado nesta função
+	ColocaCliArray(aux,dadosServidor.NumCliNoArray);
 }
-
+//Pedido de Login
 void trataPacoteTipo1(packet *aux){
-
+	//se for o primeiro cliente ->aloca->coloca
 	if (dadosServidor.NumCliNoArray == 0) {
 		ColocaCliArray(aux, dadosServidor.NumCliNoArray);
 	}
-
-
+	//se não for vai ver se já existem algum cliente no o mesmo nome
 	if (verificaPlayerNoArray(aux->dataPacket.nome)) {
 		//envia mensagem a dizer que este player já existe
 	}
-	else
+	else//se é um user novo é colocado
 	{
 		alocaColocaPlayerNoArray(aux);
 	}
-
-
-
-
-
+	
 }
 // Funcao que vai fazer o tratamento de pacotes
 void TrataPacotesGwtoServ() {
@@ -198,12 +207,10 @@ void TrataPacotesGwtoServ() {
 
 		case 1: //TIPO -> 1 -> LOGIN
 
-			trataPacoteTipo1(aux);
-			
-			
-			
-
+			trataPacoteTipo1(aux); 
+			//_tprintf(TEXT("Exitem estes clientes no array: \n")); //for (int i = 0; i < dadosServidor.NumCliNoArray; i++) {MostraNome(ArrayJogadores[i].nome);}
 		}
+
 	}
 
 }
