@@ -12,29 +12,40 @@ clientes *arrayClientes;
 
 void EnviaRespostaParaCliente(Packet resposta) {
 
+	_tprintf(TEXT("\n\nuser ID: %d"), resposta.Cliente_id);
+	_tprintf(TEXT("\nuser Name: %s"), resposta.dataPacket.nome);
+
+
 }
 
-void EnviaBroadcastPacote(Packet Resposta) {
+void EnviaBroadcastPacote(Packet resposta) {
+
+	_tprintf(TEXT("\n\nuser ID: %d"), resposta.Cliente_id);
+	_tprintf(TEXT("\nuser Name: %s"), resposta.dataPacket.nome);
 
 }
 
 
 void LePacotesBufferServtoGw(Thread *aux) {
 
+	_tprintf(TEXT("\n\nCHEGUEI AQUI AO LEPACOTESDOBUFFERSERVTOGW e esta thread tem o alive a %d"), aux->Alive);
+
 	packet Resposta;
 
-	while (aux->Alive == 1) {
-		
+	do {
+	
 		Resposta = LerBufferServtoGw();
-
+		_tprintf(TEXT("\n\nLi 1 Pacote"));
 		if (Resposta.tipo == BroadcastPackage) {
+
 			EnviaBroadcastPacote(Resposta);
-		}
-		else {
+
+		} else {
 
 			EnviaRespostaParaCliente(Resposta);
+
 		}
-	}
+	} while (aux->Alive == 1);
 }
 // funcao que recebe pacotes do Pipe que veem do Cliente
 void RecebePipeCliente(LPVOID *PosCliente) {
