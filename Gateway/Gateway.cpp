@@ -2,6 +2,8 @@
 #include "../AcessoMemDLL/stdafx.h"
 #pragma comment(lib, "../x64/Debug/AcessoMemDLL.lib")
 
+//TCHAR BufGwtoBufGwtoServServ[] = TEXT("Buffer GwToSr");
+
 dataGw dadosGw;
 
 Thread *ThreadsCliente;
@@ -20,7 +22,7 @@ void RecebePipeCliente(LPVOID *PosCliente) {
 
 		ReadFile(arrayClientes[*posCliente].hPipe, &Pacote, sizeof(Packet), &nbytes, NULL);
 		
-		escrevebufferGwToSr(&Pacote);
+		escrevebuffer(&Pacote, nomeGwtoServ);
 
 	} 
 }
@@ -133,7 +135,7 @@ HANDLE criaNamedPipe() {
 
 }
 //inicia Comunicaçao com CLiente
-int criaComunicaçaoClienteGateway() {
+int criaComunicacaoClienteGateway() {
 
 	dadosGw.nClientes = 0;
 
@@ -167,6 +169,8 @@ int criaComunicaçaoClienteGateway() {
 
 		hThreads = CriaHandleParaNovaThread(hThreads, dadosGw.nClientes);  // cria novo handle no array de Handles da Thread
 		//inicia a thread de comunicaçao com o respetivo Cliente
+
+		
 		hThreads[PosCliente] = ThreadsCliente[PosCliente].hThread = CreateThread(NULL, 0, (LPTHREAD_START_ROUTINE)RecebePipeCliente, (LPVOID)&PosCliente, 0, &ThreadsCliente[PosCliente].ThreadID);
 
 	} while (dadosGw.nClientes < MaxClientes || dadosGw.ServerUp == 1);
@@ -175,9 +179,10 @@ int criaComunicaçaoClienteGateway() {
 
 	for (int i = 0; i < dadosGw.nClientes; i++) {
 
-		if ( !DisconnectNamedPipe)
-		
+		if (!DisconnectNamedPipe) {
+
 			DisconnectNamedPipe(&arrayClientes[i].hPipe);
+		}
 
 		CloseHandle(&arrayClientes[i].hPipe);
 	}
@@ -191,11 +196,13 @@ void IniciarGateway() {
 
 	CriaMemoriaPartilhada();
 
-	CriaSyncMemoria();
+	CriaSyncMemoriaGwtoServ();
+
+	CriaSyncMemoriaServtoGw();
 
 	dadosGw.ServerUp = 1;
 
-	criaComunicaçaoClienteGateway();
+	criaComunicacaoClienteGateway();
 
 }
 
