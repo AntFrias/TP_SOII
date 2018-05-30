@@ -176,7 +176,7 @@ void alocaColocaPlayerNoArray(packet *aux) {
 	ColocaCliArray(aux,dadosServidor.NumCliNoArray);
 }
 //Pedido de Login
-void trataPacoteTipo1(packet *aux){
+packet trataPacoteTipo1(packet *aux){
 
 	packet resposta;
 															//se for o primeiro cliente ->aloca->coloca
@@ -205,23 +205,25 @@ void trataPacoteTipo1(packet *aux){
 	}
 	wcscpy_s(resposta.dataPacket.nome, aux->dataPacket.nome);
 	
+	return resposta;
 }
 // Funcao que vai fazer o tratamento de pacotes
 void TrataPacotesGwtoServ() {
 
-	packet *aux;
+	packet *aux, resposta;
 
-	while (1) {
-		//Sleep(1000);//para debug
+	while (dadosServidor.ServidorUp == 1) {
+		
 		aux = LerBufferGwtoSer();
-	
+		_tprintf(TEXT("\n\nLi um pacote do jogador %s com o ID %d"), aux->dataPacket.nome, aux->Cliente_id);
 		switch (aux->tipo) {
 
 		case user_login: //TIPO -> 1 -> LOGIN
 
-			trataPacoteTipo1(aux); 
+			resposta = trataPacoteTipo1(aux); 
 		}
-
+		_tprintf(TEXT("\nVou escrever uma resposta para jogador %s com o ID %d"), aux->dataPacket.nome, aux->Cliente_id);
+		//escrevebuffer(&resposta, nomeServtoGw);
 	}
 
 }
