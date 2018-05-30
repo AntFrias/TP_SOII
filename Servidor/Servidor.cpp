@@ -207,6 +207,19 @@ packet trataPacoteTipo1(packet *aux){
 	
 	return resposta;
 }
+//func que lista os clientes
+void mostraClinoArray() {
+
+	_tprintf(TEXT("\nClientes no Array: \n\n"));
+
+	for (int i = 0; i < dadosServidor.NumCliNoArray; i++) {
+
+		_tprintf(TEXT("Cliente n:%d --- Nome %s \n"),(i+1),ArrayJogadores[i].nome);
+	}
+
+
+
+}
 // Funcao que vai fazer o tratamento de pacotes
 void TrataPacotesGwtoServ() {
 
@@ -223,6 +236,7 @@ void TrataPacotesGwtoServ() {
 			resposta = trataPacoteTipo1(aux); 
 		}
 		_tprintf(TEXT("\nVou escrever uma resposta para jogador %s com o ID %d"), aux->dataPacket.nome, aux->Cliente_id);
+		mostraClinoArray();
 		//escrevebuffer(&resposta, nomeServtoGw);
 	}
 
