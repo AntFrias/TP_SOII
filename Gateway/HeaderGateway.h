@@ -30,6 +30,7 @@ typedef struct Gestao_gateway {
 	int nClientes;
 	unsigned int ServerUp;
 
+
 }dataGw;
 
 typedef struct Thread {
