@@ -15,8 +15,7 @@
 
 // Inicio do ID para as naves
 #define StartIDNave 2000
-// Inicio do ID para os jogadores
-#define StartIdJogador 1000
+
 
 
 

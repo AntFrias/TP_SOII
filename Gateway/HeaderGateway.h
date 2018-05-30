@@ -21,8 +21,6 @@ void IniciarGateway();
 
 //Estruturas
 
-
-
 typedef struct Gestao_gateway {
 
 	int sessionID;
