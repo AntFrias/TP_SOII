@@ -16,9 +16,6 @@
 // Inicio do ID para as naves
 #define StartIDNave 2000
 
-
-
-
 //////////////////////////////////////////////////////////////////////////////////////////////////
 // Estrutura de suporte ás naves
 typedef struct naves {
@@ -70,7 +67,7 @@ typedef struct Gestao_servidor{
 	BOOL inicioJogo;
 	BOOL ServidorUp;
 	confInitJogo initJogo;
-	registryServer ServerUp;
+	registryServer ServerUp; // ver se isto vai ser necessario
 	HANDLE hThreadSerToGw;
 	DWORD IdThreadSertoGw;
 
