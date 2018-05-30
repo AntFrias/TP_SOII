@@ -168,28 +168,33 @@ void alocaColocaPlayerNoArray(packet *aux) {
 		exit(-1);
 	}
 	//mutex TODO
-	// copiar o conteudo de um array para o outro
+																// copiar o conteudo de um array para o outro
 	for (int i = 0; i <dadosServidor.NumCliNoArray; i++) {
-		arrayAux[i] = ArrayJogadores[i]; //passar do original para o auxiliar menos o ultimo cliente
+		arrayAux[i] = ArrayJogadores[i];							//passar do original para o auxiliar menos o ultimo cliente
 	}
-	//Agora o nosso array já tem mais uma posicao
+																	//Agora o nosso array já tem mais uma posicao
 	ArrayJogadores = arrayAux;
-	//O numero de jogadores no array é incrementado nesta função
+																	//O numero de jogadores no array é incrementado nesta função
 	ColocaCliArray(aux,dadosServidor.NumCliNoArray);
 }
 //Pedido de Login
 void trataPacoteTipo1(packet *aux){
-	//se for o primeiro cliente ->aloca->coloca
+															//se for o primeiro cliente ->aloca->coloca
 	if (dadosServidor.NumCliNoArray == 0) {
 		ColocaCliArray(aux, dadosServidor.NumCliNoArray);
 	}
-	//se não for vai ver se já existem algum cliente no o mesmo nome
+															//se não for vai ver se já existem algum cliente no o mesmo nome
 	if (verificaPlayerNoArray(aux->dataPacket.nome)) {
-		//envia mensagem a dizer que este player já existe
+															//envia mensagem a dizer que este player já existe
 	}
-	else//se é um user novo é colocado
+	else
 	{
-		alocaColocaPlayerNoArray(aux);
+		if (dadosServidor.NumCliNoArray < dadosServidor.NumMaxClientes) {
+			alocaColocaPlayerNoArray(aux);
+		}
+		else {
+			//envia mensagem a dizer que está tudo ocupado
+		}
 	}
 	
 }
@@ -197,7 +202,6 @@ void trataPacoteTipo1(packet *aux){
 void TrataPacotesGwtoServ() {
 
 	packet *aux;
-	
 
 	while (1) {
 		//Sleep(1000);//para debug
@@ -208,7 +212,7 @@ void TrataPacotesGwtoServ() {
 		case 1: //TIPO -> 1 -> LOGIN
 
 			trataPacoteTipo1(aux); 
-			//_tprintf(TEXT("Exitem estes clientes no array: \n")); //for (int i = 0; i < dadosServidor.NumCliNoArray; i++) {MostraNome(ArrayJogadores[i].nome);}
+			_tprintf(TEXT("Exitem estes clientes no array: \n")); for (int i = 0; i < dadosServidor.NumCliNoArray; i++) {MostraNome(ArrayJogadores[i].nome);}
 		}
 
 	}
@@ -233,6 +237,7 @@ int IniciarServidor() {
 
 	TCHAR c;
 	ArrayJogadores = NULL;
+	dadosServidor.NumMaxClientes = 5;
 	dadosServidor.ServidorUp = 1;
 	dadosServidor.NumCliNoArray = 0;
 	
