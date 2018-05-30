@@ -2,6 +2,7 @@
 #include "../AcessoMemDLL/stdafx.h"
 #pragma comment(lib, "../x64/Debug/AcessoMemDLL.lib")
 
+
 dataServer dadosServidor;
 jogadorinfo *ArrayJogadores;
 
@@ -35,9 +36,6 @@ int GestorNavesInimigas(LPVOID navesInimigas) {
 			gotoxy(coord_x, coord_y);
 			_tprintf(TEXT("I"));
 		}
-
-		//}
-
 		naveInimiga->vida--;
 
 	} while (naveInimiga->vida > 0);
@@ -59,7 +57,6 @@ int IniciaNavesInimigas( int NumNavesInvasoras) {
 	}
 
 	int coord_x = CoordWindow_x, coord_y = CoordWindow_y;
-	
 	
 	navesInimigas = (Nave*)malloc(sizeof(Nave) * NumNavesInvasoras);
 
@@ -106,7 +103,7 @@ int IniciaNavesInimigas( int NumNavesInvasoras) {
 	return 0;
 }
 // inicia os servi�os e a configura�ao do Servidor no registry;
-int criaStatusServerRegistry(int n) {
+/*int criaStatusServerRegistry(int n) {
 
 		registryServer StatServer;
 
@@ -125,6 +122,7 @@ int criaStatusServerRegistry(int n) {
 		}
 		return 0;
 	}
+*/
 //Mostra o nome de um cliente
 void MostraNome(TCHAR *nome) {
 
@@ -148,7 +146,7 @@ int verificaPlayerNoArray(TCHAR *nome) {
 //recebe o pacote filtra a informação e coloca na pos certa do array
 void ColocaCliArray(packet *aux,int pos) {
 
-	ArrayJogadores[pos].IdJogador = aux->session_id;
+	ArrayJogadores[pos].IdJogador = aux->Cliente_id;
 	ArrayJogadores[pos].pontuacao = aux->pontuacao;
 	wcscpy_s(ArrayJogadores[pos].nome, aux->dataPacket.nome); 
 	
@@ -179,23 +177,33 @@ void alocaColocaPlayerNoArray(packet *aux) {
 }
 //Pedido de Login
 void trataPacoteTipo1(packet *aux){
+
+	packet resposta;
 															//se for o primeiro cliente ->aloca->coloca
 	if (dadosServidor.NumCliNoArray == 0) {
 		ColocaCliArray(aux, dadosServidor.NumCliNoArray);
+		resposta.tipo = user_login_sucesso;
 	}
 															//se não for vai ver se já existem algum cliente no o mesmo nome
 	if (verificaPlayerNoArray(aux->dataPacket.nome)) {
+
+		resposta.tipo = user_Login_falhou;
 															//envia mensagem a dizer que este player já existe
 	}
 	else
 	{
 		if (dadosServidor.NumCliNoArray < dadosServidor.NumMaxClientes) {
 			alocaColocaPlayerNoArray(aux);
+			resposta.tipo = user_login_sucesso;
 		}
 		else {
+			_tprintf(TEXT("\n\n Falta completar aqui a dizer que o Buffer está cheio e por a funçao de escrecer a resposta"));
+			resposta.tipo = user_login_Limite_clientes;
+			
 			//envia mensagem a dizer que está tudo ocupado
 		}
 	}
+	wcscpy_s(resposta.dataPacket.nome, aux->dataPacket.nome);
 	
 }
 // Funcao que vai fazer o tratamento de pacotes
@@ -209,10 +217,9 @@ void TrataPacotesGwtoServ() {
 	
 		switch (aux->tipo) {
 
-		case 1: //TIPO -> 1 -> LOGIN
+		case user_login: //TIPO -> 1 -> LOGIN
 
 			trataPacoteTipo1(aux); 
-			_tprintf(TEXT("Exitem estes clientes no array: \n")); for (int i = 0; i < dadosServidor.NumCliNoArray; i++) {MostraNome(ArrayJogadores[i].nome);}
 		}
 
 	}
@@ -243,16 +250,16 @@ int IniciarServidor() {
 	
 	ArrayJogadores = iniciaArrayCli();
 	
-	criaStatusServerRegistry( 1 );														// cria parametro no Registry para mostrar que o servidor est� 
+	//criaStatusServerRegistry( 1 );														// cria parametro no Registry para mostrar que o servidor est� 
 
 	CriaMemoriaPartilhada();															// cria os Buffers na memoria partilhada
 
-	CriaSyncMemoria();																	// cria a syncroniza�ao que ser� usada nos Buffers
+	CriaSyncMemoriaGwtoServ();						// cria a syncroniza�ao que ser� usada nos Buffers	
 	
-																						
+	CriaSyncMemoriaServtoGw();
+																				
 	dadosServidor.hThreadSerToGw = CreateThread( NULL,0,(LPTHREAD_START_ROUTINE)TrataPacotesGwtoServ,(LPVOID) NULL,0,&dadosServidor.IdThreadSertoGw);
 											
-
 		_tprintf(TEXT(" \n\n\n\n\n2.iniciar Naves inimigas para jogo ? "));
 
 	_tscanf_s(TEXT("%c"), &c, 1);
@@ -264,7 +271,7 @@ int IniciarServidor() {
 		IniciaNavesInimigas(dadosServidor.initJogo.MaxNavesInimigas);
 	}
 	
-	criaStatusServerRegistry (0 );
+	//criaStatusServerRegistry (0 );
 	return 0;
 }
 
@@ -276,7 +283,7 @@ int _tmain(int argc, LPTSTR argv[]) {
 	_setmode(_fileno(stdin), _O_WTEXT);
 	_setmode(_fileno(stdout), _O_WTEXT);
 #endif	
-	
+
 	IniciarServidor();
 
 	Sleep(190000);
