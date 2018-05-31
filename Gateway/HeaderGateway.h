@@ -47,6 +47,8 @@ typedef struct Clientes {
 	unsigned int id;
 	TCHAR nome[10];
 	HANDLE hPipe;
+	HANDLE IOReady;
+	OVERLAPPED Ov;
 
 }clientes;
 
