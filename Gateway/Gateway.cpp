@@ -6,9 +6,45 @@
 
 dataGw dadosGw;
 
-Thread *ThreadsCliente;
+Thread *ThreadsCliente, ThreadsGateway[4];
 
 clientes *arrayClientes;
+
+void EnviaRespostaParaCliente(Packet *resposta) {
+
+	_tprintf(TEXT("\n\nuser ID: %d"), resposta->Cliente_id);
+	_tprintf(TEXT("\nuser Name: %s"), resposta->dataPacket.nome);
+}
+
+void EnviaBroadcastPacote(Packet *resposta) {
+
+	_tprintf(TEXT("\n\nuser ID: %d"), resposta->Cliente_id);
+	_tprintf(TEXT("\nuser Name: %s"), resposta->dataPacket.nome);
+}
+
+void LePacotesBufferServtoGw() {
+
+	_tprintf(TEXT("\n\nCHEGUEI AQUI AO LEPACOTESDOBUFFERSERVTOGW e esta thread tem o alive a %d"), ThreadsGateway[3].Alive);  // ThreadsGateway array global
+
+	packet *Resposta;
+
+	do {
+	
+		Resposta = LerBufferServtoGw();
+
+		_tprintf(TEXT("\n\nLi 1 Pacote"));
+
+		if (Resposta->tipo == BroadcastPackage) {
+
+			EnviaBroadcastPacote(Resposta);
+
+		} else {
+
+			EnviaRespostaParaCliente(Resposta);
+
+		}
+	} while (ThreadsGateway[3].Alive == 1);
+}
 // funcao que recebe pacotes do Pipe que veem do Cliente
 void RecebePipeCliente(LPVOID *PosCliente) {
 
@@ -78,6 +114,7 @@ HANDLE * CriaHandleParaNovaThread(HANDLE * hThreads, int nClientes) {
 		return aux;
 	}
 }
+
 //Cria Thread Inicial para receber Primeiro Cliente
 Thread * criaThreadInicial() {
 
@@ -151,6 +188,11 @@ int criaComunicacaoClienteGateway() {
 
 	hThreads = criaArrayHandlesThreads();					// cria inicio do Array de Handles para o waitformultipleobject
 
+	ThreadsGateway[3].Alive = 1;
+
+	ThreadsGateway[3].hThread = CreateThread(NULL, 0, (LPTHREAD_START_ROUTINE)LePacotesBufferServtoGw, (LPVOID)NULL, 0, &ThreadsGateway[3].ThreadID);
+	_tprintf(TEXT("\n\nLancei a Thread que Recebe pacotes do servidor"));
+	
 	do {
 
 		hPipe = criaNamedPipe();				// cria named pipe ou instancia chega Cliente
@@ -173,9 +215,12 @@ int criaComunicacaoClienteGateway() {
 		
 		hThreads[PosCliente] = ThreadsCliente[PosCliente].hThread = CreateThread(NULL, 0, (LPTHREAD_START_ROUTINE)RecebePipeCliente, (LPVOID)&PosCliente, 0, &ThreadsCliente[PosCliente].ThreadID);
 
-	} while (dadosGw.nClientes < MaxClientes || dadosGw.ServerUp == 1);
+		
+	} while (dadosGw.nClientes < MaxClientes || dadosGw.ServerUp == 1); // trocar aqui o MAXClientes para 0 e o sinal para Maior
 
 	WaitForMultipleObjects(NULL, hThreads, FALSE, INFINITE);
+
+	//WaitForSingleObject(, INFINITE);
 
 	for (int i = 0; i < dadosGw.nClientes; i++) {
 
