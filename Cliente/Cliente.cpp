@@ -52,7 +52,7 @@ int _tmain(int argc, LPTSTR argv[]) {
 
 
 
-
+	/*
 
 
 	//ler do pipe
@@ -87,7 +87,7 @@ int _tmain(int argc, LPTSTR argv[]) {
 	}
 
 	CloseHandle(Cliente.pipe);
-
+	*/
 	WaitForSingleObject(Cliente.ht, INFINITE);
 
 
