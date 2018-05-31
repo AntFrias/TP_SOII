@@ -17,6 +17,7 @@
 typedef struct estrCli {
 
 	int cor;
+	int alive;
 	TCHAR nome[50];
 	HANDLE ht;
 	DWORD IDth;

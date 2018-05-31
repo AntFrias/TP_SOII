@@ -18,8 +18,36 @@ void EnviaRespostaParaCliente(Packet *resposta) {
 
 void EnviaBroadcastPacote(Packet *resposta) {
 
-	_tprintf(TEXT("\n\nuser ID: %d"), resposta->Cliente_id);
-	_tprintf(TEXT("\nuser Name: %s"), resposta->dataPacket.nome);
+	DWORD nBytes;
+	BOOL ret;
+	
+	for (int i = 0; i < dadosGw.nClientes; i++) {
+
+		ZeroMemory(&arrayClientes[i].Ov, sizeof(arrayClientes[i].Ov));
+		ResetEvent(arrayClientes[i].IOReady);
+		arrayClientes[i].Ov.hEvent = arrayClientes[i].IOReady;
+
+
+		WriteFile(arrayClientes[i].hPipe, resposta,sizeof(packet), &nBytes, &arrayClientes[i].Ov);  //Se Write dá erro, o cliente desconectou-se
+		WaitForSingleObject(arrayClientes[i].IOReady, INFINITE);
+		
+		
+		ret = GetOverlappedResult(arrayClientes[i].hPipe, &arrayClientes[i].Ov, &nBytes, FALSE);
+
+		if (!ret || !nBytes) {
+			_tprintf(TEXT("[ERRO] Escrever no pipe! (WriteFile)\n"));
+			DisconnectNamedPipe(arrayClientes[i].hPipe);	//fechar os recursos associados ao cliente que se desligou
+			CloseHandle(arrayClientes[i].hPipe);
+			//WaitForSingleObject(hMutex, INFINITE);
+			arrayClientes[i].hPipe = INVALID_HANDLE_VALUE;
+			//ReleaseMutex(hMutex);
+		}
+
+
+	}
+
+	//_tprintf(TEXT("\n\nuser ID: %d"), resposta->Cliente_id);
+	//_tprintf(TEXT("\nuser Name: %s"), resposta->dataPacket.nome);
 }
 
 void LePacotesBufferServtoGw() {
@@ -31,7 +59,7 @@ void LePacotesBufferServtoGw() {
 	do {
 	
 		Resposta = LerBufferServtoGw();
-
+		Resposta->tipo = 69;
 		_tprintf(TEXT("\n\nLi 1 Pacote"));
 
 		if (Resposta->tipo == BroadcastPackage) {
@@ -44,6 +72,25 @@ void LePacotesBufferServtoGw() {
 
 		}
 	} while (ThreadsGateway[3].Alive == 1);
+	
+	//fecha tudo no fim
+	for (int j = 0; j < dadosGw.nClientes; j++) {
+		if (arrayClientes[j].hPipe != INVALID_HANDLE_VALUE)
+			if (!DisconnectNamedPipe(arrayClientes[j].hPipe)) {
+				_tprintf(TEXT("[ERRO] Desligar o pipe! (DisconnectNamedPipe)"));
+				exit(-1);
+			}
+	}
+
+
+	for (int j = 0; j < dadosGw.nClientes; j++) {
+		if (arrayClientes[j].hPipe != INVALID_HANDLE_VALUE)
+			CloseHandle(arrayClientes[j].hPipe);
+	}
+	for (int j = 0; j < dadosGw.nClientes; j++) {
+		CloseHandle(arrayClientes[j].IOReady);
+	}
+
 }
 // funcao que recebe pacotes do Pipe que veem do Cliente
 void RecebePipeCliente(LPVOID *PosCliente) {
@@ -51,16 +98,37 @@ void RecebePipeCliente(LPVOID *PosCliente) {
 	int *posCliente = (int *)PosCliente;
 
 	Packet Pacote;
-	
 	DWORD nbytes;
+	BOOL ret;
+
+	arrayClientes[*posCliente].IOReady = CreateEvent(NULL, TRUE, FALSE, NULL);
+
 
 	while (ThreadsCliente[*posCliente].Alive == 1) {
 
-		ReadFile(arrayClientes[*posCliente].hPipe, &Pacote, sizeof(Packet), &nbytes, NULL);
+		ZeroMemory(&arrayClientes[*posCliente].Ov, sizeof(arrayClientes[*posCliente].Ov));
+		ResetEvent(&arrayClientes[*posCliente].IOReady);
+		arrayClientes[*posCliente].Ov.hEvent = arrayClientes[*posCliente].IOReady;
+
+
+		ReadFile(arrayClientes[*posCliente].hPipe, &Pacote, sizeof(Packet), &nbytes, &arrayClientes[*posCliente].Ov);
+		WaitForSingleObject(arrayClientes[*posCliente].IOReady, INFINITE);
+		ret = GetOverlappedResult(arrayClientes[*posCliente].hPipe, &arrayClientes[*posCliente].Ov, &nbytes, FALSE);
 		
+		if (!ret || !nbytes) {
+			_tprintf(TEXT("[ESCRITOR] %d %d... (ReadFile)\n"), ret, nbytes);
+			break;
+		}
+
 		escrevebuffer(&Pacote, nomeGwtoServ);
 
-	} 
+	}
+
+	DisconnectNamedPipe(arrayClientes[*posCliente].hPipe);
+	CloseHandle(arrayClientes[*posCliente].hPipe);
+	CloseHandle(arrayClientes[*posCliente].IOReady);
+	arrayClientes[*posCliente].hPipe = INVALID_HANDLE_VALUE;
+
 }
 // Cria Thread para Respetivo Cliente
 Thread * criaThreadParaCliente(Thread *threadsCliente, int nClientes) {
@@ -145,23 +213,24 @@ Clientes * CriaClienteInicial() {
 // cria namedPipe/instancias para comunicaçao com os Clientes
 HANDLE criaNamedPipe() {
 
-	HANDLE hPipe = CreateNamedPipe(PIPE_NAME, PIPE_ACCESS_DUPLEX, PIPE_WAIT | PIPE_TYPE_MESSAGE | PIPE_READMODE_MESSAGE, MaxClientes, sizeof(packet), sizeof(packet), INFINITE, NULL);
 
-	if (hPipe == NULL) {
+	HANDLE hPipe = CreateNamedPipe(PIPE_NAME, PIPE_ACCESS_DUPLEX | FILE_FLAG_OVERLAPPED, PIPE_WAIT | PIPE_TYPE_MESSAGE | PIPE_READMODE_MESSAGE, 5, sizeof(packet), sizeof(packet), 1000, NULL);
+
+	if (hPipe == INVALID_HANDLE_VALUE) {
 
 		_tprintf(TEXT("\n\n Erro ao criar Pipe Para Cliente %d"), dadosGw.nClientes);
-		return NULL;
+		return NULL;//aqui deve fechar o programa exit(-1)
 	}
 	else {
 
 		_tprintf(TEXT("\n\nPipe Para Cliente %d Criado com sucesso"), dadosGw.nClientes);
 	}
 
-	if (!ConnectNamedPipe(hPipe, NULL)) {
+	if (!ConnectNamedPipe(hPipe, NULL)) {//bloqueante
 
 		_tprintf(TEXT("\n\n ERRO na Ligaçao ao Cliente  (ConnectNamedPipe)\n"));
 
-		return NULL;
+		return NULL;//aqui deve fechar o programa exit(-1)
 	}
 	else {
 
@@ -215,7 +284,8 @@ int criaComunicacaoClienteGateway() {
 		
 		hThreads[PosCliente] = ThreadsCliente[PosCliente].hThread = CreateThread(NULL, 0, (LPTHREAD_START_ROUTINE)RecebePipeCliente, (LPVOID)&PosCliente, 0, &ThreadsCliente[PosCliente].ThreadID);
 
-		
+		//epa esta condição tem que ser trocada ... pois se algum cliente se desligar já não se consegue ligar mais nenhum TODO
+
 	} while (dadosGw.nClientes < MaxClientes || dadosGw.ServerUp == 1); // trocar aqui o MAXClientes para 0 e o sinal para Maior
 
 	WaitForMultipleObjects(NULL, hThreads, FALSE, INFINITE);
