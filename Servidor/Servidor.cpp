@@ -237,7 +237,7 @@ void TrataPacotesGwtoServ() {
 		}
 		_tprintf(TEXT("\nVou escrever uma resposta para jogador %s com o ID %d"), aux->dataPacket.nome, aux->Cliente_id);
 		mostraClinoArray();
-		//escrevebuffer(&resposta, nomeServtoGw);
+		escrevebuffer(&resposta, nomeServtoGw);
 	}
 
 }
