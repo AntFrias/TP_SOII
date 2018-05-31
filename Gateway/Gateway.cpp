@@ -6,37 +6,35 @@
 
 dataGw dadosGw;
 
-Thread *ThreadsCliente;
+Thread *ThreadsCliente, ThreadsGateway[4];
 
 clientes *arrayClientes;
 
-void EnviaRespostaParaCliente(Packet resposta) {
+void EnviaRespostaParaCliente(Packet *resposta) {
 
-	_tprintf(TEXT("\n\nuser ID: %d"), resposta.Cliente_id);
-	_tprintf(TEXT("\nuser Name: %s"), resposta.dataPacket.nome);
-
-
+	_tprintf(TEXT("\n\nuser ID: %d"), resposta->Cliente_id);
+	_tprintf(TEXT("\nuser Name: %s"), resposta->dataPacket.nome);
 }
 
-void EnviaBroadcastPacote(Packet resposta) {
+void EnviaBroadcastPacote(Packet *resposta) {
 
-	_tprintf(TEXT("\n\nuser ID: %d"), resposta.Cliente_id);
-	_tprintf(TEXT("\nuser Name: %s"), resposta.dataPacket.nome);
-
+	_tprintf(TEXT("\n\nuser ID: %d"), resposta->Cliente_id);
+	_tprintf(TEXT("\nuser Name: %s"), resposta->dataPacket.nome);
 }
 
+void LePacotesBufferServtoGw() {
 
-void LePacotesBufferServtoGw(Thread *aux) {
+	_tprintf(TEXT("\n\nCHEGUEI AQUI AO LEPACOTESDOBUFFERSERVTOGW e esta thread tem o alive a %d"), ThreadsGateway[3].Alive);  // ThreadsGateway array global
 
-	_tprintf(TEXT("\n\nCHEGUEI AQUI AO LEPACOTESDOBUFFERSERVTOGW e esta thread tem o alive a %d"), aux->Alive);
-
-	packet Resposta;
+	packet *Resposta;
 
 	do {
 	
 		Resposta = LerBufferServtoGw();
+
 		_tprintf(TEXT("\n\nLi 1 Pacote"));
-		if (Resposta.tipo == BroadcastPackage) {
+
+		if (Resposta->tipo == BroadcastPackage) {
 
 			EnviaBroadcastPacote(Resposta);
 
@@ -45,7 +43,7 @@ void LePacotesBufferServtoGw(Thread *aux) {
 			EnviaRespostaParaCliente(Resposta);
 
 		}
-	} while (aux->Alive == 1);
+	} while (ThreadsGateway[3].Alive == 1);
 }
 // funcao que recebe pacotes do Pipe que veem do Cliente
 void RecebePipeCliente(LPVOID *PosCliente) {
@@ -182,8 +180,6 @@ int criaComunicacaoClienteGateway() {
 
 	HANDLE *hThreads;
 
-	Thread recebeServThread;		// Thread que vai receber os pacotes do cliente
-
 	int PosCliente = 0;
 
 	arrayClientes = CriaClienteInicial();					// Inicio da criaçao do array de clientes
@@ -192,9 +188,9 @@ int criaComunicacaoClienteGateway() {
 
 	hThreads = criaArrayHandlesThreads();					// cria inicio do Array de Handles para o waitformultipleobject
 
-	recebeServThread.Alive == 1;
+	ThreadsGateway[3].Alive = 1;
 
-	recebeServThread.hThread = CreateThread(NULL, 0, (LPTHREAD_START_ROUTINE)LePacotesBufferServtoGw, (LPVOID)&recebeServThread, 0, &recebeServThread.ThreadID);
+	ThreadsGateway[3].hThread = CreateThread(NULL, 0, (LPTHREAD_START_ROUTINE)LePacotesBufferServtoGw, (LPVOID)NULL, 0, &ThreadsGateway[3].ThreadID);
 	_tprintf(TEXT("\n\nLancei a Thread que Recebe pacotes do servidor"));
 	
 	do {
