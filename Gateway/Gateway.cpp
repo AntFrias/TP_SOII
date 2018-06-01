@@ -103,7 +103,7 @@ void EnviaBroadcastPacote(Packet *resposta) {
 	}
 	OVERLAPPED Ov;
 
-	for (int i = 0; i < dadosGw.nClientes; i++) {
+	for (int i = 1; i <= dadosGw.nClientes; i++) {
 		if (Clientes[i].hPipe != INVALID_HANDLE_VALUE) {
 		
 			ZeroMemory(&Ov, sizeof(Ov));
@@ -168,6 +168,9 @@ int criaComunicacaoClienteGateway() {
 	DWORD idThLeServToGw;
 	int PosThLeServToGw = 0;
 
+	for (int i = 0; i < 21; i++){
+		hThreads[i] = INVALID_HANDLE_VALUE;
+	}
 	hThreads[PosThLeServToGw] = CreateThread(NULL, 0, (LPTHREAD_START_ROUTINE)LePacotesBufferServtoGw, (LPVOID)NULL, 0, &idThLeServToGw);
 	_tprintf(TEXT("\n\nLancei a Thread que Recebe pacotes do servidor"));
 	

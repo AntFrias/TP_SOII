@@ -84,6 +84,13 @@ int _tmain(int argc, LPTSTR argv[]) {
 	exit(-1);
 	}
 
+	// mudar para modo message
+	DWORD dwMode = PIPE_READMODE_MESSAGE;
+	int fres;
+	fres = SetNamedPipeHandleState(Cliente.pipe, &dwMode, NULL, NULL);
+	if (!fres)
+		_tprintf(TEXT("ERRO  a  mudar para message mode"));
+
 	//escrevo no pipe
 	Cliente.ht = CreateThread(NULL, 0, (LPTHREAD_START_ROUTINE)Envia, (LPVOID)NULL, 0, &Cliente.IDth);
 
