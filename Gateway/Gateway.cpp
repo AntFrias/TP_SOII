@@ -116,7 +116,7 @@ void RecebePipeCliente(LPVOID *PosCliente) {
 		ret = GetOverlappedResult(arrayClientes[*posCliente].hPipe, &arrayClientes[*posCliente].Ov, &nbytes, FALSE);
 		
 		if (!ret || !nbytes) {
-			_tprintf(TEXT("[ESCRITOR] %d %d... (ReadFile)\n"), ret, nbytes);
+			_tprintf(TEXT("[Gateway] %d %d... (ReadFile)\n"), ret, nbytes);
 			break;
 		}
 
