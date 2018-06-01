@@ -84,6 +84,13 @@ int _tmain(int argc, LPTSTR argv[]) {
 	exit(-1);
 	}
 
+	// mudar para modo message
+	DWORD dwMode = PIPE_READMODE_MESSAGE;
+	int fres;
+	fres = SetNamedPipeHandleState(Cliente.pipe, &dwMode, NULL, NULL);
+	if (!fres)
+		_tprintf(TEXT("ERRO  a  mudar para message mode"));
+
 	//escrevo no pipe
 	Cliente.ht = CreateThread(NULL, 0, (LPTHREAD_START_ROUTINE)Envia, (LPVOID)NULL, 0, &Cliente.IDth);
 
@@ -104,7 +111,7 @@ int _tmain(int argc, LPTSTR argv[]) {
 			_tprintf(TEXT("Nao li nada\n"), ret, nBytesLidos);
 			break;
 		}
-
+		_tprintf(TEXT("\n\nRecebi este nome %s\n"),PacoteRecebido.dataPacket.nome);
 	}
 
 	CloseHandle(Cliente.pipe);	// fecha pipe do cliente
