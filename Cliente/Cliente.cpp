@@ -104,7 +104,7 @@ int _tmain(int argc, LPTSTR argv[]) {
 			_tprintf(TEXT("Nao li nada\n"), ret, nBytesLidos);
 			break;
 		}
-		_tprintf(TEXT("Recebi este nome %s\n"),PacoteRecebido.dataPacket.nome);
+		_tprintf(TEXT("\n\nRecebi este nome %s\n"),PacoteRecebido.dataPacket.nome);
 	}
 
 	CloseHandle(Cliente.pipe);	// fecha pipe do cliente

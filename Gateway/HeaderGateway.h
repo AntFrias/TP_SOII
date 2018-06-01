@@ -13,7 +13,7 @@
 #include <shellapi.h>
 
 #define PIPE_NAME TEXT("\\\\.\\pipe\\teste")
-#define MaxClientes 5
+#define MaxClientes 20
 
 //prototipos
 
@@ -33,22 +33,13 @@ typedef struct Gestao_gateway {
 
 }dataGw;
 
-typedef struct Thread {
-
-	DWORD ThreadID;
-	unsigned int ID_CLIENTE;
-	HANDLE hThread;
-	unsigned int Alive;
-
-}ThreadCliente;
-
-typedef struct Clientes {
+typedef struct ArrayClientes {
 	
 	unsigned int id;
 	TCHAR nome[10];
 	HANDLE hPipe;
-	HANDLE IOReady;
-	OVERLAPPED Ov;
+	DWORD iDThread;
+	unsigned int thAlive;
 
 }clientes;
 
