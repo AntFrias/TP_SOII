@@ -123,7 +123,7 @@ void EnviaBroadcastPacote(Packet *resposta) {
 				CloseHandle(IOReady);
 				//WaitForSingleObject(hMutex, INFINITE);
 				Clientes[i].hPipe = INVALID_HANDLE_VALUE;
-				//o////ReleaseMutex(hMutex);
+				//////ReleaseMutex(hMutex);
 			}
 		}
 	}
@@ -166,12 +166,12 @@ int criaComunicacaoClienteGateway() {
 	HANDLE hPipe;
 	HANDLE hThreads[21];
 	DWORD idThLeServToGw;
-	int PosThLeServToGw = 0,posCli=0;
+	int  posCli = 0;
 
 	for (int i = 0; i < 21; i++) {
 		hThreads[i] = INVALID_HANDLE_VALUE;
 	}
-	hThreads[PosThLeServToGw] = CreateThread(NULL, 0, (LPTHREAD_START_ROUTINE)LePacotesBufferServtoGw, (LPVOID)NULL, 0, &idThLeServToGw);
+	hThreads[0] = CreateThread(NULL, 0, (LPTHREAD_START_ROUTINE)LePacotesBufferServtoGw, (LPVOID)NULL, 0, &idThLeServToGw);
 	_tprintf(TEXT("\n\nLancei a Thread que Recebe pacotes do servidor"));
 
 	do {
@@ -191,7 +191,7 @@ int criaComunicacaoClienteGateway() {
 			hThreads[dadosGw.nClientes] = CreateThread(NULL, 0, (LPTHREAD_START_ROUTINE)RecebePipeCliente, (LPVOID)&posCli, 0, &Clientes[posCli].iDThread);  //rever indice
 
 			posCli = dadosGw.nClientes;
-			
+
 		}
 
 
