@@ -40,7 +40,7 @@ void EnviaBroadcastPacote(Packet *resposta) {
 			CloseHandle(arrayClientes[i].hPipe);
 			//WaitForSingleObject(hMutex, INFINITE);
 			arrayClientes[i].hPipe = INVALID_HANDLE_VALUE;
-			////ReleaseMutex(hMutex);
+			//////ReleaseMutex(hMutex);
 		}
 
 
@@ -59,7 +59,7 @@ void LePacotesBufferServtoGw() {
 	do {
 
 		Resposta = LerBufferServtoGw();
-		Resposta->tipo = 69;
+		Resposta->tipo = BroadcastPackage;
 		_tprintf(TEXT("\n\nLi 1 Pacote"));
 
 		if (Resposta->tipo == BroadcastPackage) {
@@ -119,8 +119,12 @@ void RecebePipeCliente(LPVOID *PosCliente) {
 		WaitForSingleObject(arrayClientes[*posCliente].IOReady, INFINITE);
 		ret = GetOverlappedResult(arrayClientes[*posCliente].hPipe, &arrayClientes[*posCliente].Ov, &nbytes, FALSE);
 		
-		if (!ret || !nbytes) {
-			_tprintf(TEXT("[Gateway] %d %d... (ReadFile)\n"), ret, nbytes);
+		if (!ret ) {
+			_tprintf(TEXT("[Gateway] ret %d... (ReadFile)\n"), ret);
+			break;
+		}
+		if (!nbytes) {
+			_tprintf(TEXT("[Gateway] nbytes %d (ReadFile)\n"), nbytes);
 			break;
 		}
 
