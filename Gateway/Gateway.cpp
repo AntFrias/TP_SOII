@@ -123,7 +123,7 @@ void EnviaBroadcastPacote(Packet *resposta) {
 				CloseHandle(IOReady);
 				//WaitForSingleObject(hMutex, INFINITE);
 				Clientes[i].hPipe = INVALID_HANDLE_VALUE;
-				//////ReleaseMutex(hMutex);
+				//o////ReleaseMutex(hMutex);
 			}
 		}
 	}
