@@ -55,9 +55,9 @@ void LePacotesBufferServtoGw() {
 	_tprintf(TEXT("\n\nCHEGUEI AQUI AO LEPACOTESDOBUFFERSERVTOGW e esta thread tem o alive a %d"), ThreadsGateway[3].Alive);  // ThreadsGateway array global
 
 	packet *Resposta;
-
+	//int i = 5; //debug
 	do {
-	
+
 		Resposta = LerBufferServtoGw();
 		Resposta->tipo = 69;
 		_tprintf(TEXT("\n\nLi 1 Pacote"));
@@ -66,11 +66,15 @@ void LePacotesBufferServtoGw() {
 
 			EnviaBroadcastPacote(Resposta);
 
-		} else {
+		}
+		else {
 
 			EnviaRespostaParaCliente(Resposta);
 
 		}
+	
+		//	i--;
+	//} while (i > 0); //debug
 	} while (ThreadsGateway[3].Alive == 1);
 	
 	//fecha tudo no fim
@@ -116,7 +120,7 @@ void RecebePipeCliente(LPVOID *PosCliente) {
 		ret = GetOverlappedResult(arrayClientes[*posCliente].hPipe, &arrayClientes[*posCliente].Ov, &nbytes, FALSE);
 		
 		if (!ret || !nbytes) {
-			_tprintf(TEXT("[ESCRITOR] %d %d... (ReadFile)\n"), ret, nbytes);
+			_tprintf(TEXT("[Gateway] %d %d... (ReadFile)\n"), ret, nbytes);
 			break;
 		}
 
