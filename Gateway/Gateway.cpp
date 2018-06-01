@@ -40,7 +40,7 @@ void EnviaBroadcastPacote(Packet *resposta) {
 			CloseHandle(arrayClientes[i].hPipe);
 			//WaitForSingleObject(hMutex, INFINITE);
 			arrayClientes[i].hPipe = INVALID_HANDLE_VALUE;
-			//ReleaseMutex(hMutex);
+			////ReleaseMutex(hMutex);
 		}
 
 
