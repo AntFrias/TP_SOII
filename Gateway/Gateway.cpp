@@ -12,10 +12,14 @@ int startIdCli = 1000;
 // funcao que recebe pacotes do Pipe que veem do Cliente
 void RecebePipeCliente(LPVOID *PosCliente) {
 
+	_tprintf(TEXT("\n\n\n\n\n\nLancei a Thread que recebe a mensagem do Pipe dos Clientes"));
+
 	int *posCliente = (int *)PosCliente;
 
 	Packet Pacote;
+
 	DWORD nbytes;
+	
 	BOOL ret;
 
 	HANDLE IOReady;
@@ -34,6 +38,7 @@ void RecebePipeCliente(LPVOID *PosCliente) {
 		Ov.hEvent = IOReady;
 
 		ReadFile(Clientes[*posCliente].hPipe, &Pacote, sizeof(Packet), &nbytes, &Ov);
+		_tprintf(TEXT("\n\n\n\n\n\nLi um Pacote"));
 		WaitForSingleObject(IOReady, INFINITE);
 		ret = GetOverlappedResult(Clientes[*posCliente].hPipe, &Ov, &nbytes, FALSE);
 
@@ -90,7 +95,9 @@ HANDLE getPipeDoCli(packet *resposta) {
 	for (int i = 0; i < dadosGw.nClientes; i++) {
 
 		if (resposta->Cliente_id == Clientes[i].id) {
+
 			return Clientes[i].hPipe;
+			break;
 		}
 		
 	}
@@ -100,37 +107,57 @@ HANDLE getPipeDoCli(packet *resposta) {
 
 void EnviaRespostaParaCliente(Packet *resposta) {
 
+	for (int i = 1; i <= dadosGw.nClientes; i++) {
+
+		_tprintf(TEXT("\nID do cliente %d : %d"), i, Clientes[i].id);
+	}
+
 
 	DWORD nBytes;
 
 	BOOL ret;
 
-	HANDLE IOReady;
+	HANDLE IOReady = NULL;
 
-	HANDLE Hpipe = getPipeDoCli(resposta);
+	HANDLE hPipe = NULL;
+	
+	hPipe = getPipeDoCli(resposta);
+
+	if(hPipe == NULL) {
+
+		_tprintf(TEXT("\n Erro a Enviar resposta do Gateway para o Cliente"));
+	}
 
 	IOReady = CreateEvent(NULL, TRUE, FALSE, NULL);
+
 	if (IOReady == NULL) {
+
 		_tprintf(TEXT("Erro no IOReady\n"));
+
 		exit(-1);
 	}
 	OVERLAPPED Ov;
-
 	
-		if (Hpipe != INVALID_HANDLE_VALUE) {
+		//if (hPipe != INVALID_HANDLE_VALUE) {
 
 			ZeroMemory(&Ov, sizeof(Ov));
-			ResetEvent(IOReady);
-			Ov.hEvent = IOReady;
-			_tprintf(TEXT("TCHEGUI AQUI\n\n"));
-			WriteFile(Hpipe, resposta, sizeof(Packet), &nBytes, &Ov);  //Se Write dá erro, o cliente desconectou-se
-			_tprintf(TEXT("TCHEGUI AQUI1\n\n"));
-			WaitForSingleObject(IOReady, INFINITE);
-			_tprintf(TEXT("TCHEGUI AQUI2\n\n"));
-			ret = GetOverlappedResult(Hpipe, &Ov, &nBytes, FALSE);
 
+			ResetEvent(IOReady);
 			
-		}
+			Ov.hEvent = IOReady;
+			
+			_tprintf(TEXT("TCHEGUI AQUI\n\n"));
+			
+			WriteFile(hPipe, resposta, sizeof(Packet), &nBytes, &Ov);  //Se Write dá erro, o cliente desconectou-se
+			
+			_tprintf(TEXT("TCHEGUI AQUI1\n\n"));
+			
+			WaitForSingleObject(IOReady, INFINITE);
+			
+			_tprintf(TEXT("TCHEGUI AQUI2\n\n"));
+			
+			ret = GetOverlappedResult(hPipe, &Ov, &nBytes, FALSE);
+		//}
 	
 
 }
@@ -183,13 +210,9 @@ void LePacotesBufferServtoGw() {
 	packet *Resposta;
 
 	do {
-
+		_tprintf(TEXT("\n\n\n\n\n\n\nVou ler um pacote do buffer comServtoGw"));
 		Resposta = LerBufferServtoGw();
-
-		_tprintf(TEXT("user ID: %d\n"), Resposta->Cliente_id);
-		_tprintf(TEXT("user Name: %s\n"), Resposta->dataPacket.nome);
-
-		Resposta->tipo = BroadcastPackage;
+		_tprintf(TEXT("\nLi um pacote do buffer comServtoGw"));
 
 		/*if (Resposta->tipo == BroadcastPackage) {
 
@@ -202,6 +225,7 @@ void LePacotesBufferServtoGw() {
 
 		}
 		*/
+	
 		EnviaRespostaParaCliente(Resposta);
 
 	} while (dadosGw.ServerUp);
@@ -215,13 +239,14 @@ int criaComunicacaoClienteGateway() {
 	HANDLE hPipe;
 	HANDLE hThreads[21];
 	DWORD idThLeServToGw;
-	int  posCli = 0;
+	
 
 	for (int i = 0; i < 21; i++) {
 		hThreads[i] = INVALID_HANDLE_VALUE;
 	}
-	hThreads[0] = CreateThread(NULL, 0, (LPTHREAD_START_ROUTINE)LePacotesBufferServtoGw, (LPVOID)NULL, 0, &idThLeServToGw);
-	_tprintf(TEXT("\n\nLancei a Thread que Recebe pacotes do servidor"));
+
+	hThreads[20] = CreateThread(NULL, 0, (LPTHREAD_START_ROUTINE)LePacotesBufferServtoGw, (LPVOID)NULL, 0, &idThLeServToGw);
+
 
 	do {
 
@@ -229,20 +254,23 @@ int criaComunicacaoClienteGateway() {
 
 		if (hPipe != NULL) {
 
-			dadosGw.nClientes++;
-
+			
 			Clientes[dadosGw.nClientes].hPipe = hPipe;			//adiciona  a instancia para o novo cliente
 
 			Clientes[dadosGw.nClientes].thAlive = 1;				/// poe a variavel da thread para ficar ativa
-
-			Clientes[dadosGw.nClientes].id = startIdCli + 1;
-
-			hThreads[dadosGw.nClientes] = CreateThread(NULL, 0, (LPTHREAD_START_ROUTINE)RecebePipeCliente, (LPVOID)&posCli, 0, &Clientes[posCli].iDThread);  //rever indice
-
-			posCli = dadosGw.nClientes;
+	
+			Clientes[dadosGw.nClientes].id = startIdCli +=  1;
+		
+			hThreads[dadosGw.nClientes] = CreateThread(NULL, 0, (LPTHREAD_START_ROUTINE)RecebePipeCliente, (LPVOID)&dadosGw.nClientes, 0, &Clientes[dadosGw.nClientes].iDThread);  //rever indice
+		
+			dadosGw.nClientes++;
 
 		}
 
+		for (int i = 0; i < dadosGw.nClientes; i++) {
+
+			_tprintf(TEXT("\nID do cliente %d : %d"), i, Clientes[i].id);
+		}
 
 	} while (dadosGw.ServerUp == 1);
 
