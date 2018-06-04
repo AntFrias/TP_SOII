@@ -146,7 +146,7 @@ int verificaPlayerNoArray(TCHAR *nome) {
 //recebe o pacote filtra a informação e coloca na pos certa do array
 void ColocaCliArray(packet *aux,int pos) {
 
-	ArrayJogadores[pos].IdJogador = aux->Cliente_id;
+	//ArrayJogadores[pos].IdJogador = aux->Cliente_id;
 	ArrayJogadores[pos].pontuacao = aux->pontuacao;
 	wcscpy_s(ArrayJogadores[pos].nome, aux->dataPacket.nome); 
 	
@@ -220,7 +220,7 @@ void mostraClinoArray() {
 
 
 }
-// Funcao que vai fazer o tratamento de pacotes
+// Funcao que vai fazer o tratamento de pacotes/////////////////////////////////////////////////////////////////////////////////////////////
 void TrataPacotesGwtoServ() {
 
 	packet *aux, resposta;
