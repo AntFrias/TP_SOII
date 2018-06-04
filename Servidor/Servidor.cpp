@@ -147,6 +147,7 @@ int verificaPlayerNoArray(TCHAR *nome) {
 void ColocaCliArray(packet *aux,int pos) {
 
 	ArrayJogadores[pos].IdJogador = aux->Cliente_id;
+	_tprintf(TEXT("\n\n\n\nID do JOGADOR %d"), aux->Cliente_id);
 	ArrayJogadores[pos].pontuacao = aux->pontuacao;
 	wcscpy_s(ArrayJogadores[pos].nome, aux->dataPacket.nome); 
 	
@@ -228,7 +229,7 @@ void TrataPacotesGwtoServ() {
 	while (dadosServidor.ServidorUp == 1) {
 		
 		aux = LerBufferGwtoSer();
-		
+		_tprintf(TEXT("\n\n	ID do Cliente %d"), aux->Cliente_id);
 		switch (aux->tipo) {
 
 		case user_login: //TIPO -> 1 -> LOGIN
