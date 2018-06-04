@@ -41,6 +41,9 @@ void RecebePipeCliente(LPVOID *PosCliente) {
 			_tprintf(TEXT("[Gateway] ret %d nbytes %d... (ReadFile)\n"), ret, nbytes);
 			break;
 		}
+		//mutex todo
+		Pacote.Cliente_id = startIdCli += 1;
+		_tprintf(TEXT("idThread cli : %d\n"),Pacote.Cliente_id);
 
 		escrevebuffer(&Pacote, nomeGwtoServ);
 

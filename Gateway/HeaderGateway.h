@@ -35,7 +35,7 @@ typedef struct Gestao_gateway {
 
 typedef struct ArrayClientes {
 	
-	unsigned int id;
+	int id;
 	TCHAR nome[10];
 	HANDLE hPipe;
 	DWORD iDThread;
