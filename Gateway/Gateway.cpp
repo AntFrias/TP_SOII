@@ -11,10 +11,9 @@ int startIdCli = 1000;
 
 // funcao que recebe pacotes do Pipe que veem do Cliente
 void RecebePipeCliente(LPVOID *PosCliente) {
+	
 
-	_tprintf(TEXT("\n\n\n\n\n\nLancei a Thread que recebe a mensagem do Pipe dos Clientes"));
-
-	int *posCliente = (int *)PosCliente;
+	int *posCliente = (int*)PosCliente;
 
 	Packet Pacote;
 
@@ -22,36 +21,33 @@ void RecebePipeCliente(LPVOID *PosCliente) {
 	
 	BOOL ret;
 
-	HANDLE IOReady;
-
+	HANDLE IOReady = NULL;
+	
 	IOReady = CreateEvent(NULL, TRUE, FALSE, NULL);
 	if (IOReady == NULL) {
 		_tprintf(TEXT("Erro no IOReady\n"));
 		exit(-1);
 	}
 	OVERLAPPED Ov;
-
+	
 	while (Clientes[*posCliente].thAlive) {
-
+		
 		ZeroMemory(&Ov, sizeof(Ov));
 		ResetEvent(IOReady);
 		Ov.hEvent = IOReady;
-
 		ReadFile(Clientes[*posCliente].hPipe, &Pacote, sizeof(Packet), &nbytes, &Ov);
-		_tprintf(TEXT("\n\n\n\n\n\nLi um Pacote"));
+	
 		WaitForSingleObject(IOReady, INFINITE);
 		ret = GetOverlappedResult(Clientes[*posCliente].hPipe, &Ov, &nbytes, FALSE);
-
 		if (!ret || !nbytes) {
 			_tprintf(TEXT("[Gateway] ret %d nbytes %d... (ReadFile)\n"), ret, nbytes);
-			break;
+	
 		}
 		//mutex todo
-		Pacote.Cliente_id = startIdCli += 1;
-		_tprintf(TEXT("idThread cli : %d\n"),Pacote.Cliente_id);
-
+		Pacote.Cliente_id = Clientes[*posCliente].id;
+		
 		escrevebuffer(&Pacote, nomeGwtoServ);
-
+		
 	}
 
 	DisconnectNamedPipe(Clientes[*posCliente].hPipe);
@@ -82,36 +78,23 @@ HANDLE criaNamedPipe() {
 
 		return NULL;//aqui deve fechar o programa exit(-1)
 	}
-	else {
 
-		_tprintf(TEXT("\n\nConectando o Cliente %d\n"), dadosGw.nClientes);
-
-	}
 	return hPipe;
 
 }
 HANDLE getPipeDoCli(packet *resposta) {
-
+	
 	for (int i = 0; i < dadosGw.nClientes; i++) {
 
-		if (resposta->Cliente_id == Clientes[i].id) {
-
+		if (Clientes[i].id == resposta->Cliente_id) {
 			return Clientes[i].hPipe;
-			break;
 		}
-		
 	}
 	return NULL;
 }
 
 
 void EnviaRespostaParaCliente(Packet *resposta) {
-
-	for (int i = 1; i <= dadosGw.nClientes; i++) {
-
-		_tprintf(TEXT("\nID do cliente %d : %d"), i, Clientes[i].id);
-	}
-
 
 	DWORD nBytes;
 
@@ -120,7 +103,7 @@ void EnviaRespostaParaCliente(Packet *resposta) {
 	HANDLE IOReady = NULL;
 
 	HANDLE hPipe = NULL;
-	
+
 	hPipe = getPipeDoCli(resposta);
 
 	if(hPipe == NULL) {
@@ -146,15 +129,9 @@ void EnviaRespostaParaCliente(Packet *resposta) {
 			
 			Ov.hEvent = IOReady;
 			
-			_tprintf(TEXT("TCHEGUI AQUI\n\n"));
-			
 			WriteFile(hPipe, resposta, sizeof(Packet), &nBytes, &Ov);  //Se Write dá erro, o cliente desconectou-se
 			
-			_tprintf(TEXT("TCHEGUI AQUI1\n\n"));
-			
 			WaitForSingleObject(IOReady, INFINITE);
-			
-			_tprintf(TEXT("TCHEGUI AQUI2\n\n"));
 			
 			ret = GetOverlappedResult(hPipe, &Ov, &nBytes, FALSE);
 		//}
@@ -210,7 +187,7 @@ void LePacotesBufferServtoGw() {
 	packet *Resposta;
 
 	do {
-		_tprintf(TEXT("\n\n\n\n\n\n\nVou ler um pacote do buffer comServtoGw"));
+		_tprintf(TEXT("\n\nVou ler um pacote do buffer comServtoGw"));
 		Resposta = LerBufferServtoGw();
 		_tprintf(TEXT("\nLi um pacote do buffer comServtoGw"));
 
@@ -239,6 +216,7 @@ int criaComunicacaoClienteGateway() {
 	HANDLE hPipe;
 	HANDLE hThreads[21];
 	DWORD idThLeServToGw;
+	int pos;
 	
 
 	for (int i = 0; i < 21; i++) {
@@ -249,7 +227,7 @@ int criaComunicacaoClienteGateway() {
 
 
 	do {
-
+	
 		hPipe = criaNamedPipe();							// cria named pipe ou instancia chega Cliente
 
 		if (hPipe != NULL) {
@@ -260,17 +238,15 @@ int criaComunicacaoClienteGateway() {
 			Clientes[dadosGw.nClientes].thAlive = 1;				/// poe a variavel da thread para ficar ativa
 	
 			Clientes[dadosGw.nClientes].id = startIdCli +=  1;
-		
-			hThreads[dadosGw.nClientes] = CreateThread(NULL, 0, (LPTHREAD_START_ROUTINE)RecebePipeCliente, (LPVOID)&dadosGw.nClientes, 0, &Clientes[dadosGw.nClientes].iDThread);  //rever indice
-		
-			dadosGw.nClientes++;
 
+			pos = dadosGw.nClientes;
+
+			hThreads[dadosGw.nClientes] = CreateThread(NULL, 0, (LPTHREAD_START_ROUTINE)RecebePipeCliente, (LPVOID)&pos, 0, &Clientes[dadosGw.nClientes].iDThread);  //rever indice
+			
 		}
+		Sleep(10); // Sleep para obrigar a esperar que a thread se crie antes de incrementar o indice;
 
-		for (int i = 0; i < dadosGw.nClientes; i++) {
-
-			_tprintf(TEXT("\nID do cliente %d : %d"), i, Clientes[i].id);
-		}
+		dadosGw.nClientes++;
 
 	} while (dadosGw.ServerUp == 1);
 
