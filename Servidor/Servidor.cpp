@@ -146,7 +146,7 @@ int verificaPlayerNoArray(TCHAR *nome) {
 //recebe o pacote filtra a informação e coloca na pos certa do array
 void ColocaCliArray(packet *aux,int pos) {
 
-	//ArrayJogadores[pos].IdJogador = aux->Cliente_id;
+	ArrayJogadores[pos].IdJogador = aux->Cliente_id;
 	ArrayJogadores[pos].pontuacao = aux->pontuacao;
 	wcscpy_s(ArrayJogadores[pos].nome, aux->dataPacket.nome); 
 	
@@ -228,15 +228,16 @@ void TrataPacotesGwtoServ() {
 	while (dadosServidor.ServidorUp == 1) {
 		
 		aux = LerBufferGwtoSer();
-		_tprintf(TEXT("\n\nLi um pacote do jogador %s com o ID %d"), aux->dataPacket.nome, aux->Cliente_id);
+		
 		switch (aux->tipo) {
 
 		case user_login: //TIPO -> 1 -> LOGIN
 
-			resposta = trataPacoteTipo1(aux); 
+			resposta = trataPacoteTipo1(aux);
 		}
-		_tprintf(TEXT("\nVou escrever uma resposta para jogador %s com o ID %d"), aux->dataPacket.nome, aux->Cliente_id);
-		mostraClinoArray();
+			
+		//mostraClinoArray();
+		resposta.Cliente_id = aux->Cliente_id;
 		escrevebuffer(&resposta, nomeServtoGw);
 	}
 
