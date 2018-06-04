@@ -10,10 +10,10 @@ int startIdCli = 1000;
 
 
 // funcao que recebe pacotes do Pipe que veem do Cliente
-void RecebePipeCliente(LPVOID *PosCliente) {
+void RecebePipeCliente(LPVOID *Cli) {
 	
 
-	int *posCliente = (int*)PosCliente;
+	clientes *cli = (clientes *)Cli;
 
 	Packet Pacote;
 
@@ -30,30 +30,30 @@ void RecebePipeCliente(LPVOID *PosCliente) {
 	}
 	OVERLAPPED Ov;
 	
-	while (Clientes[*posCliente].thAlive) {
+	while (cli->thAlive) {
 		
 		ZeroMemory(&Ov, sizeof(Ov));
 		ResetEvent(IOReady);
 		Ov.hEvent = IOReady;
-		ReadFile(Clientes[*posCliente].hPipe, &Pacote, sizeof(Packet), &nbytes, &Ov);
+		ReadFile(cli->hPipe, &Pacote, sizeof(Packet), &nbytes, &Ov);
 	
 		WaitForSingleObject(IOReady, INFINITE);
-		ret = GetOverlappedResult(Clientes[*posCliente].hPipe, &Ov, &nbytes, FALSE);
+		ret = GetOverlappedResult(cli->hPipe, &Ov, &nbytes, FALSE);
 		if (!ret || !nbytes) {
 			_tprintf(TEXT("[Gateway] ret %d nbytes %d... (ReadFile)\n"), ret, nbytes);
 	
 		}
 		//mutex todo
-		Pacote.Cliente_id = Clientes[*posCliente].id;
+		Pacote.Cliente_id = cli->id;
 		
 		escrevebuffer(&Pacote, nomeGwtoServ);
 		
 	}
 
-	DisconnectNamedPipe(Clientes[*posCliente].hPipe);
-	CloseHandle(Clientes[*posCliente].hPipe);
+	DisconnectNamedPipe(cli->hPipe);
+	CloseHandle(cli->hPipe);
 	CloseHandle(IOReady);
-	Clientes[*posCliente].hPipe = INVALID_HANDLE_VALUE;
+	cli->hPipe = INVALID_HANDLE_VALUE;
 
 }
 // cria namedPipe/instancias para comunicaçao com os Clientes
@@ -92,8 +92,6 @@ HANDLE getPipeDoCli(packet *resposta) {
 	}
 	return NULL;
 }
-
-
 void EnviaRespostaParaCliente(Packet *resposta) {
 
 	DWORD nBytes;
@@ -138,7 +136,6 @@ void EnviaRespostaParaCliente(Packet *resposta) {
 	
 
 }
-
 void EnviaBroadcastPacote(Packet *resposta) {
 
 	DWORD nBytes;
@@ -187,23 +184,21 @@ void LePacotesBufferServtoGw() {
 	packet *Resposta;
 
 	do {
-		_tprintf(TEXT("\n\nVou ler um pacote do buffer comServtoGw"));
+	
 		Resposta = LerBufferServtoGw();
-		_tprintf(TEXT("\nLi um pacote do buffer comServtoGw"));
+	
+		Resposta->tipo = BroadcastPackage;
 
-		/*if (Resposta->tipo == BroadcastPackage) {
+		if (Resposta->tipo == BroadcastPackage) {
 
-			//EnviaBroadcastPacote(Resposta);
+			EnviaBroadcastPacote(Resposta);
 
 		}
 		else {
 
-			//EnviaRespostaParaCliente(Resposta);
+			EnviaRespostaParaCliente(Resposta);
 
 		}
-		*/
-	
-		EnviaRespostaParaCliente(Resposta);
 
 	} while (dadosGw.ServerUp);
 
@@ -241,10 +236,10 @@ int criaComunicacaoClienteGateway() {
 
 			pos = dadosGw.nClientes;
 
-			hThreads[dadosGw.nClientes] = CreateThread(NULL, 0, (LPTHREAD_START_ROUTINE)RecebePipeCliente, (LPVOID)&pos, 0, &Clientes[dadosGw.nClientes].iDThread);  //rever indice
+			hThreads[dadosGw.nClientes] = CreateThread(NULL, 0, (LPTHREAD_START_ROUTINE)RecebePipeCliente, (LPVOID)&Clientes[dadosGw.nClientes], 0, &Clientes[dadosGw.nClientes].iDThread);  //rever indice
 			
 		}
-		Sleep(10); // Sleep para obrigar a esperar que a thread se crie antes de incrementar o indice;
+		//Sleep(10); // Sleep para obrigar a esperar que a thread se crie antes de incrementar o indice;
 
 		dadosGw.nClientes++;
 
