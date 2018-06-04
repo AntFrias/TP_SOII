@@ -85,10 +85,54 @@ HANDLE criaNamedPipe() {
 	return hPipe;
 
 }
+HANDLE getPipeDoCli(packet *resposta) {
+
+	for (int i = 0; i < dadosGw.nClientes; i++) {
+
+		if (resposta->Cliente_id == Clientes[i].id) {
+			return Clientes[i].hPipe;
+		}
+		
+	}
+	return NULL;
+}
+
+
 void EnviaRespostaParaCliente(Packet *resposta) {
 
-	_tprintf(TEXT("\n\nuser ID: %d"), resposta->Cliente_id);
-	_tprintf(TEXT("\nuser Name: %s"), resposta->dataPacket.nome);
+
+	DWORD nBytes;
+
+	BOOL ret;
+
+	HANDLE IOReady;
+
+	HANDLE Hpipe = getPipeDoCli(resposta);
+
+	IOReady = CreateEvent(NULL, TRUE, FALSE, NULL);
+	if (IOReady == NULL) {
+		_tprintf(TEXT("Erro no IOReady\n"));
+		exit(-1);
+	}
+	OVERLAPPED Ov;
+
+	
+		if (Hpipe != INVALID_HANDLE_VALUE) {
+
+			ZeroMemory(&Ov, sizeof(Ov));
+			ResetEvent(IOReady);
+			Ov.hEvent = IOReady;
+			_tprintf(TEXT("TCHEGUI AQUI\n\n"));
+			WriteFile(Hpipe, resposta, sizeof(Packet), &nBytes, &Ov);  //Se Write dá erro, o cliente desconectou-se
+			_tprintf(TEXT("TCHEGUI AQUI1\n\n"));
+			WaitForSingleObject(IOReady, INFINITE);
+			_tprintf(TEXT("TCHEGUI AQUI2\n\n"));
+			ret = GetOverlappedResult(Hpipe, &Ov, &nBytes, FALSE);
+
+			
+		}
+	
+
 }
 
 void EnviaBroadcastPacote(Packet *resposta) {
@@ -142,14 +186,14 @@ void LePacotesBufferServtoGw() {
 
 		Resposta = LerBufferServtoGw();
 
-		_tprintf(TEXT("\n\nuser ID: %d"), Resposta->Cliente_id);
-		_tprintf(TEXT("\nuser Name: %s"), Resposta->dataPacket.nome);
+		_tprintf(TEXT("user ID: %d\n"), Resposta->Cliente_id);
+		_tprintf(TEXT("user Name: %s\n"), Resposta->dataPacket.nome);
 
 		Resposta->tipo = BroadcastPackage;
 
-		if (Resposta->tipo == BroadcastPackage) {
+		/*if (Resposta->tipo == BroadcastPackage) {
 
-			EnviaBroadcastPacote(Resposta);
+			//EnviaBroadcastPacote(Resposta);
 
 		}
 		else {
@@ -157,6 +201,8 @@ void LePacotesBufferServtoGw() {
 			//EnviaRespostaParaCliente(Resposta);
 
 		}
+		*/
+		EnviaRespostaParaCliente(Resposta);
 
 	} while (dadosGw.ServerUp);
 
