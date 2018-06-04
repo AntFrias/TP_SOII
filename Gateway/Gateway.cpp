@@ -3,12 +3,9 @@
 #pragma comment(lib, "../x64/Debug/AcessoMemDLL.lib")
 
 //TCHAR BufGwtoBufGwtoServServ[] = TEXT("Buffer GwToSr");
-
 dataGw dadosGw;
 clientes Clientes[20];
 int startIdCli = 1000;
-
-
 // funcao que recebe pacotes do Pipe que veem do Cliente
 void RecebePipeCliente(LPVOID *Cli) {
 	
@@ -203,7 +200,6 @@ void LePacotesBufferServtoGw() {
 	} while (dadosGw.ServerUp);
 
 }
-
 //inicia Comunicaçao com CLiente
 int criaComunicacaoClienteGateway() {
 
@@ -255,7 +251,6 @@ int criaComunicacaoClienteGateway() {
 	}
 	return 0;
 }
-
 // funcao que inicia os servicos do Gateway
 void IniciarGateway() {
 
@@ -272,7 +267,6 @@ void IniciarGateway() {
 	criaComunicacaoClienteGateway();
 
 }
-
 int _tmain(int argc, LPTSTR argv[]) {
 
 #ifdef UNICODE  //UNICODE
