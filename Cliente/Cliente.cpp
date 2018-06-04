@@ -72,7 +72,7 @@ int _tmain(int argc, LPTSTR argv[]) {
 
 	//ler do pipe
 	if (!WaitNamedPipe(PIPE_NAME, NMPWAIT_WAIT_FOREVER)) {
-	_tprintf(TEXT(" Não consegui ligar ao pipe '%s'!\n"), PIPE_NAME);
+	_tprintf(TEXT(" Nï¿½o consegui ligar ao pipe '%s'!\n"), PIPE_NAME);
 	exit(-1);
 	}
 
@@ -80,7 +80,7 @@ int _tmain(int argc, LPTSTR argv[]) {
 	Cliente.pipe = CreateFile(PIPE_NAME, GENERIC_READ | GENERIC_WRITE, 0, NULL, OPEN_EXISTING, 0 | FILE_FLAG_OVERLAPPED, NULL);
 
 	if (Cliente.pipe == NULL) {
-	_tprintf(TEXT("Não consegui ligar ao pipe '%s'!\n"), PIPE_NAME);
+	_tprintf(TEXT("Nï¿½o consegui ligar ao pipe '%s'!\n"), PIPE_NAME);
 	exit(-1);
 	}
 
@@ -105,7 +105,7 @@ int _tmain(int argc, LPTSTR argv[]) {
 
 		WaitForSingleObject(IOReady, INFINITE); // espera pelo evento
 
-		ret = GetOverlappedResult(Cliente.pipe, &Ov, &nBytesLidos, FALSE); // se mal dá 0 !!!
+		ret = GetOverlappedResult(Cliente.pipe, &Ov, &nBytesLidos, FALSE); // se mal dï¿½ 0 !!!
 
 		if (!ret || !nBytesLidos) {
 			_tprintf(TEXT("Nao li nada\n"), ret, nBytesLidos);
