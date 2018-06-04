@@ -184,7 +184,7 @@ int criaComunicacaoClienteGateway() {
 
 			Clientes[dadosGw.nClientes].hPipe = hPipe;			//adiciona  a instancia para o novo cliente
 
-			Clientes[dadosGw.nClientes].thAlive = 1;				// poe a variavel da thread para ficar ativa
+			Clientes[dadosGw.nClientes].thAlive = 1;				/// poe a variavel da thread para ficar ativa
 
 			Clientes[dadosGw.nClientes].id = startIdCli + 1;
 
