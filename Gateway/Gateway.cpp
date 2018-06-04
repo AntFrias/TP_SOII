@@ -151,20 +151,20 @@ void EnviaBroadcastPacote(Packet *resposta) {
 	}
 	OVERLAPPED Ov;
 
-	for (int i = 1; i <= dadosGw.nClientes; i++) {
+	for (int i = 0; i < dadosGw.nClientes; i++) {
 		if (Clientes[i].hPipe != INVALID_HANDLE_VALUE) {
 
 			ZeroMemory(&Ov, sizeof(Ov));
 			ResetEvent(IOReady);
 			Ov.hEvent = IOReady;
-			_tprintf(TEXT("TCHEGUI AQUI\n\n"));
+
 			WriteFile(Clientes[i].hPipe, resposta, sizeof(Packet), &nBytes, &Ov);  //Se Write dá erro, o cliente desconectou-se
-			_tprintf(TEXT("TCHEGUI AQUI1\n\n"));
+			
 			WaitForSingleObject(IOReady, INFINITE);
-			_tprintf(TEXT("TCHEGUI AQUI2\n\n"));
+			
 			ret = GetOverlappedResult(Clientes[i].hPipe, &Ov, &nBytes, FALSE);
 
-			if (!ret || !nBytes) {
+			/*if (!ret || !nBytes) {
 				_tprintf(TEXT("[ERRO] Escrever no pipe! (WriteFile)\n"));
 				DisconnectNamedPipe(Clientes[i].hPipe);	//fechar os recursos associados ao cliente que se desligou
 				CloseHandle(Clientes[i].hPipe);
@@ -172,7 +172,7 @@ void EnviaBroadcastPacote(Packet *resposta) {
 				//WaitForSingleObject(hMutex, INFINITE);
 				Clientes[i].hPipe = INVALID_HANDLE_VALUE;
 				//////ReleaseMutex(hMutex);
-			}
+			}*/
 		}
 	}
 
