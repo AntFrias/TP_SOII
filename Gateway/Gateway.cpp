@@ -3,17 +3,14 @@
 #pragma comment(lib, "../x64/Debug/AcessoMemDLL.lib")
 
 //TCHAR BufGwtoBufGwtoServServ[] = TEXT("Buffer GwToSr");
-
 dataGw dadosGw;
 clientes Clientes[20];
 int startIdCli = 1000;
-
-
 // funcao que recebe pacotes do Pipe que veem do Cliente
-void RecebePipeCliente(LPVOID *PosCliente) {
+void RecebePipeCliente(LPVOID *Cli) {
 	
 
-	int *posCliente = (int*)PosCliente;
+	clientes *cli = (clientes *)Cli;
 
 	Packet Pacote;
 
@@ -30,30 +27,30 @@ void RecebePipeCliente(LPVOID *PosCliente) {
 	}
 	OVERLAPPED Ov;
 	
-	while (Clientes[*posCliente].thAlive) {
+	while (cli->thAlive) {
 		
 		ZeroMemory(&Ov, sizeof(Ov));
 		ResetEvent(IOReady);
 		Ov.hEvent = IOReady;
-		ReadFile(Clientes[*posCliente].hPipe, &Pacote, sizeof(Packet), &nbytes, &Ov);
+		ReadFile(cli->hPipe, &Pacote, sizeof(Packet), &nbytes, &Ov);
 	
 		WaitForSingleObject(IOReady, INFINITE);
-		ret = GetOverlappedResult(Clientes[*posCliente].hPipe, &Ov, &nbytes, FALSE);
+		ret = GetOverlappedResult(cli->hPipe, &Ov, &nbytes, FALSE);
 		if (!ret || !nbytes) {
 			_tprintf(TEXT("[Gateway] ret %d nbytes %d... (ReadFile)\n"), ret, nbytes);
 	
 		}
 		//mutex todo
-		Pacote.Cliente_id = Clientes[*posCliente].id;
+		Pacote.Cliente_id = cli->id;
 		
 		escrevebuffer(&Pacote, nomeGwtoServ);
 		
 	}
 
-	DisconnectNamedPipe(Clientes[*posCliente].hPipe);
-	CloseHandle(Clientes[*posCliente].hPipe);
+	DisconnectNamedPipe(cli->hPipe);
+	CloseHandle(cli->hPipe);
 	CloseHandle(IOReady);
-	Clientes[*posCliente].hPipe = INVALID_HANDLE_VALUE;
+	cli->hPipe = INVALID_HANDLE_VALUE;
 
 }
 // cria namedPipe/instancias para comunicaçao com os Clientes
@@ -92,8 +89,6 @@ HANDLE getPipeDoCli(packet *resposta) {
 	}
 	return NULL;
 }
-
-
 void EnviaRespostaParaCliente(Packet *resposta) {
 
 	DWORD nBytes;
@@ -138,7 +133,6 @@ void EnviaRespostaParaCliente(Packet *resposta) {
 	
 
 }
-
 void EnviaBroadcastPacote(Packet *resposta) {
 
 	DWORD nBytes;
@@ -154,20 +148,20 @@ void EnviaBroadcastPacote(Packet *resposta) {
 	}
 	OVERLAPPED Ov;
 
-	for (int i = 1; i <= dadosGw.nClientes; i++) {
+	for (int i = 0; i < dadosGw.nClientes; i++) {
 		if (Clientes[i].hPipe != INVALID_HANDLE_VALUE) {
 
 			ZeroMemory(&Ov, sizeof(Ov));
 			ResetEvent(IOReady);
 			Ov.hEvent = IOReady;
-			_tprintf(TEXT("TCHEGUI AQUI\n\n"));
+
 			WriteFile(Clientes[i].hPipe, resposta, sizeof(Packet), &nBytes, &Ov);  //Se Write dá erro, o cliente desconectou-se
-			_tprintf(TEXT("TCHEGUI AQUI1\n\n"));
+			
 			WaitForSingleObject(IOReady, INFINITE);
-			_tprintf(TEXT("TCHEGUI AQUI2\n\n"));
+			
 			ret = GetOverlappedResult(Clientes[i].hPipe, &Ov, &nBytes, FALSE);
 
-			if (!ret || !nBytes) {
+			/*if (!ret || !nBytes) {
 				_tprintf(TEXT("[ERRO] Escrever no pipe! (WriteFile)\n"));
 				DisconnectNamedPipe(Clientes[i].hPipe);	//fechar os recursos associados ao cliente que se desligou
 				CloseHandle(Clientes[i].hPipe);
@@ -175,7 +169,7 @@ void EnviaBroadcastPacote(Packet *resposta) {
 				//WaitForSingleObject(hMutex, INFINITE);
 				Clientes[i].hPipe = INVALID_HANDLE_VALUE;
 				//////ReleaseMutex(hMutex);
-			}
+			}*/
 		}
 	}
 
@@ -187,28 +181,25 @@ void LePacotesBufferServtoGw() {
 	packet *Resposta;
 
 	do {
-		_tprintf(TEXT("\n\nVou ler um pacote do buffer comServtoGw"));
+	
 		Resposta = LerBufferServtoGw();
-		_tprintf(TEXT("\nLi um pacote do buffer comServtoGw"));
+	
+		Resposta->tipo = BroadcastPackage;
 
-		/*if (Resposta->tipo == BroadcastPackage) {
+		if (Resposta->tipo == BroadcastPackage) {
 
-			//EnviaBroadcastPacote(Resposta);
+			EnviaBroadcastPacote(Resposta);
 
 		}
 		else {
 
-			//EnviaRespostaParaCliente(Resposta);
+			EnviaRespostaParaCliente(Resposta);
 
 		}
-		*/
-	
-		EnviaRespostaParaCliente(Resposta);
 
 	} while (dadosGw.ServerUp);
 
 }
-
 //inicia Comunicaçao com CLiente
 int criaComunicacaoClienteGateway() {
 
@@ -241,10 +232,10 @@ int criaComunicacaoClienteGateway() {
 
 			pos = dadosGw.nClientes;
 
-			hThreads[dadosGw.nClientes] = CreateThread(NULL, 0, (LPTHREAD_START_ROUTINE)RecebePipeCliente, (LPVOID)&pos, 0, &Clientes[dadosGw.nClientes].iDThread);  //rever indice
+			hThreads[dadosGw.nClientes] = CreateThread(NULL, 0, (LPTHREAD_START_ROUTINE)RecebePipeCliente, (LPVOID)&Clientes[dadosGw.nClientes], 0, &Clientes[dadosGw.nClientes].iDThread);  //rever indice
 			
 		}
-		Sleep(10); // Sleep para obrigar a esperar que a thread se crie antes de incrementar o indice;
+		//Sleep(10); // Sleep para obrigar a esperar que a thread se crie antes de incrementar o indice;
 
 		dadosGw.nClientes++;
 
@@ -260,7 +251,6 @@ int criaComunicacaoClienteGateway() {
 	}
 	return 0;
 }
-
 // funcao que inicia os servicos do Gateway
 void IniciarGateway() {
 
@@ -277,7 +267,6 @@ void IniciarGateway() {
 	criaComunicacaoClienteGateway();
 
 }
-
 int _tmain(int argc, LPTSTR argv[]) {
 
 #ifdef UNICODE  //UNICODE

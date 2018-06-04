@@ -123,12 +123,6 @@ int IniciaNavesInimigas( int NumNavesInvasoras) {
 		return 0;
 	}
 */
-//Mostra o nome de um cliente
-void MostraNome(TCHAR *nome) {
-
-	_tprintf(TEXT("Cliente: %s\n"), nome);
-
-}
 //verifica se o cliente é repetido 
 int verificaPlayerNoArray(TCHAR *nome) {
 
@@ -147,8 +141,9 @@ int verificaPlayerNoArray(TCHAR *nome) {
 void ColocaCliArray(packet *aux,int pos) {
 
 	ArrayJogadores[pos].IdJogador = aux->Cliente_id;
-	_tprintf(TEXT("\n\n\n\nID do JOGADOR %d"), aux->Cliente_id);
+
 	ArrayJogadores[pos].pontuacao = aux->pontuacao;
+
 	wcscpy_s(ArrayJogadores[pos].nome, aux->dataPacket.nome); 
 	
 	dadosServidor.NumCliNoArray += 1;
@@ -182,7 +177,9 @@ packet trataPacoteTipo1(packet *aux){
 	packet resposta;
 															//se for o primeiro cliente ->aloca->coloca
 	if (dadosServidor.NumCliNoArray == 0) {
+
 		ColocaCliArray(aux, dadosServidor.NumCliNoArray);
+
 		resposta.tipo = user_login_sucesso;
 	}
 															//se não for vai ver se já existem algum cliente no o mesmo nome
@@ -194,14 +191,15 @@ packet trataPacoteTipo1(packet *aux){
 	else
 	{
 		if (dadosServidor.NumCliNoArray < dadosServidor.NumMaxClientes) {
+
 			alocaColocaPlayerNoArray(aux);
+
 			resposta.tipo = user_login_sucesso;
 		}
 		else {
-			_tprintf(TEXT("\n\n Falta completar aqui a dizer que o Buffer está cheio e por a funçao de escrecer a resposta"));
+	
 			resposta.tipo = user_login_Limite_clientes;
 			
-			//envia mensagem a dizer que está tudo ocupado
 		}
 	}
 	wcscpy_s(resposta.dataPacket.nome, aux->dataPacket.nome);
@@ -211,15 +209,10 @@ packet trataPacoteTipo1(packet *aux){
 //func que lista os clientes
 void mostraClinoArray() {
 
-	_tprintf(TEXT("\nClientes no Array: \n\n"));
-
 	for (int i = 0; i < dadosServidor.NumCliNoArray; i++) {
 
 		_tprintf(TEXT("Cliente n:%d --- Nome %s \n"),(i+1),ArrayJogadores[i].nome);
 	}
-
-
-
 }
 // Funcao que vai fazer o tratamento de pacotes/////////////////////////////////////////////////////////////////////////////////////////////
 void TrataPacotesGwtoServ() {
@@ -229,16 +222,16 @@ void TrataPacotesGwtoServ() {
 	while (dadosServidor.ServidorUp == 1) {
 		
 		aux = LerBufferGwtoSer();
-		_tprintf(TEXT("\n\n	ID do Cliente %d"), aux->Cliente_id);
+
 		switch (aux->tipo) {
 
-		case user_login: //TIPO -> 1 -> LOGIN
+		case user_login: 
 
 			resposta = trataPacoteTipo1(aux);
 		}
 			
-		//mostraClinoArray();
 		resposta.Cliente_id = aux->Cliente_id;
+
 		escrevebuffer(&resposta, nomeServtoGw);
 	}
 
