@@ -13,10 +13,7 @@
 #include <shellapi.h>
 #include <winbase.h>
 
-// Inicio do ID para as naves
-#define StartIDNave 2000
 
-//////////////////////////////////////////////////////////////////////////////////////////////////
 // Estrutura de suporte ás naves
 typedef struct naves {
 	int tipo;
@@ -36,6 +33,7 @@ typedef struct ConfiguracaoInicialJogo {
 	int MaxPowerups;
 	int DuracaoPowerup;
 	int Vidas;
+
 }confInitJogo;
 
 // Extrutura Jogador
@@ -72,6 +70,14 @@ typedef struct Gestao_servidor{
 	DWORD IdThreadSertoGw;
 
 }dataServer;
+
+typedef struct BlocoTabServidor {
+
+	int tipo;
+	int id;
+	int posArray;
+
+}BlocoServ;
 
 // extrutura TOP10
 typedef struct Top10 {								
