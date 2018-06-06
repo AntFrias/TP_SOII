@@ -2,10 +2,10 @@
 #include "../AcessoMemDLL/stdafx.h"
 #pragma comment(lib, "../x64/Debug/AcessoMemDLL.lib")
 
-//TCHAR BufGwtoBufGwtoServServ[] = TEXT("Buffer GwToSr");
 dataGw dadosGw;
-clientes Clientes[20];
-int startIdCli = 1000;
+
+clientes Clientes[5];
+
 // funcao que recebe pacotes do Pipe que veem do Cliente
 void RecebePipeCliente(LPVOID *Cli) {
 	
@@ -57,7 +57,7 @@ void RecebePipeCliente(LPVOID *Cli) {
 HANDLE criaNamedPipe() {
 
 
-	HANDLE hPipe = CreateNamedPipe(PIPE_NAME, PIPE_ACCESS_DUPLEX | FILE_FLAG_OVERLAPPED, PIPE_WAIT | PIPE_TYPE_MESSAGE | PIPE_READMODE_MESSAGE, 20, sizeof(packet), sizeof(packet), 1000, NULL);
+	HANDLE hPipe = CreateNamedPipe(PIPE_NAME, PIPE_ACCESS_DUPLEX | FILE_FLAG_OVERLAPPED, PIPE_WAIT | PIPE_TYPE_MESSAGE | PIPE_READMODE_MESSAGE, 5, sizeof(packet), sizeof(packet), 1000, NULL);
 
 	if (hPipe == INVALID_HANDLE_VALUE) {
 
@@ -79,6 +79,7 @@ HANDLE criaNamedPipe() {
 	return hPipe;
 
 }
+//Funcao que vai buscar o Handle do Pipe para enviar a mensagem para um determinado Cliente
 HANDLE getPipeDoCli(packet *resposta) {
 	
 	for (int i = 0; i < dadosGw.nClientes; i++) {
@@ -89,6 +90,7 @@ HANDLE getPipeDoCli(packet *resposta) {
 	}
 	return NULL;
 }
+//Envia Resposta para apenas 1 Cliente
 void EnviaRespostaParaCliente(Packet *resposta) {
 
 	DWORD nBytes;
@@ -133,6 +135,7 @@ void EnviaRespostaParaCliente(Packet *resposta) {
 	
 
 }
+//Funcao que envia Broadcast de Pacotes para todos os Clientes
 void EnviaBroadcastPacote(Packet *resposta) {
 
 	DWORD nBytes;
@@ -176,23 +179,53 @@ void EnviaBroadcastPacote(Packet *resposta) {
 	//_tprintf(TEXT("\n\nuser ID: %d"), resposta->Cliente_id);
 	//_tprintf(TEXT("\nuser Name: %s"), resposta->dataPacket.nome);
 }
+//funcao que vai iniciar o ambiente de jogo apos o cliente dizer que quer iniciar o jogo
+void iniciaThreadJogo() {
+
+	Packet *resposta;
+
+	do {
+
+		resposta = LerBufferTabuleiro();
+
+		resposta->tipo = AtualizacaoJogo;
+		
+		EnviaBroadcastPacote(resposta);
+
+		Sleep(40);
+
+
+	} while (dadosGw.ServerUp == 1);
+}
+// Funcao que le Pacotes do buffer servidor --> Gateway
 void LePacotesBufferServtoGw() {
 
 	packet *Resposta;
 
+	int flag = 0;
+
+	HANDLE hThredEnviaTabuleiro;
+
+	DWORD idThreadEnviaTabuleiro;
+
 	do {
 	
 		Resposta = LerBufferServtoGw();
-	
-		Resposta->tipo = BroadcastPackage;
+		// se a opçao do jogador for jogar individual irá lançar a thread que irá enviar lhe o jogo atualizado;
+		if (Resposta->tipo == IniciaJogoIndividual) {
 
-		if (Resposta->tipo == BroadcastPackage) {
+			hThredEnviaTabuleiro = CreateThread(NULL, 0, (LPTHREAD_START_ROUTINE)iniciaThreadJogo, (LPVOID)NULL, 0, &idThreadEnviaTabuleiro);
 
-			EnviaBroadcastPacote(Resposta);
-
+			if (hThredEnviaTabuleiro == NULL) {
+			
+				_tprintf(TEXT("\n\nErro ao criar Thread que ira enviar o Jogo atualizado para os Clientes"));
+				
+				exit(-1);
+			}
+			flag = 1;
 		}
-		else {
-
+		if ( flag == 1) {
+			
 			EnviaRespostaParaCliente(Resposta);
 
 		}
@@ -256,11 +289,7 @@ void IniciarGateway() {
 
 	_tprintf(TEXT("\n\nGateway\n\n"));
 
-	CriaMemoriaPartilhada();
-
-	CriaSyncMemoriaGwtoServ();
-
-	CriaSyncMemoriaServtoGw();
+	CriaMemoriaPartilhada();			// cria memoria partilhada e Mecanismos de sincronizaçao
 
 	dadosGw.ServerUp = 1;
 
