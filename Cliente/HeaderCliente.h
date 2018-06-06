@@ -13,6 +13,7 @@
 #include <winbase.h>
 
 
+
 //nome do Pipe de comunicaçao Servidor <-> Cliente
 #define PIPE_NAME TEXT("\\\\.\\pipe\\teste")
 
@@ -20,6 +21,8 @@
 #define dimMapa_x 20
 #define dimMapa_y 30
 
+//Tamanho do array de blocos ocupados
+#define Blocoscupados 100
 
 typedef struct estrCli {
 
@@ -32,10 +35,17 @@ typedef struct estrCli {
 
 }EstruturaCli;
 
+typedef struct BlocoMemPartilhada {
+
+	int tipo;
+	int Cor;
+
+}Bloco;
+
 typedef struct Packet {
 
 	int tipo;
-	int session_id;
+	DWORD Cliente_id;
 	int pontuacao;
 
 	union datPacket
@@ -44,6 +54,8 @@ typedef struct Packet {
 		int movimento;
 		int tiro;
 		//PowerUpp PowerUp;
+		Bloco tabuleiro[Blocoscupados];
+
 	}dataPacket;
 
 }packet;

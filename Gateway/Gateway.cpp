@@ -188,12 +188,14 @@ void iniciaThreadJogo() {
 
 		resposta = LerBufferTabuleiro();
 
-		resposta->tipo = AtualizacaoJogo;
+		if (resposta != NULL) {
 		
-		EnviaBroadcastPacote(resposta);
+			resposta->tipo = AtualizacaoJogo;
+		
+			EnviaBroadcastPacote(resposta);
+		}
 
 		Sleep(40);
-
 
 	} while (dadosGw.ServerUp == 1);
 }
@@ -201,8 +203,6 @@ void iniciaThreadJogo() {
 void LePacotesBufferServtoGw() {
 
 	packet *Resposta;
-
-	int flag = 0;
 
 	HANDLE hThredEnviaTabuleiro;
 
@@ -212,7 +212,8 @@ void LePacotesBufferServtoGw() {
 	
 		Resposta = LerBufferServtoGw();
 		// se a opçao do jogador for jogar individual irá lançar a thread que irá enviar lhe o jogo atualizado;
-		if (Resposta->tipo == IniciaJogoIndividual) {
+		//falta por a versao de iniciar jogo Multiplayer aqui
+		if (Resposta->tipo == IniciaJogoIndividual ) {
 
 			hThredEnviaTabuleiro = CreateThread(NULL, 0, (LPTHREAD_START_ROUTINE)iniciaThreadJogo, (LPVOID)NULL, 0, &idThreadEnviaTabuleiro);
 
@@ -222,14 +223,15 @@ void LePacotesBufferServtoGw() {
 				
 				exit(-1);
 			}
-			flag = 1;
 		}
-		if ( flag == 1) {
-			
+		switch (Resposta->tipo) {
+
+		default:
+
 			EnviaRespostaParaCliente(Resposta);
-
+		
 		}
-
+		
 	} while (dadosGw.ServerUp);
 
 }
@@ -248,7 +250,6 @@ int criaComunicacaoClienteGateway() {
 	}
 
 	hThreads[20] = CreateThread(NULL, 0, (LPTHREAD_START_ROUTINE)LePacotesBufferServtoGw, (LPVOID)NULL, 0, &idThLeServToGw);
-
 
 	do {
 	

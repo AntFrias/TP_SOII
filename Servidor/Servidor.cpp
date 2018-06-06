@@ -160,6 +160,17 @@ void alocaColocaPlayerNoArray(packet *aux) {
 																	//O numero de jogadores no array é incrementado nesta função
 	ColocaCliArray(aux,dadosServidor.NumCliNoArray);
 }
+//Funcao que irá iniciar o jogo e as respetivas movimentacoes
+void IniciarJogo() {
+
+}
+//funcao que irá iniciar o jogo apos um jogador seleccionar a opçao jogar
+void IniciaAmbienteJogo(int njogadores) {
+
+	if (njogadores == IniciaJogoIndividual)
+		IniciarJogo();
+
+}
 //Funcao que vai tratar o Login de um determinado Cliente
 packet trataPacoteLogin(packet *aux){
 
@@ -209,11 +220,18 @@ void TrataPacotesGwtoServ() {
 
 			resposta = trataPacoteLogin(aux);			// trata pacote de login
 			resposta.Cliente_id = aux->Cliente_id;
+
+		case IniciaJogoIndividual:
+
+			IniciaAmbienteJogo(IniciaJogoIndividual);
+
+		case IniciaJogoMultiplayer:
+			IniciaAmbienteJogo(IniciaJogoMultiplayer);
+
 		}
 	
 		escrevebuffer(&resposta, nomeServtoGw);
 	}
-
 }
 jogadorinfo * iniciaArrayCli(){ //Alocação do Array
 	
@@ -273,6 +291,15 @@ int _tmain(int argc, LPTSTR argv[]) {
 	Sleep(190000);
 	return 0;
 }
+
+
+
+
+
+
+
+
+
 
 
 

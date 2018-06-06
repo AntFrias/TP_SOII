@@ -31,7 +31,9 @@ void Envia(LPVOID NUUL) {
 
 		//escrever no pipe
 		WriteFile(Cliente.pipe, &PacoteEnvio, sizeof(packet), &nBytesLidos, &Ov);
+
 		WaitForSingleObject(IOReady, INFINITE);
+		
 		ret = GetOverlappedResult(Cliente.pipe, &Ov, &nBytesLidos, FALSE);
 
 		if (!ret || !nBytesLidos) {
