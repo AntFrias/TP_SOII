@@ -4,8 +4,19 @@
 
 
 dataServer dadosServidor;
+
 jogadorinfo *ArrayJogadores;
 
+BlocoServ blocoServ[dimMapa_x][dimMapa_y];
+
+//func que lista os clientes
+void mostraClinoArray() {
+
+	for (int i = 0; i < dadosServidor.NumCliNoArray; i++) {
+
+		_tprintf(TEXT("Cliente n:%d --- Nome %s \n"), (i + 1), ArrayJogadores[i].nome);
+	}
+}
 // vai fazer a gestao de todas as naves inimigas
 int GestorNavesInimigas(LPVOID navesInimigas) {
 
@@ -42,7 +53,6 @@ int GestorNavesInimigas(LPVOID navesInimigas) {
 
 	return 0;
 }
-// vai preparar o Ambiente do Jogo
 // fazer um array de HANDLES das threads DAS NAVES INIMIGAS 
 int IniciaNavesInimigas( int NumNavesInvasoras) {
 
@@ -102,28 +112,7 @@ int IniciaNavesInimigas( int NumNavesInvasoras) {
 	WaitForMultipleObjects(ninimigas, ArrayHandleNavesInim, TRUE, INFINITY);
 	return 0;
 }
-// inicia os servi�os e a configura�ao do Servidor no registry;
-/*int criaStatusServerRegistry(int n) {
-
-		registryServer StatServer;
-
-		//Criar/abrir uma chave em HKEY_CURRENT_USER\Software\TP_SOII
-		if (RegCreateKeyEx(HKEY_CURRENT_USER, TEXT("Software\\TP_SOII"), 0, NULL, REG_OPTION_NON_VOLATILE, KEY_ALL_ACCESS, NULL, &StatServer.Chave, &StatServer.statServer) != ERROR_SUCCESS) {
-			return -1;
-		}
-		else {
-			if (n == 1) {
-				StatServer.ServerUp = 1;
-				RegSetValueEx(StatServer.Chave, TEXT("Servidor"), 0, REG_DWORD, (LPBYTE)&StatServer.ServerUp, sizeof(DWORD));
-			}
-			else {
-				RegSetValueEx(StatServer.Chave, TEXT("Servidor"), 0, REG_DWORD, (LPBYTE)&StatServer.ServerUp, sizeof(DWORD));
-			}
-		}
-		return 0;
-	}
-*/
-//verifica se o cliente é repetido 
+//Verifica se o Cliente ja existe no array de jogadores
 int verificaPlayerNoArray(TCHAR *nome) {
 
 	//TODO mutex
@@ -171,8 +160,19 @@ void alocaColocaPlayerNoArray(packet *aux) {
 																	//O numero de jogadores no array é incrementado nesta função
 	ColocaCliArray(aux,dadosServidor.NumCliNoArray);
 }
-//Pedido de Login
-packet trataPacoteTipo1(packet *aux){
+//Funcao que irá iniciar o jogo e as respetivas movimentacoes
+void IniciarJogo() {
+
+}
+//funcao que irá iniciar o jogo apos um jogador seleccionar a opçao jogar
+void IniciaAmbienteJogo(int njogadores) {
+
+	if (njogadores == IniciaJogoIndividual)
+		IniciarJogo();
+
+}
+//Funcao que vai tratar o Login de um determinado Cliente
+packet trataPacoteLogin(packet *aux){
 
 	packet resposta;
 															//se for o primeiro cliente ->aloca->coloca
@@ -186,10 +186,9 @@ packet trataPacoteTipo1(packet *aux){
 	if (verificaPlayerNoArray(aux->dataPacket.nome)) {
 
 		resposta.tipo = user_Login_falhou;
-															//envia mensagem a dizer que este player já existe
-	}
-	else
-	{
+															
+	}	else	{
+
 		if (dadosServidor.NumCliNoArray < dadosServidor.NumMaxClientes) {
 
 			alocaColocaPlayerNoArray(aux);
@@ -206,15 +205,7 @@ packet trataPacoteTipo1(packet *aux){
 	
 	return resposta;
 }
-//func que lista os clientes
-void mostraClinoArray() {
-
-	for (int i = 0; i < dadosServidor.NumCliNoArray; i++) {
-
-		_tprintf(TEXT("Cliente n:%d --- Nome %s \n"),(i+1),ArrayJogadores[i].nome);
-	}
-}
-// Funcao que vai fazer o tratamento de pacotes/////////////////////////////////////////////////////////////////////////////////////////////
+// Funcao que vai fazer o tratamento de pacotes
 void TrataPacotesGwtoServ() {
 
 	packet *aux, resposta;
@@ -227,14 +218,20 @@ void TrataPacotesGwtoServ() {
 
 		case user_login: 
 
-			resposta = trataPacoteTipo1(aux);
-		}
-			
-		resposta.Cliente_id = aux->Cliente_id;
+			resposta = trataPacoteLogin(aux);			// trata pacote de login
+			resposta.Cliente_id = aux->Cliente_id;
 
+		case IniciaJogoIndividual:
+
+			IniciaAmbienteJogo(IniciaJogoIndividual);
+
+		case IniciaJogoMultiplayer:
+			IniciaAmbienteJogo(IniciaJogoMultiplayer);
+
+		}
+	
 		escrevebuffer(&resposta, nomeServtoGw);
 	}
-
 }
 jogadorinfo * iniciaArrayCli(){ //Alocação do Array
 	
@@ -259,15 +256,11 @@ int IniciarServidor() {
 	dadosServidor.ServidorUp = 1;
 	dadosServidor.NumCliNoArray = 0;
 	
-	ArrayJogadores = iniciaArrayCli();
-	
 	//criaStatusServerRegistry( 1 );														// cria parametro no Registry para mostrar que o servidor est� 
 
-	CriaMemoriaPartilhada();															// cria os Buffers na memoria partilhada
+	CriaMemoriaPartilhada();															// cria os Buffers na memoria partilhada e sincronizacao
 
-	CriaSyncMemoriaGwtoServ();						// cria a syncroniza�ao que ser� usada nos Buffers	
-	
-	CriaSyncMemoriaServtoGw();
+	ArrayJogadores = iniciaArrayCli();
 																				
 	dadosServidor.hThreadSerToGw = CreateThread( NULL,0,(LPTHREAD_START_ROUTINE)TrataPacotesGwtoServ,(LPVOID) NULL,0,&dadosServidor.IdThreadSertoGw);
 											
@@ -285,8 +278,6 @@ int IniciarServidor() {
 	//criaStatusServerRegistry (0 );
 	return 0;
 }
-
-
 int _tmain(int argc, LPTSTR argv[]) {
 
 
@@ -300,3 +291,40 @@ int _tmain(int argc, LPTSTR argv[]) {
 	Sleep(190000);
 	return 0;
 }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+// inicia os servi�os e a configura�ao do Servidor no registry;
+/*int criaStatusServerRegistry(int n) {
+
+registryServer StatServer;
+
+//Criar/abrir uma chave em HKEY_CURRENT_USER\Software\TP_SOII
+if (RegCreateKeyEx(HKEY_CURRENT_USER, TEXT("Software\\TP_SOII"), 0, NULL, REG_OPTION_NON_VOLATILE, KEY_ALL_ACCESS, NULL, &StatServer.Chave, &StatServer.statServer) != ERROR_SUCCESS) {
+return -1;
+}
+else {
+if (n == 1) {
+StatServer.ServerUp = 1;
+RegSetValueEx(StatServer.Chave, TEXT("Servidor"), 0, REG_DWORD, (LPBYTE)&StatServer.ServerUp, sizeof(DWORD));
+}
+else {
+RegSetValueEx(StatServer.Chave, TEXT("Servidor"), 0, REG_DWORD, (LPBYTE)&StatServer.ServerUp, sizeof(DWORD));
+}
+}
+return 0;
+}
+*/
+//verifica se o cliente é repetido 
