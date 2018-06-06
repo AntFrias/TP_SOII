@@ -114,8 +114,6 @@ void escuta() {
 }
 
 
-
-
 void IniciaCliente() {
 
 
