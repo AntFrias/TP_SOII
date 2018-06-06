@@ -14,22 +14,27 @@
 #include <winbase.h>
 
 
+//numero de naves inimigas apenas para testes
+#define ninimigas1 5
+#define ninimigas2 5
+
 // Estrutura de suporte ás naves
 typedef struct naves {
 	int tipo;
 	int x, y;
 	int vida;
 	int escudo;
-	int IdNave;
-	HANDLE NaveInvasoras;
-	DWORD NaveInvthreadId;
 
 }Nave;
+
+
 // extrutura Configuraçao Inicial do Jogo
 typedef struct ConfiguracaoInicialJogo {				
 
 	int MaxJogadores;
-	int MaxNavesInimigas;
+	int MaxNavesInimigas1;
+	int MaxNavesInimigas2;
+	int MaxNavesInimigas3;
 	int MaxPowerups;
 	int DuracaoPowerup;
 	int Vidas;
@@ -68,6 +73,7 @@ typedef struct Gestao_servidor{
 	registryServer ServerUp; // ver se isto vai ser necessario
 	HANDLE hThreadSerToGw;
 	DWORD IdThreadSertoGw;
+	HANDLE mutexTabuleiro;
 
 }dataServer;
 

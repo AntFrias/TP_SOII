@@ -195,7 +195,7 @@ void iniciaThreadJogo() {
 			EnviaBroadcastPacote(resposta);
 		}
 
-		Sleep(40);
+		Sleep(40); //25frames
 
 	} while (dadosGw.ServerUp == 1);
 }
@@ -233,6 +233,8 @@ void LePacotesBufferServtoGw() {
 		}
 		
 	} while (dadosGw.ServerUp);
+
+	WaitForSingleObject(&idThreadEnviaTabuleiro, INFINITE);
 
 }
 //inicia Comunicaçao com CLiente

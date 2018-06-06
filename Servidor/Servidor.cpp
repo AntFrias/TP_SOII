@@ -18,99 +18,143 @@ void mostraClinoArray() {
 	}
 }
 // vai fazer a gestao de todas as naves inimigas
-int GestorNavesInimigas(LPVOID navesInimigas) {
+int GestorNavesInimigasTipo3(LPVOID aux) {
 
-	Nave *naveInimiga;
+	Nave *naveInimigaTipo3 = (Nave*)aux;
+
+	int nNaves = dadosServidor.initJogo.MaxNavesInimigas3;
+
 	int coord_x = CoordWindow_x, coord_y = CoordWindow_y;
-	naveInimiga = ((Nave*)navesInimigas);
 
 	do {
-		
-		gotoxy(naveInimiga->x, naveInimiga->y);
 
-		//if (navePodeMexer(naveInimiga)==1) {
-				
-		if (coord_x < CoordWindow_x + dimMapa_x) {
-			gotoxy(coord_x, coord_y);
-			_tprintf(TEXT("I"));
-			naveInimiga->x = coord_x;
-			naveInimiga->x = coord_y;
-			coord_x++;
+		//algortimo movimento da nave
 
-		}
-		else {
-			coord_x = CoordWindow_x;
-			naveInimiga->x = coord_x;
-			coord_y++;
-			naveInimiga->x = coord_y;
 
-			gotoxy(coord_x, coord_y);
-			_tprintf(TEXT("I"));
-		}
-		naveInimiga->vida--;
 
-	} while (naveInimiga->vida > 0);
+
+	} while (nNaves > 0);
+
+
 
 	return 0;
 }
+// vai fazer a gestao de todas as naves inimigas
+int GestorNavesInimigasTipo2(LPVOID aux) {
+
+	Nave *naveInimigaTipo2 = (Nave*)aux;
+
+	int nNaves = dadosServidor.initJogo.MaxNavesInimigas2;
+
+	int coord_x = CoordWindow_x, coord_y = CoordWindow_y;
+
+	do {
+
+		//algortimo movimento da nave
+
+
+
+
+	} while (nNaves > 0);
+	return 0;
+}
+// vai fazer a gestao de todas as naves inimigas
+int GestorNavesInimigasTipo1(LPVOID aux) {
+
+	Nave *naveInimigaTipo1 = (Nave*)aux;
+
+	int nNaves = dadosServidor.initJogo.MaxNavesInimigas1;
+	
+	int coord_x = CoordWindow_x, coord_y = CoordWindow_y;
+
+	do {
+
+		//algortimo movimento da nave
+
+		
+		
+
+	} while (nNaves > 0);
+
+	return 0;
+}
+//aloca memoria para as naves
+Nave *criaArrayNaves(int tam) {
+
+	Nave *aux;
+
+	aux =(Nave*) malloc(sizeof(Nave)*tam);
+
+	if (aux == NULL) {
+		_tprintf(TEXT("Erro a alocar memoria para o array de naves enimigas\n"));
+		exit(-1);
+	}
+
+	return aux;
+
+}
+void colocaNavesTab(Nave **Array1, Nave **Array2) {
+
+
+	int contaTipo1 = 0, contaTipo2 = 0;
+
+	while ((contaTipo1 + contaTipo2) != (dadosServidor.initJogo.MaxNavesInimigas1 + dadosServidor.initJogo.MaxNavesInimigas2)) {
+
+
+		WaitForSingleObject(dadosServidor.mutexTabuleiro,NULL);
+		//codigo
+		ReleaseMutex(dadosServidor.mutexTabuleiro);
+
+
+
+
+	}
+
+
+
+
+
+
+}
 // fazer um array de HANDLES das threads DAS NAVES INIMIGAS 
-int IniciaNavesInimigas( int NumNavesInvasoras) {
+int IniciaNavesInimigas() {
 
 	Nave *navesInimigas;
 	
-	HANDLE *ArrayHandleNavesInim;
+	HANDLE hNavesEnemy[2];
+	DWORD idNavesEnemy[2];
 
-	ArrayHandleNavesInim = (HANDLE*)malloc(sizeof(HANDLE)*ninimigas);
+	HANDLE hNavesEnemyUlti;
+	DWORD idNavesEnemyUlti;
 
-	if (ArrayHandleNavesInim == NULL) {
-		_tprintf(TEXT("\n Erro ao criar o array de Handles das Naves inimigas"));
-	}
-
-	int coord_x = CoordWindow_x, coord_y = CoordWindow_y;
+	//int coord_x = CoordWindow_x, coord_y = CoordWindow_y;
 	
-	navesInimigas = (Nave*)malloc(sizeof(Nave) * NumNavesInvasoras);
+	Nave *NaveEnemyTipo1, *NaveEnemyTipo2, *NaveEnemyTipo3;
 
-	if (navesInimigas == NULL) {
+		NaveEnemyTipo1 = criaArrayNaves(dadosServidor.initJogo.MaxNavesInimigas1);
+		NaveEnemyTipo2 = criaArrayNaves(dadosServidor.initJogo.MaxNavesInimigas2);
+		NaveEnemyTipo3 = criaArrayNaves(dadosServidor.initJogo.MaxNavesInimigas3);
+		
+		colocaNavesTab(&NaveEnemyTipo1, &NaveEnemyTipo2);
 
-		_tprintf(TEXT("\nErro ao criar Threads para Naves Inimigas\n"));
-
-		return -1;
-	}
-	for (int i = 0; i < NumNavesInvasoras; i++) {
-
-		navesInimigas[i].vida = 200;
-		if (coord_x < CoordWindow_x + dimMapa_x) {
-			gotoxy(coord_x, coord_y);
-			_tprintf(TEXT("I"));
-			navesInimigas[i].x = coord_x;
-			navesInimigas[i].x = coord_y;
-			coord_x++;
-
-		}
-		else {
-			coord_x = CoordWindow_x;
-			navesInimigas[i].x = coord_x;
-			coord_y++;
-			navesInimigas[i].x = coord_y;
-
-			gotoxy(coord_x, coord_y);
-			_tprintf(TEXT("I"));
-		}
-		navesInimigas[i].NaveInvasoras = CreateThread(NULL,0, (LPTHREAD_START_ROUTINE)GestorNavesInimigas,(LPVOID)&navesInimigas[i],0,&navesInimigas[i].NaveInvthreadId);
-
-		if (navesInimigas[i].NaveInvasoras == NULL) {
-
-			_tprintf(TEXT("\n\nErro ao Iniciar Thread para Naves Inimigas\n\n"));
-			
+		hNavesEnemy[0] = CreateThread(NULL, 0, (LPTHREAD_START_ROUTINE)GestorNavesInimigasTipo1, (LPVOID)&NaveEnemyTipo1, 0, &idNavesEnemy[0]);
+		hNavesEnemy[1] = CreateThread(NULL, 0, (LPTHREAD_START_ROUTINE)GestorNavesInimigasTipo2, (LPVOID)&NaveEnemyTipo2, 0, &idNavesEnemy[1]);
+		
+		if (hNavesEnemy[0] == NULL || hNavesEnemy[1] == NULL) {
+			_tprintf(TEXT("ERRO ao lançar naves enimigas\n"));
 			return -1;
-		
 		}
-		ArrayHandleNavesInim[i] = navesInimigas[i].NaveInvasoras;
-		_tprintf(TEXT("\nCriei Thread %d"), i);
-		
-	}
-	WaitForMultipleObjects(ninimigas, ArrayHandleNavesInim, TRUE, INFINITY);
-	return 0;
+
+		WaitForMultipleObjects(NULL,hNavesEnemy,0,INFINITE);//so depois de nao haver mais naves a nave boss entra em ação
+
+		hNavesEnemyUlti = CreateThread(NULL, 0, (LPTHREAD_START_ROUTINE)GestorNavesInimigasTipo3, (LPVOID)&NaveEnemyTipo3, 0, &idNavesEnemyUlti);
+
+		if (hNavesEnemyUlti == NULL) {
+			_tprintf(TEXT("ERRO ao lançar naves enimigas\n"));
+			return -1;
+		}
+
+		return 0;
 }
 //Verifica se o Cliente ja existe no array de jogadores
 int verificaPlayerNoArray(TCHAR *nome) {
@@ -219,6 +263,7 @@ void TrataPacotesGwtoServ() {
 		case user_login: 
 
 			resposta = trataPacoteLogin(aux);			// trata pacote de login
+
 			resposta.Cliente_id = aux->Cliente_id;
 
 		case IniciaJogoIndividual:
@@ -239,7 +284,6 @@ jogadorinfo * iniciaArrayCli(){ //Alocação do Array
 
 	Aux = (jogadorinfo*)malloc(sizeof(jogadorinfo));
 
-
 	if (Aux == NULL) {
 		_tprintf(TEXT("Erro a Inicializar o Array de Jogadores\n"));
 		return NULL;
@@ -255,8 +299,13 @@ int IniciarServidor() {
 	dadosServidor.NumMaxClientes = 5;
 	dadosServidor.ServidorUp = 1;
 	dadosServidor.NumCliNoArray = 0;
-	
-	//criaStatusServerRegistry( 1 );														// cria parametro no Registry para mostrar que o servidor est� 
+	//////////////////////////////////////////////////////////////////////////////////////////////////
+	dadosServidor.initJogo.MaxNavesInimigas1 = ninimigas1;
+	dadosServidor.initJogo.MaxNavesInimigas2 = ninimigas2;
+	dadosServidor.initJogo.MaxNavesInimigas3 = 1;
+	//////////////////////////////////////////////////////////////////////////////////////////////////
+	dadosServidor.mutexTabuleiro = CreateMutex(NULL, FALSE, mutexAtualizaBloco);
+
 
 	CriaMemoriaPartilhada();															// cria os Buffers na memoria partilhada e sincronizacao
 
@@ -269,10 +318,8 @@ int IniciarServidor() {
 	_tscanf_s(TEXT("%c"), &c, 1);
 	
 	if (c == 's' || c == 'S') {
-
-		dadosServidor.initJogo.MaxNavesInimigas = ninimigas;
-
-		IniciaNavesInimigas(dadosServidor.initJogo.MaxNavesInimigas);
+		IniciaNavesInimigas();
+	
 	}
 	
 	//criaStatusServerRegistry (0 );
@@ -326,5 +373,36 @@ RegSetValueEx(StatServer.Chave, TEXT("Servidor"), 0, REG_DWORD, (LPBYTE)&StatSer
 }
 return 0;
 }
+
+
+
+//naves enimigas cod algoritmo
+gotoxy(naveInimiga->x, naveInimiga->y);
+
+//if (navePodeMexer(naveInimiga)==1) {
+
+if (coord_x < CoordWindow_x + dimMapa_x) {
+	gotoxy(coord_x, coord_y);
+	_tprintf(TEXT("I"));
+	naveInimiga->x = coord_x;
+	naveInimiga->x = coord_y;
+	coord_x++;
+
+}
+else {
+	coord_x = CoordWindow_x;
+	naveInimiga->x = coord_x;
+	coord_y++;
+	naveInimiga->x = coord_y;
+
+	gotoxy(coord_x, coord_y);
+	_tprintf(TEXT("I"));
+}
+naveInimiga->vida--;
+
+
+
 */
+
+
 //verifica se o cliente é repetido 
