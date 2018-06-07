@@ -100,7 +100,7 @@ void mostraTabuleiro() {
 	for (int x = 0; x < dimMapa_x; x++) {
 		for (int y = 0; y < dimMapa_y; y++) {
 
-			_tprintf(TEXT("%d "), blocoServ[x][y].tipo);
+			_tprintf(TEXT("%d"), blocoServ[x][y].tipo); //tirei o espaco
 
 		}
 		_tprintf(TEXT("\n"));
