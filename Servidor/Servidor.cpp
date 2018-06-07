@@ -238,6 +238,7 @@ void ColocaCliArray(packet *aux,int pos) {
 	dadosServidor.NumCliNoArray += 1;
 
 }
+
 //aloca espaço para um novo cliente e coloca dentro do array
 void alocaColocaPlayerNoArray(packet *aux) {
 
@@ -352,7 +353,7 @@ int IniciarServidor() {
 
 	TCHAR c;
 	ArrayJogadores = NULL;
-	dadosServidor.NumMaxClientes = 5;
+	dadosServidor.NumMaxClientes = nMaxPlay; //nMaxPlay
 	dadosServidor.ServidorUp = 1;
 	dadosServidor.NumCliNoArray = 0;
 	//////////////////////////////////////////////////////////////////////////////////////////////////
