@@ -95,27 +95,70 @@ Nave *criaArrayNaves(int tam) {
 }
 void colocaNavesTab(Nave **Array1, Nave **Array2) {
 
-
+	int nMaxNavesTipo1 = dadosServidor.initJogo.MaxNavesInimigas1;
+	int nMaxNavesTipo2 = dadosServidor.initJogo.MaxNavesInimigas2;
 	int contaTipo1 = 0, contaTipo2 = 0;
 
-	while ((contaTipo1 + contaTipo2) != (dadosServidor.initJogo.MaxNavesInimigas1 + dadosServidor.initJogo.MaxNavesInimigas2)) {
-
+	while ((contaTipo1 + contaTipo2) != (nMaxNavesTipo1 + nMaxNavesTipo2)) {
 
 		WaitForSingleObject(dadosServidor.mutexTabuleiro,NULL);
 		//codigo
+		
+		for (int x = 0; x < dimMapa_x; x++) {
+			for (int y = 0; y < dimMapa_y; y++) {
+				if (blocoServ[x][y].tipo==0)//se estiver vazia
+				{
+					if (x % 2 == 0) { // nas pos par coloca do tipo 1
+						//coloca no array						
+						Array1[contaTipo1]->tipo = 1;
+						Array1[contaTipo1]->escudo = 0;
+						Array1[contaTipo1]->vida = 100;
+						Array1[contaTipo1]->x = x;
+						Array1[contaTipo1]->y = y;
+						//coloca no tabuleiro
+					//blocoServ[x][y].id = ;
+						blocoServ[x][y].tipo = 1;
+						blocoServ[x][y].posArray = contaTipo1;
+						//mais um no tipo1
+						contaTipo1 += 1;
+					}
+					if (x % 2 != 0) { //nas pos impar coloca do tipo 2
+						Array2[contaTipo2]->tipo = 1;
+						Array2[contaTipo2]->escudo = 0;
+						Array2[contaTipo2]->vida = 100;
+						Array2[contaTipo2]->x = x;
+						Array2[contaTipo2]->y = y;
+						//coloca no tabuleiro
+					//blocoServ[x][y].id = ;
+						blocoServ[x][y].tipo = 1;
+						blocoServ[x][y].posArray = contaTipo2;
+						//mais um no tipo2
+						contaTipo2 += 1;
+					}
+
+				}
+			}
+		}
+		
 		ReleaseMutex(dadosServidor.mutexTabuleiro);
-
-
-
 
 	}
 
+}
+void limpaTabuleiro() {
 
+	for (int x = 0; x < dimMapa_x; x++) {
+		for (int y = 0; y < dimMapa_y; y++) {
+			
+			blocoServ[x][y].id = 0; //não existe
+			blocoServ[x][y].tipo = 0; //vazio
+			blocoServ[x][y].posArray = 0; //vazio
 
-
-
+		}
+	}
 
 }
+
 // fazer um array de HANDLES das threads DAS NAVES INIMIGAS 
 int IniciaNavesInimigas() {
 
@@ -135,7 +178,8 @@ int IniciaNavesInimigas() {
 		NaveEnemyTipo2 = criaArrayNaves(dadosServidor.initJogo.MaxNavesInimigas2);
 		NaveEnemyTipo3 = criaArrayNaves(dadosServidor.initJogo.MaxNavesInimigas3);
 		
-		colocaNavesTab(&NaveEnemyTipo1, &NaveEnemyTipo2);
+		limpaTabuleiro(); //ver os dois
+		colocaNavesTab(&NaveEnemyTipo1, &NaveEnemyTipo2); //ver os dois
 
 		hNavesEnemy[0] = CreateThread(NULL, 0, (LPTHREAD_START_ROUTINE)GestorNavesInimigasTipo1, (LPVOID)&NaveEnemyTipo1, 0, &idNavesEnemy[0]);
 		hNavesEnemy[1] = CreateThread(NULL, 0, (LPTHREAD_START_ROUTINE)GestorNavesInimigasTipo2, (LPVOID)&NaveEnemyTipo2, 0, &idNavesEnemy[1]);
@@ -146,7 +190,7 @@ int IniciaNavesInimigas() {
 		}
 
 		WaitForMultipleObjects(NULL,hNavesEnemy,0,INFINITE);//so depois de nao haver mais naves a nave boss entra em ação
-
+		//TODO fazer função para colocar a utima nave no array
 		hNavesEnemyUlti = CreateThread(NULL, 0, (LPTHREAD_START_ROUTINE)GestorNavesInimigasTipo3, (LPVOID)&NaveEnemyTipo3, 0, &idNavesEnemyUlti);
 
 		if (hNavesEnemyUlti == NULL) {
