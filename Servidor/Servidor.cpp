@@ -150,6 +150,8 @@ void colocaNavesTab() {
 		}
 		ReleaseMutex(dadosServidor.mutexTabuleiro);
 		mostraTabuleiro();
+		//_tprintf(TEXT("\n\n\n\n\n"));
+		//mostraTabCom();
 }
 		
 		
