@@ -41,6 +41,13 @@ typedef struct ConfiguracaoInicialJogo {
 
 }confInitJogo;
 
+typedef struct DadosDoGame {
+
+	Nave *NaveEnemyTipo1, *NaveEnemyTipo2, *NaveEnemyTipo3;
+
+
+}DadosdoJogo;
+
 // Extrutura Jogador
 typedef struct Jogador_Info {							
 
@@ -82,6 +89,7 @@ typedef struct BlocoTabServidor {
 	int tipo;
 	int id;
 	int posArray;
+	//pensar na cor
 
 }BlocoServ;
 

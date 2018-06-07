@@ -5,6 +5,8 @@
 
 dataServer dadosServidor;
 
+DadosdoJogo objectosNoMapa;
+
 jogadorinfo *ArrayJogadores;
 
 BlocoServ blocoServ[dimMapa_x][dimMapa_y];
@@ -93,60 +95,61 @@ Nave *criaArrayNaves(int tam) {
 	return aux;
 
 }
-void colocaNavesTab(Nave **Array1, Nave **Array2) {
+void mostraTabuleiro() {
+
+	for (int x = 0; x < dimMapa_x; x++) {
+		for (int y = 0; y < dimMapa_y; y++) {
+
+			_tprintf(TEXT("%d "), blocoServ[x][y].tipo);
+
+		}
+		_tprintf(TEXT("\n"));
+	}
+
+}
+void colocaNavesTab() {
 
 	int nMaxNavesTipo1 = dadosServidor.initJogo.MaxNavesInimigas1;
 	int nMaxNavesTipo2 = dadosServidor.initJogo.MaxNavesInimigas2;
 	int contaTipo1 = 0, contaTipo2 = 0;
+		
+	_tprintf(TEXT("Vou prencher o tabuleiro do servidor\n"));
 
 		WaitForSingleObject(dadosServidor.mutexTabuleiro,NULL);
-		//codigo
 		
 		for (int x = 0; x < dimMapa_x; x++) {
 			for (int y = 0; y < dimMapa_y; y++) {
 				if (blocoServ[x][y].tipo == 0 && ((contaTipo1 < nMaxNavesTipo1)))//se estiver vazia
 				{
-					if (x % 2 == 0) { // nas pos par coloca do tipo 1
-						//coloca no array						
-						Array1[contaTipo1]->tipo = 1;
-						Array1[contaTipo1]->escudo = 0;
-						Array1[contaTipo1]->vida = 100;
-						Array1[contaTipo1]->x = x;
-						Array1[contaTipo1]->y = y;
-						//coloca no tabuleiro
-					//blocoServ[x][y].id = ;
+					if (y % 2 == 0) { // nas pos par coloca do tipo 1					
+						objectosNoMapa.NaveEnemyTipo1[contaTipo1].tipo = 1;
+						objectosNoMapa.NaveEnemyTipo1[contaTipo1].escudo = 0;
+						objectosNoMapa.NaveEnemyTipo1[contaTipo1].vida = 100;
+						objectosNoMapa.NaveEnemyTipo1[contaTipo1].x = x;
+						objectosNoMapa.NaveEnemyTipo1[contaTipo1].y = y;
+						contaTipo1 += 1;
 						blocoServ[x][y].tipo = 1;
 						blocoServ[x][y].posArray = contaTipo1;
-						//mais um no tipo1
-						contaTipo1 += 1;
+						tabServCPYtabCom(x, y, 1);
 					}
-
 				}
-			}
-		}
-		for (int x = 0; x < dimMapa_x; x++) {
-			for (int y = 0; y < dimMapa_y; y++) {
-				if (blocoServ[x][y].tipo == 0 && ((contaTipo2 < nMaxNavesTipo2)))//se estiver vazia
-				{
-					if (x % 2 != 0) { // nas pos par coloca do tipo 2
-									  //coloca no array						
-						Array1[contaTipo2]->tipo = 1;
-						Array1[contaTipo2]->escudo = 0;
-						Array1[contaTipo2]->vida = 100;
-						Array1[contaTipo2]->x = x;
-						Array1[contaTipo2]->y = y;
-						//coloca no tabuleiro
-						//blocoServ[x][y].id = ;
-						blocoServ[x][y].tipo = 1;
-						blocoServ[x][y].posArray = contaTipo2;
-						//mais um no tipo1
-						contaTipo1 += 2;
+				if (blocoServ[x][y].tipo == 0 && ((contaTipo2 < nMaxNavesTipo2))){
+					if (y % 2 != 0) {
+							objectosNoMapa.NaveEnemyTipo2[contaTipo2].tipo = 2;
+							objectosNoMapa.NaveEnemyTipo2[contaTipo2].escudo = 0;
+							objectosNoMapa.NaveEnemyTipo2[contaTipo2].vida = 100;
+							objectosNoMapa.NaveEnemyTipo2[contaTipo2].x = x;
+							objectosNoMapa.NaveEnemyTipo2[contaTipo2].y = y;
+							contaTipo2 += 1;
+							blocoServ[x][y].tipo = 2;
+							blocoServ[x][y].posArray = contaTipo2;
+							tabServCPYtabCom(x, y, 2);
 					}
-
 				}
 			}
 		}
 		ReleaseMutex(dadosServidor.mutexTabuleiro);
+		mostraTabuleiro();
 }
 		
 		
@@ -160,10 +163,10 @@ void limpaTabuleiro() {
 			blocoServ[x][y].id = 0; //não existe
 			blocoServ[x][y].tipo = 0; //vazio
 			blocoServ[x][y].posArray = 0; //vazio
+			tabServCPYtabCom(x, y, 0);
 
 		}
 	}
-
 }
 
 // fazer um array de HANDLES das threads DAS NAVES INIMIGAS 
@@ -177,19 +180,18 @@ int IniciaNavesInimigas() {
 	HANDLE hNavesEnemyUlti;
 	DWORD idNavesEnemyUlti;
 
-	//int coord_x = CoordWindow_x, coord_y = CoordWindow_y;
-	
-	Nave *NaveEnemyTipo1, *NaveEnemyTipo2, *NaveEnemyTipo3;
 
-		NaveEnemyTipo1 = criaArrayNaves(dadosServidor.initJogo.MaxNavesInimigas1);
-		NaveEnemyTipo2 = criaArrayNaves(dadosServidor.initJogo.MaxNavesInimigas2);
-		NaveEnemyTipo3 = criaArrayNaves(dadosServidor.initJogo.MaxNavesInimigas3);
+	//int coord_x = CoordWindow_x, coord_y = CoordWindow_y;
+
+		objectosNoMapa.NaveEnemyTipo1 = criaArrayNaves(dadosServidor.initJogo.MaxNavesInimigas1);
+		objectosNoMapa.NaveEnemyTipo2 = criaArrayNaves(dadosServidor.initJogo.MaxNavesInimigas2);
+		objectosNoMapa.NaveEnemyTipo3 = criaArrayNaves(dadosServidor.initJogo.MaxNavesInimigas3);
 		
 		limpaTabuleiro(); //ver os dois
-		colocaNavesTab(&NaveEnemyTipo1, &NaveEnemyTipo2); //ver os dois
+		colocaNavesTab(); //ver os dois
 
-		hNavesEnemy[0] = CreateThread(NULL, 0, (LPTHREAD_START_ROUTINE)GestorNavesInimigasTipo1, (LPVOID)&NaveEnemyTipo1, 0, &idNavesEnemy[0]);
-		hNavesEnemy[1] = CreateThread(NULL, 0, (LPTHREAD_START_ROUTINE)GestorNavesInimigasTipo2, (LPVOID)&NaveEnemyTipo2, 0, &idNavesEnemy[1]);
+		hNavesEnemy[0] = CreateThread(NULL, 0, (LPTHREAD_START_ROUTINE)GestorNavesInimigasTipo1, (LPVOID)NULL, 0, &idNavesEnemy[0]);
+		hNavesEnemy[1] = CreateThread(NULL, 0, (LPTHREAD_START_ROUTINE)GestorNavesInimigasTipo2, (LPVOID)NULL, 0, &idNavesEnemy[1]);
 		
 		if (hNavesEnemy[0] == NULL || hNavesEnemy[1] == NULL) {
 			_tprintf(TEXT("ERRO ao lançar naves enimigas\n"));
@@ -198,7 +200,7 @@ int IniciaNavesInimigas() {
 
 		WaitForMultipleObjects(NULL,hNavesEnemy,0,INFINITE);//so depois de nao haver mais naves a nave boss entra em ação
 		//TODO fazer função para colocar a utima nave no array
-		hNavesEnemyUlti = CreateThread(NULL, 0, (LPTHREAD_START_ROUTINE)GestorNavesInimigasTipo3, (LPVOID)&NaveEnemyTipo3, 0, &idNavesEnemyUlti);
+		hNavesEnemyUlti = CreateThread(NULL, 0, (LPTHREAD_START_ROUTINE)GestorNavesInimigasTipo3, (LPVOID)NULL, 0, &idNavesEnemyUlti);
 
 		if (hNavesEnemyUlti == NULL) {
 			_tprintf(TEXT("ERRO ao lançar naves enimigas\n"));
@@ -207,6 +209,7 @@ int IniciaNavesInimigas() {
 
 		return 0;
 }
+
 //Verifica se o Cliente ja existe no array de jogadores
 int verificaPlayerNoArray(TCHAR *nome) {
 
