@@ -12,6 +12,17 @@
 #include <shellapi.h>
 #include <winbase.h>
 
+enum MovimentoDaNave { //ver no lado do servidor se esta igual
+
+	cima = 1,
+	baixo,
+	esquerda,
+	direita,
+	espaco,
+	z,      //ativa powerUp1
+	x,		//ativa powerUp2
+	c,		//ativa powerUp3
+};
 
 
 //nome do Pipe de comunicaçao Servidor <-> Cliente
