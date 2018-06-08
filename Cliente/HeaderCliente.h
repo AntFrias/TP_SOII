@@ -52,12 +52,20 @@ typedef struct BlocoMemPartilhada {
 	int Cor;
 
 }Bloco;
+typedef struct alteracaoDoTab {
+
+	int x, y;
+	int tipo;
+	int	cor;
+
+}alteracaoTab;
 
 typedef struct Packet {
 
 	int tipo;
 	DWORD Cliente_id;
 	int pontuacao;
+	int numObjetos;
 
 	union datPacket
 	{
@@ -65,7 +73,7 @@ typedef struct Packet {
 		int movimento;
 		int tiro;
 		//PowerUpp PowerUp;
-		Bloco tabuleiro[Blocoscupados];
+		alteracaoTab arrayTab[Blocoscupados];
 
 	}dataPacket;
 
