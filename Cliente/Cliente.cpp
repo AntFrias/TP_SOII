@@ -173,7 +173,7 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR LpCmdLine
 	wc.hInstance = hInstance;
 	wc.lpszClassName = CLASS_NAME;
 	wc.hbrBackground = (HBRUSH)(COLOR_WINDOW + 1);
-	wc.hIcon = (HICON)LoadImage(NULL, L"../../teste.ico", IMAGE_ICON, 32, 32, LR_LOADFROMFILE);
+	wc.hIcon = (HICON)LoadImage(NULL, L"../../Imagens/Logot.ico", IMAGE_ICON, 32, 32, LR_LOADFROMFILE);
 	RegisterClass(&wc);
 
 	// Create the window.
