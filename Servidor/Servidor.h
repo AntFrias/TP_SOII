@@ -13,6 +13,48 @@
 #include <shellapi.h>
 #include <winbase.h>
 
+//max powerUp
+#define maxClientePowerUp 3
+
+//Velocidade base das naves enimigas
+#define velociadadeNaveBasica 200 
+
+//Velocidade base das naves enimigas
+#define velociadadeNaveEsquiva 10 
+
+//numero de naves inimigas apenas para testes
+#define ninimigas1 5
+#define ninimigas2 5
+
+//Tiros
+enum EnumTiros {
+	
+	tiroJogador= 1,
+	tiroNaveEnemy,
+	tiroNuclear,
+	tiroBoss
+
+};
+
+
+// Estrutura Tiro
+typedef struct tiroo {
+
+	int idJogador;
+	int x, y;
+	int posJogador; // no array para identificar de quem é o tiro
+
+
+
+}tiro;
+
+// Estrutura PowerUp
+typedef struct PowerUpJogador {
+	int tipo;
+	int duracao;
+	int ocorrencia;
+}PowerUp;
+
 
 // Estrutura de suporte ás naves
 typedef struct naves {
@@ -20,21 +62,28 @@ typedef struct naves {
 	int x, y;
 	int vida;
 	int escudo;
-	int IdNave;
-	HANDLE NaveInvasoras;
-	DWORD NaveInvthreadId;
-
+	int taxaDisparo;
+	int velocidadeBase;
 }Nave;
+
 // extrutura Configuraçao Inicial do Jogo
 typedef struct ConfiguracaoInicialJogo {				
-
 	int MaxJogadores;
-	int MaxNavesInimigas;
+	int MaxNavesInimigas1;
+	int MaxNavesInimigas2;
+	int MaxNavesInimigas3;
+	int taxaDeDiparoBasica;
+
 	int MaxPowerups;
 	int DuracaoPowerup;
-	int Vidas;
-
+	int VidasJogador;
 }confInitJogo;
+
+typedef struct DadosDoGame {
+
+	Nave *NaveEnemyTipo1, *NaveEnemyTipo2, *NaveEnemyTipo3;
+
+}DadosdoJogo;
 
 // Extrutura Jogador
 typedef struct Jogador_Info {							
@@ -68,6 +117,7 @@ typedef struct Gestao_servidor{
 	registryServer ServerUp; // ver se isto vai ser necessario
 	HANDLE hThreadSerToGw;
 	DWORD IdThreadSertoGw;
+	HANDLE mutexTabuleiro;
 
 }dataServer;
 
@@ -76,6 +126,7 @@ typedef struct BlocoTabServidor {
 	int tipo;
 	int id;
 	int posArray;
+	//pensar na cor
 
 }BlocoServ;
 

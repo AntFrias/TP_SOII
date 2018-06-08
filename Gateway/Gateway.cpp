@@ -4,7 +4,7 @@
 
 dataGw dadosGw;
 
-clientes Clientes[5];
+clientes Clientes[nMaxPlay];
 
 // funcao que recebe pacotes do Pipe que veem do Cliente
 void RecebePipeCliente(LPVOID *Cli) {
@@ -57,7 +57,7 @@ void RecebePipeCliente(LPVOID *Cli) {
 HANDLE criaNamedPipe() {
 
 
-	HANDLE hPipe = CreateNamedPipe(PIPE_NAME, PIPE_ACCESS_DUPLEX | FILE_FLAG_OVERLAPPED, PIPE_WAIT | PIPE_TYPE_MESSAGE | PIPE_READMODE_MESSAGE, 5, sizeof(packet), sizeof(packet), 1000, NULL);
+	HANDLE hPipe = CreateNamedPipe(PIPE_NAME, PIPE_ACCESS_DUPLEX | FILE_FLAG_OVERLAPPED, PIPE_WAIT | PIPE_TYPE_MESSAGE | PIPE_READMODE_MESSAGE, nMaxPlay, sizeof(packet), sizeof(packet), 1000, NULL);
 
 	if (hPipe == INVALID_HANDLE_VALUE) {
 
@@ -195,7 +195,7 @@ void iniciaThreadJogo() {
 			EnviaBroadcastPacote(resposta);
 		}
 
-		Sleep(40);
+		Sleep(40); //25frames
 
 	} while (dadosGw.ServerUp == 1);
 }
@@ -233,6 +233,8 @@ void LePacotesBufferServtoGw() {
 		}
 		
 	} while (dadosGw.ServerUp);
+
+	WaitForSingleObject(&idThreadEnviaTabuleiro, INFINITE);
 
 }
 //inicia Comunicaçao com CLiente
