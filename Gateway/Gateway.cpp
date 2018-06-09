@@ -37,7 +37,7 @@ void RecebePipeCliente(LPVOID *Cli) {
 		WaitForSingleObject(IOReady, INFINITE);
 		ret = GetOverlappedResult(cli->hPipe, &Ov, &nbytes, FALSE);
 		if (!ret || !nbytes) {
-			_tprintf(TEXT("[Gateway] ret %d nbytes %d... (ReadFile)\n"), ret, nbytes);
+			_tprintf(TEXT("[Gateway] ret %d nbytes %d... (ReadFile)gat\n"), ret, nbytes);
 	
 		}
 		//mutex todo

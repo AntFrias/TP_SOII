@@ -39,9 +39,10 @@ void Envia() {
 			
 			//_tprintf(TEXT("Nao escrevi nada\n"), ret, nBytesLidos);
 			//return -1;
+			OutputDebugString(TEXT("ret ou nbyres = 0!!!\n"));
 		}
 		//_tprintf(TEXT("[CLIENTE] Enviei %d bytes ao GATEWAY ...(WriteFile)\n"), nBytesLidos);
-		OutputDebugString(TEXT("Estou aqui!!!\n"));
+		OutputDebugString(TEXT("Passei o enviei1!!!\n"));
 
 
 }
@@ -93,7 +94,7 @@ void escuta() {
 		WaitForSingleObject(IOReady, INFINITE); // espera pelo evento
 
 		ret = GetOverlappedResult(Cliente.pipe, &Ov, &nBytesLidos, FALSE); // se mal d? 0 !!!
-
+		
 		if (!ret || !nBytesLidos) {
 			//_tprintf(TEXT("Nao li nada\n"), ret, nBytesLidos);
 			break;
@@ -116,8 +117,6 @@ void IniciaCliente() {
 
 
 }
-
-
 
 LRESULT CALLBACK Configuracoes(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
 {
@@ -188,10 +187,10 @@ LRESULT CALLBACK Configuracoes(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lPara
 			
 			
 			Envia();
-			//Sleep(10000); testa novamente!
 			
-			//EndDialog(hwnd, 0);
-			//PostQuitMessage(0);
+			//EndDialog(hwnd, 0); //isto é para fechar a janela 
+			//PostQuitMessage(0); //isto é para fechar a janela
+			break;
 		}
 		
 		case IDCANCEL:
@@ -252,7 +251,7 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR LpCmdLine
 
 	WNDCLASS wc = {};
 
-	//DialogBox(hInstance, MAKEINTRESOURCE(IDD_DIALOG1), NULL, Configuracoes);
+	///////////////////////////////////////Configuraçoes//////////////////////////////////////////////////////////////
 	HWND hDlg = CreateDialogParam(hInstance, MAKEINTRESOURCE(IDD_DIALOG1), 0, Configuracoes, 0);
 	ShowWindow(hDlg, ncmdshow);
 	
@@ -264,7 +263,7 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR LpCmdLine
 		DispatchMessage(&msg);
 	}
 	
-	///////////////////////////////////////////////////////////////////////////////////////////////////
+	////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 	
 	wc.lpfnWndProc = WindowProc;
 	wc.hInstance = hInstance;
