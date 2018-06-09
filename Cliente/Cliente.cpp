@@ -101,6 +101,10 @@ void escuta() {
 		}
 		//_tprintf(TEXT("\n\nRecebi este nome %s\n"), PacoteRecebido.dataPacket.nome);
 		
+	
+		MessageBox(NULL,PacoteRecebido.dataPacket.nome,TEXT("Recebi isto"),MB_OK | MB_ICONINFORMATION); //para ver se está a buscar o nome bem
+
+		
 	}
 
 	CloseHandle(Cliente.pipe);	// fecha pipe do cliente
