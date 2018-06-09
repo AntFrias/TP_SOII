@@ -5,13 +5,13 @@ EstruturaCli Cliente;
 configur configuracoes;
 
 
-int Envia(LPVOID NUUL) {
+void Envia() {
 
 	DWORD  nBytesLidos;
 	BOOL ret;
 	packet PacoteEnvio;
 	HANDLE IOReady; //handle para o evento
-	OVERLAPPED Ov; // Extrutura para o so interpretar
+	OVERLAPPED Ov = { 0 }; // Extrutura para o so interpretar
 
 	
 		IOReady = CreateEvent(NULL, TRUE, FALSE, NULL);
@@ -30,17 +30,18 @@ int Envia(LPVOID NUUL) {
 
 		//escrever no pipe
 		WriteFile(Cliente.pipe, &PacoteEnvio, sizeof(packet), &nBytesLidos, &Ov);
-
+	
 		WaitForSingleObject(IOReady, INFINITE);
 
 		ret = GetOverlappedResult(Cliente.pipe, &Ov, &nBytesLidos, FALSE);
 
 		if (!ret || !nBytesLidos) {
+			
 			//_tprintf(TEXT("Nao escrevi nada\n"), ret, nBytesLidos);
-			return -1;
+			//return -1;
 		}
 		//_tprintf(TEXT("[CLIENTE] Enviei %d bytes ao GATEWAY ...(WriteFile)\n"), nBytesLidos);
-
+		OutputDebugString(TEXT("Estou aqui!!!\n"));
 
 
 }
@@ -71,7 +72,6 @@ void escuta() {
 	Cliente.pipe = CreateFile(PIPE_NAME, GENERIC_READ | GENERIC_WRITE, 0, NULL, OPEN_EXISTING, 0 | FILE_FLAG_OVERLAPPED, NULL);
 
 	if (Cliente.pipe == NULL) {
-		//_tprintf(TEXT("N?o consegui ligar ao pipe '%s'!\n"), PIPE_NAME);
 		exit(-1);
 	}
 
@@ -79,7 +79,7 @@ void escuta() {
 	DWORD dwMode = PIPE_READMODE_MESSAGE;
 	int fres;
 	fres = SetNamedPipeHandleState(Cliente.pipe, &dwMode, NULL, NULL);
-	if (!fres)
+	//if (!fres)
 		//_tprintf(TEXT("ERRO  a  mudar para message mode"));
 
 	while (1) {
@@ -89,7 +89,7 @@ void escuta() {
 		Ov.hEvent = IOReady; // associar handle do evento para o overlap saber
 
 		ReadFile(Cliente.pipe, &PacoteRecebido, sizeof(packet), &nBytesLidos, &Ov); //le o pacote do named pipe
-
+		
 		WaitForSingleObject(IOReady, INFINITE); // espera pelo evento
 
 		ret = GetOverlappedResult(Cliente.pipe, &Ov, &nBytesLidos, FALSE); // se mal d? 0 !!!
@@ -99,6 +99,7 @@ void escuta() {
 			break;
 		}
 		//_tprintf(TEXT("\n\nRecebi este nome %s\n"), PacoteRecebido.dataPacket.nome);
+		
 	}
 
 	CloseHandle(Cliente.pipe);	// fecha pipe do cliente
@@ -113,22 +114,8 @@ void IniciaCliente() {
 	//thread escuta no pipe
 	Cliente.ht = CreateThread(NULL, 0, (LPTHREAD_START_ROUTINE)escuta, (LPVOID)NULL, 0, &Cliente.IDth);
 
-	//le do pipe
-	//Envia();
-
-	//espera pela thread que escreve
-	WaitForSingleObject(Cliente.ht, INFINITE);
-
-
-
 
 }
-
-
-
-
-
-
 
 
 
@@ -172,9 +159,8 @@ LRESULT CALLBACK Configuracoes(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lPara
 			TCHAR buff[11];
 			GetWindowText(GetDlgItem(hwnd, IDC_Nome), buff, 10);
 			wcscpy_s(configuracoes.nome, buff);
-			EndDialog(hwnd,0);
-			PostQuitMessage(0);
-			MessageBox(NULL,buff,TEXT("exemplo"),MB_OK | MB_ICONERROR); //para ver se está a buscar o nome bem
+			
+			//MessageBox(NULL,configuracoes.nome,TEXT("exemplo"),MB_OK | MB_ICONERROR); //para ver se está a buscar o nome bem
 			
 			//Teclas
 			TCHAR aux[1];
@@ -199,20 +185,21 @@ LRESULT CALLBACK Configuracoes(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lPara
 
 			//TODO prencher pacote aqui e fazer com que a janela nao feche
 			//até que o servidor responda que o login esteja correto e o jogo pronto
-			Envia(aux);
-
+			
+			
+			Envia();
+			//Sleep(10000); testa novamente!
+			
+			//EndDialog(hwnd, 0);
+			//PostQuitMessage(0);
 		}
-		break;
+		
 		case IDCANCEL:
-		{
+		
 			exit(0);
-		}
+		
 		break;
 		}
-		break;
-
-
-
 
 	default:
 		return DefWindowProc(hwnd, uMsg, wParam, lParam);
@@ -258,19 +245,12 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR LpCmdLine
 #define _tWinMain WinMain
 #endif
 
-	IniciaCliente();
+	IniciaCliente(); // lança a thread que escuta no named pipe
+	
 	// Register the window class.
 	const wchar_t CLASS_NAME[] = L"Janela Principal";
 
 	WNDCLASS wc = {};
-
-	wc.lpfnWndProc = WindowProc;
-	wc.hInstance = hInstance;
-	wc.lpszClassName = CLASS_NAME;
-	wc.hbrBackground = (HBRUSH)(COLOR_WINDOW + 1);
-	wc.hIcon = (HICON)LoadImage(NULL, L"../../Imagens/Logot.ico", IMAGE_ICON, 32, 32, LR_LOADFROMFILE);
-	RegisterClass(&wc);
-
 
 	//DialogBox(hInstance, MAKEINTRESOURCE(IDD_DIALOG1), NULL, Configuracoes);
 	HWND hDlg = CreateDialogParam(hInstance, MAKEINTRESOURCE(IDD_DIALOG1), 0, Configuracoes, 0);
@@ -285,6 +265,14 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR LpCmdLine
 	}
 	
 	///////////////////////////////////////////////////////////////////////////////////////////////////
+	
+	wc.lpfnWndProc = WindowProc;
+	wc.hInstance = hInstance;
+	wc.lpszClassName = CLASS_NAME;
+	wc.hbrBackground = (HBRUSH)(COLOR_WINDOW + 1);
+	wc.hIcon = (HICON)LoadImage(NULL, L"../../Imagens/Logot.ico", IMAGE_ICON, 32, 32, LR_LOADFROMFILE);
+	RegisterClass(&wc);
+	
 	// Create the window.
 	HWND hwnd = CreateWindowEx(
 		0,                              // Optional window styles.
@@ -310,7 +298,7 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR LpCmdLine
 	UpdateWindow(hwnd);
 	
 	
-	// Run the message loop.
+	// para estar sempre em loop
 	msg = {};
 	while (GetMessage(&msg, NULL, 0, 0))
 	{
@@ -318,7 +306,16 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR LpCmdLine
 		DispatchMessage(&msg);
 	}
 	
-	
+	//espera pela thread que le
+	WaitForSingleObject(Cliente.ht, INFINITE);
 	
 	return 0;
 }
+
+
+/*
+TCHAR yo[512];
+
+_stprintf_s(yo, 512, TEXT("Could not open pipe. GLE=%d\n"), GetLastError());
+OutputDebugString(yo);
+*/

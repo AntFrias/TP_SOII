@@ -102,7 +102,7 @@ void EnviaRespostaParaCliente(Packet *resposta) {
 	HANDLE hPipe = NULL;
 
 	hPipe = getPipeDoCli(resposta);
-
+	_tprintf(TEXT("o id %d nome do cli %s\n"),resposta->Cliente_id,resposta->dataPacket.nome);
 	if(hPipe == NULL) {
 
 		_tprintf(TEXT("\n Erro a Enviar resposta do Gateway para o Cliente"));
