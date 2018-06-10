@@ -25,8 +25,6 @@ enum MovimentoDaNave { //ver no lado do servidor se esta igual
 };
 enum EnumDados {
 
-	bloco_vazio = 0,
-
 	user_login = 1,
 	user_login_sucesso,
 	user_Login_falhou,

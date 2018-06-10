@@ -303,7 +303,6 @@ packet trataPacoteLogin(packet *aux){
 	if (dadosServidor.NumCliNoArray == 0) {
 
 		ColocaCliArray(aux, dadosServidor.NumCliNoArray);
-
 		resposta.tipo = user_login_sucesso;
 	}
 	else {

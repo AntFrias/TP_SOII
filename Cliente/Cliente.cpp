@@ -12,7 +12,7 @@ void TrataPacote(packet pacoteTratar) {
 
 	switch (pacoteTratar.tipo) {
 			
-			case user_login: { // Se for bem logado recebe a mensagem que vai começar pelo jogo meter depois no servidor -> user_login_sucesso e aqui tb
+			case user_login_sucesso: { // Se for bem logado recebe a mensagem que vai começar pelo jogo meter depois no servidor -> user_login_sucesso e aqui tb
 
 				MessageBox(NULL, pacoteTratar.dataPacket.nome, TEXT("NOME"), MB_OK | MB_ICONINFORMATION);
 
