@@ -23,8 +23,8 @@
 #define velociadadeNaveEsquiva 10 
 
 //numero de naves inimigas apenas para testes
-#define ninimigas1 5
-#define ninimigas2 5
+#define ninimigas1 100
+#define ninimigas2 10
 
 //Tiros
 enum EnumTiros {
@@ -36,7 +36,7 @@ enum EnumTiros {
 
 };
 
-// Estrutura Tiro
+// //Estrutura Tiro
 typedef struct tiroo {
 
 	int idJogador;

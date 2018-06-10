@@ -13,7 +13,6 @@
 #include <shellapi.h>
 
 #define PIPE_NAME TEXT("\\\\.\\pipe\\teste")
-#define MaxClientes 20
 
 //Inicio dos IDs do Cliente
 int startIdCli = 1000;

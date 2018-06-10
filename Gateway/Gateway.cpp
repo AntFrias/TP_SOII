@@ -4,7 +4,7 @@
 
 dataGw dadosGw;
 
-clientes Clientes[nMaxPlay];
+clientes Clientes[nMaxJogadores];
 
 // funcao que recebe pacotes do Pipe que veem do Cliente
 void RecebePipeCliente(LPVOID *Cli) {
@@ -57,7 +57,7 @@ void RecebePipeCliente(LPVOID *Cli) {
 HANDLE criaNamedPipe() {
 
 
-	HANDLE hPipe = CreateNamedPipe(PIPE_NAME, PIPE_ACCESS_DUPLEX | FILE_FLAG_OVERLAPPED, PIPE_WAIT | PIPE_TYPE_MESSAGE | PIPE_READMODE_MESSAGE, nMaxPlay, sizeof(packet), sizeof(packet), 1000, NULL);
+	HANDLE hPipe = CreateNamedPipe(PIPE_NAME, PIPE_ACCESS_DUPLEX | FILE_FLAG_OVERLAPPED, PIPE_WAIT | PIPE_TYPE_MESSAGE | PIPE_READMODE_MESSAGE, nMaxJogadores, sizeof(packet), sizeof(packet), 1000, NULL);
 
 	if (hPipe == INVALID_HANDLE_VALUE) {
 
@@ -292,11 +292,11 @@ int criaComunicacaoClienteGateway() {
 // funcao que inicia os servicos do Gateway
 void IniciarGateway() {
 
+	dadosGw.ServerUp = 1;
+
 	_tprintf(TEXT("\n\nGateway\n\n"));
 
 	CriaMemoriaPartilhada();			// cria memoria partilhada e Mecanismos de sincronizaçao
-
-	dadosGw.ServerUp = 1;
 
 	criaComunicacaoClienteGateway();
 
