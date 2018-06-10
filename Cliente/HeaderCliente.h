@@ -23,6 +23,21 @@ enum MovimentoDaNave { //ver no lado do servidor se esta igual
 	x,		//ativa powerUp2
 	c,		//ativa powerUp3
 };
+enum EnumDados {
+
+	bloco_vazio = 0,
+
+	user_login = 1,
+	user_login_sucesso,
+	user_Login_falhou,
+	user_login_Limite_clientes,
+	max_players_atingido,
+
+	IniciaJogoIndividual = 10,
+	IniciaJogoMultiplayer,
+	AtualizacaoJogo
+
+};
 
 
 //nome do Pipe de comunicaçao Servidor <-> Cliente

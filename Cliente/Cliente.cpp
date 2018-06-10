@@ -5,11 +5,44 @@ EstruturaCli Cliente;
 configur configuracoes;
 
 
-void Envia() {
+
+
+void TrataPacote(packet pacoteTratar) {
+
+
+	switch (pacoteTratar.tipo) {
+			
+			case user_login: { // Se for bem logado recebe a mensagem que vai começar pelo jogo meter depois no servidor -> user_login_sucesso e aqui tb
+
+				MessageBox(NULL, pacoteTratar.dataPacket.nome, TEXT("NOME"), MB_OK | MB_ICONINFORMATION);
+
+				break;
+			}
+			
+			case user_Login_falhou: {
+
+				MessageBox(NULL, TEXT("Ja se encontra um jogador com o mesmo nome"), TEXT("ERRO"), MB_OK | MB_ICONERROR);
+				exit(0);
+				break;
+			}
+
+			case max_players_atingido: {
+
+				MessageBox(NULL, TEXT("O servidor está cheio.\nTente mais tarde"), TEXT("ERRO"), MB_OK | MB_ICONERROR);
+				exit(0);
+				break;
+			}
+		
+		default:
+			return;
+	}
+
+}
+
+void Envia(packet PacoteEnvio) {
 
 	DWORD  nBytesLidos;
 	BOOL ret;
-	packet PacoteEnvio;
 	HANDLE IOReady; //handle para o evento
 	OVERLAPPED Ov = { 0 }; // Extrutura para o so interpretar
 
@@ -18,10 +51,6 @@ void Envia() {
 		if (IOReady == NULL) {
 			//_tprintf(TEXT("Erro ao criar evento\n"));
 		}
-
-		//prenche pacote ;-)
-		PacoteEnvio.tipo = 1;
-		wcscpy_s(PacoteEnvio.dataPacket.nome, configuracoes.nome);
 
 		//inicializa coisas para o named pipe
 		ZeroMemory(&Ov, sizeof(Ov));
@@ -44,7 +73,6 @@ void Envia() {
 		//_tprintf(TEXT("[CLIENTE] Enviei %d bytes ao GATEWAY ...(WriteFile)\n"), nBytesLidos);
 		OutputDebugString(TEXT("Passei o enviei1!!!\n"));
 
-
 }
 
 void escuta() {
@@ -66,13 +94,16 @@ void escuta() {
 	//ler do pipe
 	if (!WaitNamedPipe(PIPE_NAME, NMPWAIT_WAIT_FOREVER)) {
 		//_tprintf(TEXT(" N?o consegui ligar ao pipe '%s'!\n"), PIPE_NAME);
+		MessageBox(NULL, TEXT("Provavelmente o Gateway não está ligado"), TEXT("ERRO"), MB_OK | MB_ICONERROR);
 		exit(-1);
+		
 	}
 
 	Cliente.alive = 1;
 	Cliente.pipe = CreateFile(PIPE_NAME, GENERIC_READ | GENERIC_WRITE, 0, NULL, OPEN_EXISTING, 0 | FILE_FLAG_OVERLAPPED, NULL);
 
 	if (Cliente.pipe == NULL) {
+		MessageBox(NULL, TEXT("O Pipe do Cliente é invalido"), TEXT("ERRO"), MB_OK | MB_ICONERROR);
 		exit(-1);
 	}
 
@@ -96,15 +127,14 @@ void escuta() {
 		ret = GetOverlappedResult(Cliente.pipe, &Ov, &nBytesLidos, FALSE); // se mal d? 0 !!!
 		
 		if (!ret || !nBytesLidos) {
+			MessageBox(NULL, TEXT("Não consigui ver nada"), TEXT("ERRO"), MB_OK | MB_ICONERROR);
 			//_tprintf(TEXT("Nao li nada\n"), ret, nBytesLidos);
 			break;
 		}
 		//_tprintf(TEXT("\n\nRecebi este nome %s\n"), PacoteRecebido.dataPacket.nome);
 		
-	
-		MessageBox(NULL,PacoteRecebido.dataPacket.nome,TEXT("Recebi isto"),MB_OK | MB_ICONINFORMATION); //para ver se está a buscar o nome bem
+		TrataPacote(PacoteRecebido);
 
-		
 	}
 
 	CloseHandle(Cliente.pipe);	// fecha pipe do cliente
@@ -158,6 +188,7 @@ LRESULT CALLBACK Configuracoes(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lPara
 		{
 		case IDOK:
 		{
+			packet PacoteLogin;
 			//NOME
 			TCHAR buff[11];
 			GetWindowText(GetDlgItem(hwnd, IDC_Nome), buff, 10);
@@ -189,8 +220,11 @@ LRESULT CALLBACK Configuracoes(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lPara
 			//TODO prencher pacote aqui e fazer com que a janela nao feche
 			//até que o servidor responda que o login esteja correto e o jogo pronto
 			
+			//prenche pacote ;-)
+			PacoteLogin.tipo = user_login;
+			wcscpy_s(PacoteLogin.dataPacket.nome, configuracoes.nome);
 			
-			Envia();
+			Envia(PacoteLogin);
 			
 			//EndDialog(hwnd, 0); //isto é para fechar a janela 
 			//PostQuitMessage(0); //isto é para fechar a janela

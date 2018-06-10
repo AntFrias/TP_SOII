@@ -93,6 +93,8 @@ HANDLE getPipeDoCli(packet *resposta) {
 //Envia Resposta para apenas 1 Cliente
 void EnviaRespostaParaCliente(Packet *resposta) {
 
+	_tprintf(TEXT("O PACOTE TEM ESTE TIPO %d\n"),resposta->tipo);
+
 	DWORD nBytes;
 
 	BOOL ret;
