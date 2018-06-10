@@ -145,15 +145,16 @@ void colocaNavesTab() {
 	
 	int contaTipo1 = 0, contaTipo2 = 0;
 
-	int initPos = CalculaNavesPorLinhas();
-	Sleep(5000);
+	int initPos = CalculaNavesPorLinhas() / 2;
+	int endPos = CalculaNavesPorLinhas() + CalculaNavesPorLinhas() / 2;
+
 	_tprintf(TEXT("Vou prencher o tabuleiro do servidor quantidade de naves por linha %d\n"), initPos);
 
 		WaitForSingleObject(dadosServidor.mutexTabuleiro,NULL);
 		_tprintf(TEXT("Vou começar a escrever na posicao %d\n"), initPos);
 		for (int x = 0; x < dimMapa_x - 2; x += 2) {
 
-			for (int y = initPos; y < dimMapa_y; y += 2) {
+			for (int y = initPos; y < endPos; y += 2) {
 
 			if ( contaTipo1 < nMaxNavesTipo1){
 					
