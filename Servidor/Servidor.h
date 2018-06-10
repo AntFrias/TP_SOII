@@ -36,7 +36,6 @@ enum EnumTiros {
 
 };
 
-
 // Estrutura Tiro
 typedef struct tiroo {
 
@@ -44,17 +43,7 @@ typedef struct tiroo {
 	int x, y;
 	int posJogador; // no array para identificar de quem é o tiro
 
-
-
 }tiro;
-
-// Estrutura PowerUp
-typedef struct PowerUpJogador {
-	int tipo;
-	int duracao;
-	int ocorrencia;
-}PowerUp;
-
 
 // Estrutura de suporte ás naves
 typedef struct naves {
