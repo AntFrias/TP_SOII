@@ -125,7 +125,7 @@ int CalculaNavesPorLinhas() {
 
 	int nNavesLinha = dadosServidor.initJogo.MaxNavesInimigas1;
 	
-	if (nNavesLinha > dimMapa_y / 2)
+	if (nNavesLinha > dimMapa_y / 2){
 		for (int i = 1; i < dadosServidor.initJogo.MaxNavesInimigas1; i++) {
 			nNavesLinha = nNavesLinha / i;
 
@@ -133,8 +133,11 @@ int CalculaNavesPorLinhas() {
 				return nNavesLinha = dimMapa_y / 2 - nNavesLinha;
 			}
 		}
-	else
-		return dimMapa_y / 2 - nNavesLinha;
+	}
+	else {
+		nNavesLinha = (dimMapa_y) - (nNavesLinha );
+		return nNavesLinha;
+	}
 }
 
 void colocaNavesTab() {
@@ -144,11 +147,13 @@ void colocaNavesTab() {
 	int nMaxNavesTipo2 = dadosServidor.initJogo.MaxNavesInimigas2;
 	
 	int contaTipo1 = 0, contaTipo2 = 0;
-
+	
 	int initPos = CalculaNavesPorLinhas() / 2;
 	int endPos = CalculaNavesPorLinhas() + CalculaNavesPorLinhas() / 2;
+	
 
 	_tprintf(TEXT("Vou prencher o tabuleiro do servidor\n"));
+
 
 		WaitForSingleObject(dadosServidor.mutexTabuleiro,NULL);
 
