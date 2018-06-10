@@ -11,6 +11,18 @@ jogadorinfo *ArrayJogadores;
 
 BlocoServ blocoServ[dimMapa_x][dimMapa_y];
 
+void mostraTabuleiro() {
+
+	for (int x = 0; x < dimMapa_x; x++) {
+		for (int y = 0; y < dimMapa_y; y++) {
+
+			_tprintf(TEXT("%d"), blocoServ[x][y].tipo); //tirei o espaco
+
+		}
+		_tprintf(TEXT("\n"));
+	}
+
+}
 //func que lista os clientes
 void mostraClinoArray() {
 
@@ -95,84 +107,86 @@ Nave *criaArrayNaves(int tam) {
 	return aux;
 
 }
-void mostraTabuleiro() {
+void preencheBlocosServidor(int x, int y, int pos) {
 
-	for (int x = 0; x < dimMapa_x; x++) {
-		for (int y = 0; y < dimMapa_y; y++) {
+	for (int i = x; i < x + LarguraNaveDefault; i++) {
 
-			_tprintf(TEXT("%d"), blocoServ[x][y].tipo); //tirei o espaco
+		for (int j = y; j < y + LarguraNaveDefault; j++) {
+			
+			blocoServ[i][j].tipo = NaveBasica;
 
+			blocoServ[i][j].posArray = pos;
+
+			escreveBufferTabuleiro(i, j, blocoServ[i][j].tipo);
 		}
-		_tprintf(TEXT("\n"));
 	}
-
 }
+int CalculaNavesPorLinhas() {
+
+	int nNavesLinha = dadosServidor.initJogo.MaxNavesInimigas1;
+	
+	if (nNavesLinha > dimMapa_y / 2)
+		for (int i = 1; i < dadosServidor.initJogo.MaxNavesInimigas1; i++) {
+			nNavesLinha = nNavesLinha / i;
+
+			if (nNavesLinha < dimMapa_y / 2 && nNavesLinha % i == 0) {
+				return nNavesLinha = dimMapa_y / 2 - nNavesLinha;
+			}
+		}
+	else
+		return dimMapa_y / 2 - nNavesLinha;
+}
+
 void colocaNavesTab() {
-	_tprintf(TEXT("Cheguei Aqui\n"));
+
 	int nMaxNavesTipo1 = dadosServidor.initJogo.MaxNavesInimigas1;
+
 	int nMaxNavesTipo2 = dadosServidor.initJogo.MaxNavesInimigas2;
+	
 	int contaTipo1 = 0, contaTipo2 = 0;
-		
-	_tprintf(TEXT("Vou prencher o tabuleiro do servidor\n"));
+
+	int initPos = CalculaNavesPorLinhas();
+	Sleep(5000);
+	_tprintf(TEXT("Vou prencher o tabuleiro do servidor quantidade de naves por linha %d\n"), initPos);
 
 		WaitForSingleObject(dadosServidor.mutexTabuleiro,NULL);
-		
-		for (int x = 0; x < dimMapa_x; x++) {
-			for (int y = 0; y < dimMapa_y; y++) {
-				if (blocoServ[x][y].tipo == 0 && ((contaTipo1 < nMaxNavesTipo1)))//se estiver vazia
-				{
-					if (y % 2 == 0) { // nas pos par coloca do tipo 1					
-						objectosNoMapa.NaveEnemyTipo1[contaTipo1].tipo = 1;
-						objectosNoMapa.NaveEnemyTipo1[contaTipo1].escudo = 0;
-						objectosNoMapa.NaveEnemyTipo1[contaTipo1].vida = 100;
-						objectosNoMapa.NaveEnemyTipo1[contaTipo1].x = x;
-						objectosNoMapa.NaveEnemyTipo1[contaTipo1].y = y;
-						contaTipo1 += 1;
-						blocoServ[x][y].tipo = 1;
-						blocoServ[x][y].posArray = contaTipo1;
-						tabServCPYtabCom(x, y, 1);
-					}
-				}
-				if (blocoServ[x][y].tipo == 0 && ((contaTipo2 < nMaxNavesTipo2))){
-					if (y % 2 != 0) {
-							objectosNoMapa.NaveEnemyTipo2[contaTipo2].tipo = 2;
-							objectosNoMapa.NaveEnemyTipo2[contaTipo2].escudo = 0;
-							objectosNoMapa.NaveEnemyTipo2[contaTipo2].vida = 100;
-							objectosNoMapa.NaveEnemyTipo2[contaTipo2].x = x;
-							objectosNoMapa.NaveEnemyTipo2[contaTipo2].y = y;
-							contaTipo2 += 1;
-							blocoServ[x][y].tipo = 2;
-							blocoServ[x][y].posArray = contaTipo2;
-							tabServCPYtabCom(x, y, 2);
-					}
+		_tprintf(TEXT("Vou começar a escrever na posicao %d\n"), initPos);
+		for (int x = 0; x < dimMapa_x - 2; x += 2) {
+
+			for (int y = initPos; y < dimMapa_y; y += 2) {
+
+			if ( contaTipo1 < nMaxNavesTipo1){
+					
+					objectosNoMapa.NaveEnemyTipo1[contaTipo1].x = x;
+
+					objectosNoMapa.NaveEnemyTipo1[contaTipo1].y = y;
+
+					preencheBlocosServidor(x, y, contaTipo1);
+
+					contaTipo1 += 1;
 				}
 			}
 		}
+		
 		ReleaseMutex(dadosServidor.mutexTabuleiro);
-		_tprintf(TEXT("\n\n\n\npreenchi o tabuleiro todo"));
+		
 		mostraTabuleiro();
-		//_tprintf(TEXT("\n\n\n\n\n"));
-		//mostraTabCom();
+		_tprintf(TEXT("\n\n\n\n\n"));
+		mostraTabCom();
+
 }
-		
-		
-
-
 void limpaTabuleiro() {
-	
+
 	for (int x = 0; x < dimMapa_x; x++) {
 		for (int y = 0; y < dimMapa_y; y++) {
 			
 			blocoServ[x][y].id = 0; //não existe
-			blocoServ[x][y].tipo = 0; //vazio
+			blocoServ[x][y].tipo = bloco_vazio; //vazio
 			blocoServ[x][y].posArray = 0; //vazio
-			tabServCPYtabCom(x, y, 0);
-
+			escreveBufferTabuleiro(x, y, bloco_vazio);
 		}
 	}
-	_tprintf(TEXT("\n\n\n\cheguei aqui"));
 }
-
 // fazer um array de HANDLES das threads DAS NAVES INIMIGAS 
 int IniciaNavesInimigas() {
 
@@ -192,7 +206,7 @@ int IniciaNavesInimigas() {
 		objectosNoMapa.NaveEnemyTipo3 = criaArrayNaves(dadosServidor.initJogo.MaxNavesInimigas3);
 		
 		limpaTabuleiro(); //ver os dois
-		_tprintf(TEXT("\n Cheguei aqui2\n"));
+	
 		colocaNavesTab(); //ver os dois
 
 		hNavesEnemy[0] = CreateThread(NULL, 0, (LPTHREAD_START_ROUTINE)GestorNavesInimigasTipo1, (LPVOID)NULL, 0, &idNavesEnemy[0]);
@@ -286,23 +300,26 @@ packet trataPacoteLogin(packet *aux){
 
 		resposta.tipo = user_login_sucesso;
 	}
-															//se não for vai ver se já existem algum cliente no o mesmo nome
-	if (verificaPlayerNoArray(aux->dataPacket.nome)) {
+	else {
+		//se não for vai ver se já existem algum cliente no o mesmo nome
+		if (verificaPlayerNoArray(aux->dataPacket.nome)) {
 
-		resposta.tipo = user_Login_falhou;
-															
-	}	else	{
+			resposta.tipo = user_Login_falhou;
 
-		if (dadosServidor.NumCliNoArray < dadosServidor.NumMaxClientes) {
-
-			alocaColocaPlayerNoArray(aux);
-
-			resposta.tipo = user_login_sucesso;
 		}
 		else {
-	
-			resposta.tipo = user_login_Limite_clientes;
-			
+
+			if (dadosServidor.NumCliNoArray < dadosServidor.NumMaxClientes) {
+
+				alocaColocaPlayerNoArray(aux);
+
+				resposta.tipo = user_login_sucesso;
+			}
+			else {
+
+				resposta.tipo = user_login_Limite_clientes;
+
+			}
 		}
 	}
 	wcscpy_s(resposta.dataPacket.nome, aux->dataPacket.nome);
@@ -356,7 +373,7 @@ int IniciarServidor() {
 
 	TCHAR c;
 	ArrayJogadores = NULL;
-	dadosServidor.NumMaxClientes = nMaxPlay; //nMaxPlay
+	dadosServidor.NumMaxClientes = nMaxJogadores; //nMaxPlay
 	dadosServidor.ServidorUp = 1;
 	dadosServidor.NumCliNoArray = 0;
 	//////////////////////////////////////////////////////////////////////////////////////////////////
