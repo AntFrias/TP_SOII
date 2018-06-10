@@ -36,7 +36,7 @@ enum EnumTiros {
 
 };
 
-// Estrutura Tiro
+// //Estrutura Tiro
 typedef struct tiroo {
 
 	int idJogador;
