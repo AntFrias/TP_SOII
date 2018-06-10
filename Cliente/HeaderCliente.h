@@ -64,7 +64,8 @@ typedef struct estrCli {
 	TCHAR nome[50];
 	HANDLE ht;
 	DWORD IDth;
-	HANDLE pipe;
+	HANDLE pipe, EventJogar;
+
 
 }EstruturaCli;
 

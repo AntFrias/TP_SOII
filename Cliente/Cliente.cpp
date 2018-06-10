@@ -14,8 +14,8 @@ void TrataPacote(packet pacoteTratar) {
 			
 			case user_login_sucesso: { // Se for bem logado recebe a mensagem que vai começar pelo jogo meter depois no servidor -> user_login_sucesso e aqui tb
 
-				MessageBox(NULL, pacoteTratar.dataPacket.nome, TEXT("NOME"), MB_OK | MB_ICONINFORMATION);
-
+				MessageBox(NULL, TEXT("Login efetuado com sucesso!\nEspere que o Jogo comece "), TEXT("AGUARDE"), MB_OK | MB_ICONINFORMATION);
+				SetEvent(Cliente.EventJogar);
 				break;
 			}
 			
@@ -148,6 +148,13 @@ void IniciaCliente() {
 
 	//thread escuta no pipe
 	Cliente.ht = CreateThread(NULL, 0, (LPTHREAD_START_ROUTINE)escuta, (LPVOID)NULL, 0, &Cliente.IDth);
+	Cliente.EventJogar = CreateEvent(
+		NULL,               // default security attributes
+		TRUE,               // manual-reset event
+		FALSE,              // initial state is nonsignaled
+		TEXT("PodeJogar")  // object name
+	);
+
 
 
 }
@@ -225,9 +232,10 @@ LRESULT CALLBACK Configuracoes(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lPara
 			wcscpy_s(PacoteLogin.dataPacket.nome, configuracoes.nome);
 			
 			Envia(PacoteLogin);
-			
-			//EndDialog(hwnd, 0); //isto é para fechar a janela 
-			//PostQuitMessage(0); //isto é para fechar a janela
+
+			WaitForSingleObject(Cliente.EventJogar,INFINITE);
+			EndDialog(hwnd, 0); //isto é para fechar a janela 
+			PostQuitMessage(0); //isto é para fechar a janela
 			break;
 		}
 		
@@ -303,6 +311,9 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR LpCmdLine
 	
 	////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 	
+
+	///
+
 	wc.lpfnWndProc = WindowProc;
 	wc.hInstance = hInstance;
 	wc.lpszClassName = CLASS_NAME;
