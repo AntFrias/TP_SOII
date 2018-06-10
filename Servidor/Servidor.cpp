@@ -108,7 +108,7 @@ void mostraTabuleiro() {
 
 }
 void colocaNavesTab() {
-
+	_tprintf(TEXT("Cheguei Aqui\n"));
 	int nMaxNavesTipo1 = dadosServidor.initJogo.MaxNavesInimigas1;
 	int nMaxNavesTipo2 = dadosServidor.initJogo.MaxNavesInimigas2;
 	int contaTipo1 = 0, contaTipo2 = 0;
@@ -149,6 +149,7 @@ void colocaNavesTab() {
 			}
 		}
 		ReleaseMutex(dadosServidor.mutexTabuleiro);
+		_tprintf(TEXT("\n\n\n\npreenchi o tabuleiro todo"));
 		mostraTabuleiro();
 		//_tprintf(TEXT("\n\n\n\n\n"));
 		//mostraTabCom();
@@ -158,7 +159,7 @@ void colocaNavesTab() {
 
 
 void limpaTabuleiro() {
-
+	
 	for (int x = 0; x < dimMapa_x; x++) {
 		for (int y = 0; y < dimMapa_y; y++) {
 			
@@ -169,6 +170,7 @@ void limpaTabuleiro() {
 
 		}
 	}
+	_tprintf(TEXT("\n\n\n\cheguei aqui"));
 }
 
 // fazer um array de HANDLES das threads DAS NAVES INIMIGAS 
@@ -190,6 +192,7 @@ int IniciaNavesInimigas() {
 		objectosNoMapa.NaveEnemyTipo3 = criaArrayNaves(dadosServidor.initJogo.MaxNavesInimigas3);
 		
 		limpaTabuleiro(); //ver os dois
+		_tprintf(TEXT("\n Cheguei aqui2\n"));
 		colocaNavesTab(); //ver os dois
 
 		hNavesEnemy[0] = CreateThread(NULL, 0, (LPTHREAD_START_ROUTINE)GestorNavesInimigasTipo1, (LPVOID)NULL, 0, &idNavesEnemy[0]);
