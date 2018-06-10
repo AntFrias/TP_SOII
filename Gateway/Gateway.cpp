@@ -37,7 +37,7 @@ void RecebePipeCliente(LPVOID *Cli) {
 		WaitForSingleObject(IOReady, INFINITE);
 		ret = GetOverlappedResult(cli->hPipe, &Ov, &nbytes, FALSE);
 		if (!ret || !nbytes) {
-			_tprintf(TEXT("[Gateway] ret %d nbytes %d... (ReadFile)\n"), ret, nbytes);
+			_tprintf(TEXT("[Gateway] ret %d nbytes %d... (ReadFile)gat\n"), ret, nbytes);
 	
 		}
 		//mutex todo
@@ -102,7 +102,7 @@ void EnviaRespostaParaCliente(Packet *resposta) {
 	HANDLE hPipe = NULL;
 
 	hPipe = getPipeDoCli(resposta);
-
+	_tprintf(TEXT("o id %d nome do cli %s\n"),resposta->Cliente_id,resposta->dataPacket.nome);
 	if(hPipe == NULL) {
 
 		_tprintf(TEXT("\n Erro a Enviar resposta do Gateway para o Cliente"));

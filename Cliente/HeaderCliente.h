@@ -35,6 +35,15 @@ enum MovimentoDaNave { //ver no lado do servidor se esta igual
 //Tamanho do array de blocos ocupados
 #define Blocoscupados 100
 
+typedef struct configs {
+
+	TCHAR nome[10];
+	TCHAR CIMA, BAIXO, ESQUERDA, DIREITA;
+	TCHAR POWERUP1, POWERUP2, POWERUP3;
+
+
+}configur;
+
 typedef struct estrCli {
 
 	int cor;
