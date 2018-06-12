@@ -107,13 +107,13 @@ Nave *criaArrayNaves(int tam) {
 	return aux;
 
 }
-void preencheBlocosServidor(int x, int y, int pos) {
+void preencheBlocosServidor(int x, int y, int pos, int tipo) {
 
 	for (int i = x; i < x + LarguraNaveDefault; i++) {
 
 		for (int j = y; j < y + LarguraNaveDefault; j++) {
 			
-			blocoServ[i][j].tipo = NaveBasica;
+			blocoServ[i][j].tipo = tipo;
 
 			blocoServ[i][j].posArray = pos;
 
@@ -121,65 +121,129 @@ void preencheBlocosServidor(int x, int y, int pos) {
 		}
 	}
 }
-int CalculaNavesPorLinhas() {
 
-	int nNavesLinha = dadosServidor.initJogo.MaxNavesInimigas1;
-	
-	if (nNavesLinha > dimMapa_y / 2){
-		for (int i = 1; i < dadosServidor.initJogo.MaxNavesInimigas1; i++) {
-			nNavesLinha = nNavesLinha / i;
+void mostraNaveBasica() {
 
-			if (nNavesLinha < dimMapa_y / 2 && nNavesLinha % i == 0) {
-				return nNavesLinha = dimMapa_y / 2 - nNavesLinha;
-			}
-		}
-	}
-	else {
-		nNavesLinha = (dimMapa_y) - (nNavesLinha );
-		return nNavesLinha;
+	for (int i = 0; i < dadosServidor.initJogo.MaxNavesInimigas1; i++) {
+
+		_tprintf(TEXT("\npos da nave [%d][%d]"), objectosNoMapa.NaveEnemyTipo1[i].x, objectosNoMapa.NaveEnemyTipo1[i].y);
+
 	}
 }
 
-void colocaNavesTab() {
+int CalculaPosRandEsquiva(int pos_max) {
 
-	int nMaxNavesTipo1 = dadosServidor.initJogo.MaxNavesInimigas1;
+	int pos_min = 0;
 
-	int nMaxNavesTipo2 = dadosServidor.initJogo.MaxNavesInimigas2;
+	int pos = 0;
+	_tprintf(TEXT("cheguei aqui "));
+	pos = rand() % (pos_max + 1 - pos_min) + pos_min;
+	while ( pos < pos_min  && pos > pos_max) {
+		
+		pos = rand() % (pos_max + 1 - pos_min) + pos_min;
+		_tprintf(TEXT("nao consigo sair daqui "));
+	}
+	return pos;
+
+}
+void colocaNavesEsquiva() {
+
+	srand(time(NULL));
+
+	int totalNavesEsquiva = dadosServidor.initJogo.MaxNavesInimigas2;
+
+	int contaEsquiva = 0;
+
+	int x_min = 0, x_max = dimMapa_x - 6, y_min = 0, y_max = dimMapa_x-2;
+
+	int x = 0, y = 0;
+
+		WaitForSingleObject(dadosServidor.mutexTabuleiro, NULL);
+
+			while (contaEsquiva < totalNavesEsquiva) {
+
+				x = CalculaPosRandEsquiva(x_max);
+
+				y = CalculaPosRandEsquiva(y_max);
+
+				if (blocoServ[x][y].tipo == bloco_vazio && blocoServ[x ][y + LarguraNaveDefault].tipo == bloco_vazio && blocoServ[x + LarguraNaveDefault][y].tipo == bloco_vazio & blocoServ[x + LarguraNaveDefault][y + LarguraNaveDefault].tipo == bloco_vazio) {
+					
+					objectosNoMapa.NaveEnemyTipo2->tipo = NaveEsquiva;
+					objectosNoMapa.NaveEnemyTipo2->x = x;
+					objectosNoMapa.NaveEnemyTipo2->y = y;
+					preencheBlocosServidor(x, y, contaEsquiva, NaveEsquiva);
+
+					contaEsquiva++;
+				}
 	
-	int contaTipo1 = 0, contaTipo2 = 0;
+			}
+		ReleaseMutex(dadosServidor.mutexTabuleiro);
+
+}
+
+void colocaNavesBasicas() {
+
+	int totalNavesBasicas = dadosServidor.initJogo.MaxNavesInimigas1, totalNaves = dadosServidor.initJogo.MaxNavesInimigas1;
 	
-	int initPos = CalculaNavesPorLinhas() / 2;
+	int contaBasica = 0, NavesPorLinha = 0, initPos = 0, endPos = 0, flag = 0;
 
-	int endPos = CalculaNavesPorLinhas() + ( CalculaNavesPorLinhas() / 2);
+	NavesPorLinha = dimMapa_y / 2;
+
+	initPos = (dimMapa_y / 2) - ( NavesPorLinha / 2 ); 
 	
+	
+	endPos = (dimMapa_y / 2) + (NavesPorLinha / 2);
 
-	_tprintf(TEXT("Vou prencher o tabuleiro do servidor\n"));
 
+	_tprintf(TEXT("\nVou prencher o tabuleiro do servidor\n\n"));
 
 		WaitForSingleObject(dadosServidor.mutexTabuleiro,NULL);
 
 		for (int x = 0; x < dimMapa_x - 2; x += 2) {
 
+			if (totalNaves < NavesPorLinha){
+			
+				flag = 1;
+			
+			}
+			
 			for (int y = initPos; y < endPos; y += 2) {
 
-			if ( contaTipo1 < nMaxNavesTipo1){
-					
-					objectosNoMapa.NaveEnemyTipo1[contaTipo1].x = x;
+				if (contaBasica < totalNavesBasicas) {
 
-					objectosNoMapa.NaveEnemyTipo1[contaTipo1].y = y;
+						objectosNoMapa.NaveEnemyTipo1[contaBasica].x = x;
 
-					preencheBlocosServidor(x, y, contaTipo1);
+						objectosNoMapa.NaveEnemyTipo1[contaBasica].y = y;
 
-					contaTipo1 += 1;
+						preencheBlocosServidor(x, y, contaBasica, NaveBasica);
+
+						contaBasica += 1;
+
+						totalNaves--;
+
 				}
+			}	
+
+			if (flag == 1) {
+
+				initPos = (dimMapa_y / 2) - (totalNaves);
+
+				flag = 0;
 			}
 		}
-		
 		ReleaseMutex(dadosServidor.mutexTabuleiro);
-		
-		mostraTabuleiro();
-		_tprintf(TEXT("\n\n\n\n\n"));
-		mostraTabCom();
+}
+
+void ColocaNavesTab() {
+
+	colocaNavesBasicas();
+	colocaNavesEsquiva();
+
+	mostraTabuleiro();
+	_tprintf(TEXT("\n\n"));
+	mostraNaveBasica();
+	_tprintf(TEXT("\n\n"));
+	mostraTabCom();
 
 }
 void limpaTabuleiro() {
@@ -214,7 +278,7 @@ int IniciaNavesInimigas() {
 		
 		limpaTabuleiro(); //ver os dois
 	
-		colocaNavesTab(); //ver os dois
+		ColocaNavesTab(); //ver os dois
 
 		hNavesEnemy[0] = CreateThread(NULL, 0, (LPTHREAD_START_ROUTINE)GestorNavesInimigasTipo1, (LPVOID)NULL, 0, &idNavesEnemy[0]);
 		hNavesEnemy[1] = CreateThread(NULL, 0, (LPTHREAD_START_ROUTINE)GestorNavesInimigasTipo2, (LPVOID)NULL, 0, &idNavesEnemy[1]);
