@@ -154,7 +154,7 @@ void colocaNavesEsquiva() {
 
 	int contaEsquiva = 0;
 
-	int x_min = 0, x_max = dimMapa_x - 6, y_min = 0, y_max = dimMapa_x-2;
+	int x_min = 0, x_max = dimMapa_x - 7, y_min = 0, y_max = dimMapa_x-2;
 
 	int x = 0, y = 0;
 
