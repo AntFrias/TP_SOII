@@ -23,7 +23,7 @@
 #define velociadadeNaveEsquiva 10 
 
 //numero de naves inimigas apenas para testes
-#define ninimigas1 50
+#define ninimigas1 40
 #define ninimigas2 10
 
 //Tiros

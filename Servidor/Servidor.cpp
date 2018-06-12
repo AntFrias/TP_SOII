@@ -149,7 +149,8 @@ void colocaNavesTab() {
 	int contaTipo1 = 0, contaTipo2 = 0;
 	
 	int initPos = CalculaNavesPorLinhas() / 2;
-	int endPos = CalculaNavesPorLinhas() + CalculaNavesPorLinhas() / 2;
+
+	int endPos = CalculaNavesPorLinhas() + ( CalculaNavesPorLinhas() / 2);
 	
 
 	_tprintf(TEXT("Vou prencher o tabuleiro do servidor\n"));
