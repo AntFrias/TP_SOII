@@ -107,13 +107,13 @@ Nave *criaArrayNaves(int tam) {
 	return aux;
 
 }
-void preencheBlocosServidor(int x, int y, int pos) {
+void preencheBlocosServidor(int x, int y, int pos, int tipo) {
 
 	for (int i = x; i < x + LarguraNaveDefault; i++) {
 
 		for (int j = y; j < y + LarguraNaveDefault; j++) {
 			
-			blocoServ[i][j].tipo = NaveBasica;
+			blocoServ[i][j].tipo = tipo;
 
 			blocoServ[i][j].posArray = pos;
 
@@ -131,17 +131,53 @@ void mostraNaveBasica() {
 	}
 }
 
+int CalculaPosRandEsquiva(int pos_max) {
+
+	int pos_min = 0;
+
+	int pos = 0;
+	_tprintf(TEXT("cheguei aqui "));
+	pos = rand() % (pos_max + 1 - pos_min) + pos_min;
+	while ( pos < pos_min  && pos > pos_max) {
+		
+		pos = rand() % (pos_max + 1 - pos_min) + pos_min;
+		_tprintf(TEXT("nao consigo sair daqui "));
+	}
+	return pos;
+
+}
 void colocaNavesEsquiva() {
+
+	srand(time(NULL));
 
 	int totalNavesEsquiva = dadosServidor.initJogo.MaxNavesInimigas2;
 
-	int x_min = 0, x_max = dimMapa_x - 2;
-	 
+	int contaEsquiva = 0;
+
+	int x_min = 0, x_max = dimMapa_x - 6, y_min = 0, y_max = dimMapa_x-2;
+
 	int x = 0, y = 0;
 
+		WaitForSingleObject(dadosServidor.mutexTabuleiro, NULL);
 
+			while (contaEsquiva < totalNavesEsquiva) {
 
+				x = CalculaPosRandEsquiva(x_max);
 
+				y = CalculaPosRandEsquiva(y_max);
+
+				if (blocoServ[x][y].tipo == bloco_vazio && blocoServ[x ][y + LarguraNaveDefault].tipo == bloco_vazio && blocoServ[x + LarguraNaveDefault][y].tipo == bloco_vazio & blocoServ[x + LarguraNaveDefault][y + LarguraNaveDefault].tipo == bloco_vazio) {
+					
+					objectosNoMapa.NaveEnemyTipo2->tipo = NaveEsquiva;
+					objectosNoMapa.NaveEnemyTipo2->x = x;
+					objectosNoMapa.NaveEnemyTipo2->y = y;
+					preencheBlocosServidor(x, y, contaEsquiva, NaveEsquiva);
+
+					contaEsquiva++;
+				}
+	
+			}
+		ReleaseMutex(dadosServidor.mutexTabuleiro);
 
 }
 
@@ -179,7 +215,7 @@ void colocaNavesBasicas() {
 
 						objectosNoMapa.NaveEnemyTipo1[contaBasica].y = y;
 
-						preencheBlocosServidor(x, y, contaBasica);
+						preencheBlocosServidor(x, y, contaBasica, NaveBasica);
 
 						contaBasica += 1;
 

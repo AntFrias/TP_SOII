@@ -24,7 +24,7 @@
 
 //numero de naves inimigas apenas para testes
 #define ninimigas1 34
-#define ninimigas2 10
+#define ninimigas2 50
 
 //Tiros
 enum EnumTiros {
