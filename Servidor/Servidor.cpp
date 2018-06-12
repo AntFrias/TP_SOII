@@ -122,11 +122,34 @@ void preencheBlocosServidor(int x, int y, int pos) {
 	}
 }
 
+void mostraNaveBasica() {
+
+	for (int i = 0; i < dadosServidor.initJogo.MaxNavesInimigas1; i++) {
+
+		_tprintf(TEXT("\npos da nave [%d][%d]"), objectosNoMapa.NaveEnemyTipo1[i].x, objectosNoMapa.NaveEnemyTipo1[i].y);
+
+	}
+}
+
+void colocaNavesEsquiva() {
+
+	int totalNavesEsquiva = dadosServidor.initJogo.MaxNavesInimigas2;
+
+	int x_min = 0, x_max = dimMapa_x - 2;
+	 
+	int x = 0, y = 0;
+
+
+
+
+
+}
+
 void colocaNavesBasicas() {
 
 	int totalNavesBasicas = dadosServidor.initJogo.MaxNavesInimigas1, totalNaves = dadosServidor.initJogo.MaxNavesInimigas1;
 	
-	int contaTipo1 = 0, NavesPorLinha = 0, initPos = 0, endPos = 0, flag = 1;
+	int contaBasica = 0, NavesPorLinha = 0, initPos = 0, endPos = 0, flag = 0;
 
 	NavesPorLinha = dimMapa_y / 2;
 
@@ -141,46 +164,50 @@ void colocaNavesBasicas() {
 		WaitForSingleObject(dadosServidor.mutexTabuleiro,NULL);
 
 		for (int x = 0; x < dimMapa_x - 2; x += 2) {
+
+			if (totalNaves < NavesPorLinha){
 			
-			if (flag == 0) {
-
-				initPos = (dimMapa_y / 2) - (totalNaves / 2);
-
-				endPos = ((dimMapa_y / 2)) + (totalNaves / 2);
-
 				flag = 1;
+			
 			}
-
+			
 			for (int y = initPos; y < endPos; y += 2) {
 
-				if ( contaTipo1 < totalNavesBasicas){
+				if (contaBasica < totalNavesBasicas) {
 
-						objectosNoMapa.NaveEnemyTipo1[contaTipo1].x = x;
+						objectosNoMapa.NaveEnemyTipo1[contaBasica].x = x;
 
-						objectosNoMapa.NaveEnemyTipo1[contaTipo1].y = y;
+						objectosNoMapa.NaveEnemyTipo1[contaBasica].y = y;
 
-						preencheBlocosServidor(x, y, contaTipo1);
+						preencheBlocosServidor(x, y, contaBasica);
 
-						contaTipo1 += 1;
+						contaBasica += 1;
 
 						totalNaves--;
-						if (totalNaves < NavesPorLinha && flag == 1)
-							flag = 0;
+
 				}
 			}	
-		}
-		
-		ReleaseMutex(dadosServidor.mutexTabuleiro);
-		
-		mostraTabuleiro();
-		_tprintf(TEXT("\n\n\n\n\n"));
-		mostraTabCom();
 
+			if (flag == 1) {
+
+				initPos = (dimMapa_y / 2) - (totalNaves);
+
+				flag = 0;
+			}
+		}
+		ReleaseMutex(dadosServidor.mutexTabuleiro);
 }
 
 void ColocaNavesTab() {
 
 	colocaNavesBasicas();
+	colocaNavesEsquiva();
+
+	mostraTabuleiro();
+	_tprintf(TEXT("\n\n"));
+	mostraNaveBasica();
+	_tprintf(TEXT("\n\n"));
+	mostraTabCom();
 
 }
 void limpaTabuleiro() {
