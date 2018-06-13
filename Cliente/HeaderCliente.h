@@ -75,6 +75,26 @@ typedef struct BlocoMemPartilhada {
 	int Cor;
 
 }Bloco;
+// informaçao acerca dos objetos do Mapa
+enum OjectosTabuleiro {
+
+	bloco_vazio = 0,
+	NaveBasica = 1,
+	NavesEsquiva,
+	NaveBoss,
+	NaveJogador,
+	tiroJogador,
+	bombaInimiga,
+
+	PowerUpEscudo,
+	PowerUpGelo,
+	PowerUpBateria,
+	PowerUpMais,
+	PowerUpVida,
+	PowerUpAlcool,
+	PowerUpNuclear
+
+};
 typedef struct alteracaoDoTab {
 
 	int x, y;

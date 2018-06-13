@@ -3,8 +3,7 @@
 
 EstruturaCli Cliente;
 configur configuracoes;
-
-
+alteracaoTab tabAux[5];
 
 
 void TrataPacote(packet pacoteTratar) {
@@ -257,6 +256,16 @@ LRESULT CALLBACK Configuracoes(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lPara
 
 LRESULT CALLBACK WindowProc(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
 {
+
+
+
+	/////////////TESTE
+	HDC hDC, MemDCExercising;
+	PAINTSTRUCT Ps;
+	HBITMAP bmpExercising;
+
+	////////////
+
 	switch (uMsg)
 	{
 	case WM_DESTROY:
@@ -265,12 +274,22 @@ LRESULT CALLBACK WindowProc(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
 
 	case WM_PAINT:
 	{
-		PAINTSTRUCT ps;
-		HDC hdc = BeginPaint(hwnd, &ps);
+		hDC = BeginPaint(hwnd, &Ps);
 
-		FillRect(hdc, &ps.rcPaint, (HBRUSH)(COLOR_WINDOW + 1));
+		// Load the bitmap from the resource
+		bmpExercising = (HBITMAP)LoadImage(NULL, L"../../Imagens/imagemInicial.bmp", IMAGE_BITMAP, 800, 800, LR_LOADFROMFILE);
+		// Create a memory device compatible with the above DC variable
+		MemDCExercising = CreateCompatibleDC(hDC);
+		// Select the new bitmap
+		SelectObject(MemDCExercising, bmpExercising);
 
-		EndPaint(hwnd, &ps);
+		// Copy the bits from the memory DC into the current dc
+		BitBlt(hDC, 0, 0, 800, 800, MemDCExercising, 0, 0, SRCCOPY);
+
+		// Restore the old bitmap
+		DeleteDC(MemDCExercising);
+		DeleteObject(bmpExercising);
+		EndPaint(hwnd, &Ps);
 		break;
 	}
 
@@ -284,11 +303,33 @@ LRESULT CALLBACK WindowProc(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
 int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR LpCmdLine, int ncmdshow)
 {
 
+
 #ifdef _UNICODE
 #define _tWinMain wWinMain
 #else
 #define _tWinMain WinMain
 #endif
+
+
+	tabAux[0].tipo = NaveBasica;
+	tabAux[0].x = 0;
+	tabAux[0].y = 0;
+
+	tabAux[1].tipo = tiroJogador;
+	tabAux[1].x = 0;
+	tabAux[1].y = 0;
+
+	tabAux[4].tipo = NaveJogador;
+	tabAux[4].x = 0;
+	tabAux[4].y = 0;
+
+	tabAux[2].tipo = NavesEsquiva;
+	tabAux[2].x = 0;
+	tabAux[2].y = 0;
+
+	tabAux[3].tipo = NaveBasica;
+	tabAux[3].x = 0;
+	tabAux[3].y = 0;
 
 	IniciaCliente(); // lança a thread que escuta no named pipe
 	
@@ -330,7 +371,7 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR LpCmdLine
 		WS_OVERLAPPEDWINDOW,            // Window style
 
 										// Size and position
-		CW_USEDEFAULT, CW_USEDEFAULT, CW_USEDEFAULT, CW_USEDEFAULT,
+		0, 0, 800, 800,
 
 		NULL,       // Parent window    
 		NULL,       // Menu
