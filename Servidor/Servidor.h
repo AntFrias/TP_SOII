@@ -13,6 +13,9 @@
 #include <shellapi.h>
 #include <winbase.h>
 
+#include "../AcessoMemDLL/stdafx.h"
+#pragma comment(lib, "../x64/Debug/AcessoMemDLL.lib")
+
 //max powerUp
 #define maxClientePowerUp 3
 
@@ -45,6 +48,15 @@ typedef struct tiroo {
 
 }tiro;
 
+typedef struct BlocoTabServidor {
+
+	int tipo;
+	int id;
+	int posArray;
+	//pensar na cor
+
+}BlocoServ;
+
 // Estrutura de suporte ás naves
 typedef struct naves {
 	int tipo;
@@ -55,27 +67,14 @@ typedef struct naves {
 	int velocidadeBase;
 }Nave;
 
-// extrutura Configuraçao Inicial do Jogo
-typedef struct ConfiguracaoInicialJogo {				
-	int MaxJogadores;
-	int MaxNavesInimigas1;
-	int MaxNavesInimigas2;
-	int MaxNavesInimigas3;
-	int taxaDeDiparoBasica;
-
-	int MaxPowerups;
-	int DuracaoPowerup;
-	int VidasJogador;
-}confInitJogo;
-
-typedef struct DadosDoGame {
+typedef struct DadosJogo {
 
 	Nave *NaveEnemyTipo1, *NaveEnemyTipo2, *NaveEnemyTipo3;
 
 }DadosdoJogo;
 
 // Extrutura Jogador
-typedef struct Jogador_Info {							
+typedef struct Jogador_Info {
 
 	TCHAR nome[10];
 	int IdJogador;
@@ -87,45 +86,59 @@ typedef struct Jogador_Info {
 	//PowerUp Powerup;
 }jogadorinfo;
 
+// extrutura Configuraçao Inicial do Jogo
+typedef struct ConfiguracaoInicialJogo {
+	int MaxJogadores;
+	int MaxNavesInimigas1;
+	int MaxNavesInimigas2;
+	int MaxNavesInimigas3;
+	int taxaDeDiparoBasica;
+
+	int MaxPowerups;
+	int DuracaoPowerup;
+	int VidasJogador;
+}confInitJogo;
+
 //extrutura cria registry to put option server on = 1
-typedef struct RegistryServer {							
+typedef struct RegistryServer {
 
 	HKEY Chave;
 	DWORD statServer, ServerUp;
-	
+
 }registryServer;
 
+// extrutura TOP10
+typedef struct Top10 {
+	TCHAR name[10];
+	int	pontuacao;
+}top10;
+
 // Extrutura com os dados do servidor;
-typedef struct Gestao_servidor{							
+typedef struct Gestao_servidor {
 
 	int NumMaxClientes;
 	int NumCliNoArray;
 	BOOL inicioJogo;
 	BOOL ServidorUp;
 	confInitJogo initJogo;
-	registryServer ServerUp; // ver se isto vai ser necessario
+	//registryServer ServerUp; // ver se isto vai ser necessario
 	HANDLE hThreadSerToGw;
 	DWORD IdThreadSertoGw;
 	HANDLE mutexTabuleiro;
 
 }dataServer;
 
-typedef struct BlocoTabServidor {
+//prototipos das funçoes relativas ás Naves no ficheiro Naves.cpp
+void colocaNavesEsquiva();
+void colocaNavesBasicas();
 
-	int tipo;
-	int id;
-	int posArray;
-	//pensar na cor
-
-}BlocoServ;
-
-// extrutura TOP10
-typedef struct Top10 {								
-	TCHAR name[10];
-	int	pontuacao;
-}top10;
-
-
+//prototipos de funçoes relativas ao Jogo no ficheiro jogo.cpp
+void limpaTabuleiro();
+void mostraTabuleiro();
+int VerificaPosicao(int x, int y);
+void preencheBlocosServidor(int x, int y, int pos, int tipo);	 // esta funcao serve para preencher os blocos do tabuleiro
+void ColocaNavesTab();
+void IniciarJogo();	// funcao que vai inicar o jogo propriamente dito quando os jogadores decidirem começar a jogar
 
 
 

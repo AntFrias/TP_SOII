@@ -120,6 +120,7 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClCompile Include="Servidor.cpp" />
+    <ClCompile Include="Jogo.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Servidor.h" />
