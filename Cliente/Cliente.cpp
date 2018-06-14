@@ -7,7 +7,7 @@ alteracaoTab tabAux[5];
 bipm bipMaps;
 
 
-HWND hwnd;  // janela principal
+HWND hwndPrincipal;  // janela principal
 
 void TrataPacote(packet pacoteTratar) {
 
@@ -196,7 +196,6 @@ LRESULT CALLBACK Configuracoes(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lPara
 	}
 	*/
 	case WM_INITDIALOG: 
-	{
 		SetWindowText(GetDlgItem(hwnd, IDC_Nome), TEXT("Joao"));	// por texto por default
 		SetWindowText(GetDlgItem(hwnd, IDC_ESQUERDA), TEXT("A"));	// por texto por default
 		SetWindowText(GetDlgItem(hwnd, IDC_CIMA), TEXT("W"));		// por texto por default
@@ -206,10 +205,8 @@ LRESULT CALLBACK Configuracoes(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lPara
 		SetWindowText(GetDlgItem(hwnd, IDC_POWERUP1), TEXT("Z"));	// por texto por default
 		SetWindowText(GetDlgItem(hwnd, IDC_POWERUP2), TEXT("X"));	// por texto por default
 		SetWindowText(GetDlgItem(hwnd, IDC_POWERUP3), TEXT("C"));	// por texto por default
-
-		
 		break;
-	}
+
 	case WM_COMMAND:
 		switch (LOWORD(wParam))
 		{
@@ -221,14 +218,17 @@ LRESULT CALLBACK Configuracoes(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lPara
 			GetWindowText(GetDlgItem(hwnd, IDC_Nome), buff, 10);
 			wcscpy_s(configuracoes.nome, buff);
 			
-			MessageBox(NULL,configuracoes.nome,TEXT("exemplo"),MB_OK | MB_ICONERROR); //para ver se está a buscar o nome bem
+			//MessageBox(NULL,configuracoes.nome,TEXT("exemplo"),MB_OK | MB_ICONERROR); //para ver se está a buscar o nome bem
 			
 			//Teclas
 			TCHAR aux[2];
 
-			GetDlgItemText(hwnd, IDC_CIMA, aux, 1);
+			GetDlgItemText(hwnd, IDC_CIMA, aux, 2);
+			//GetWindowText(GetDlgItem(hwnd, IDC_Nome), aux, 1);
 			configuracoes.CIMA = aux[0];//TCHAR ('w');//aux[0];
-			MessageBox(NULL, aux, TEXT("LETRA"), MB_OK);
+			//aux[0] = 'w';
+			aux[1] = TEXT('\0');
+			//MessageBox(NULL, aux, TEXT("LETRA"), MB_OK);
 			
 
 			GetDlgItemText(hwnd, IDC_ESQUERDA, aux,1);
@@ -262,16 +262,16 @@ LRESULT CALLBACK Configuracoes(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lPara
 			PacoteLogin.tipo = user_login;
 			wcscpy_s(PacoteLogin.dataPacket.nome, configuracoes.nome);
 			
-			Envia(PacoteLogin);
+			Envia(PacoteLogin); ///  com reservas
 
 			EndDialog(hwnd, 0); //isto é para fechar a janela 
 			//PostQuitMessage(0); //isto é para fechar a janxxxx -> o ciclo de mensagens
-			ShowWindow(hwnd, SW_SHOWDEFAULT);
-			UpdateWindow(hwnd);
+			ShowWindow(hwndPrincipal, SW_SHOWDEFAULT);
+			UpdateWindow(hwndPrincipal);
 
 			break;
 		}
-		
+		break;
 		case IDCANCEL:
 		
 			exit(0);
@@ -454,10 +454,10 @@ int WINAPI _tWinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPTSTR LpCmdL
 	WNDCLASS wc = {};
 
 	///////////////////////////////////////Configuraçoes//////////////////////////////////////////////////////////////
-	HWND hDlg = CreateDialogParam(hInstance, MAKEINTRESOURCE(IDD_DIALOG1), 0, Configuracoes, 0);
+	HWND hDlg = CreateDialog(hInstance, MAKEINTRESOURCE(IDD_DIALOG1), 0, Configuracoes);
 	ShowWindow(hDlg, ncmdshow);
 
-	Sleep(10000);
+
 
 	MSG msg = {};
 	
@@ -480,7 +480,7 @@ int WINAPI _tWinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPTSTR LpCmdL
 	RegisterClass(&wc);
 	
 	// Create the window.
-	hwnd = CreateWindowEx(
+	hwndPrincipal = CreateWindowEx(
 		0,                              // Optional window styles.
 		CLASS_NAME,                     // Window class
 		L" -> Space Invader <- ",      // Window text
@@ -495,7 +495,7 @@ int WINAPI _tWinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPTSTR LpCmdL
 		NULL        // Additional application data
 	);
 
-	if (hwnd == NULL)
+	if (hwndPrincipal == NULL)
 	{
 		return 0;
 	}
@@ -505,7 +505,7 @@ int WINAPI _tWinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPTSTR LpCmdL
 	
 	
 	// para estar sempre em loop
-	msg = {};
+	//msg = {};
 	while (GetMessage(&msg, NULL, 0, 0))
 	{
 		TranslateMessage(&msg);
@@ -513,7 +513,7 @@ int WINAPI _tWinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPTSTR LpCmdL
 	}
 	
 	//espera pela thread que le
-	WaitForSingleObject(Cliente.ht, INFINITE);
+	//WaitForSingleObject(Cliente.ht, INFINITE);
 
 	return 0;
 }
