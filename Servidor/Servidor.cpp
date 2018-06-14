@@ -3,6 +3,10 @@
 #pragma comment(lib, "../x64/Debug/AcessoMemDLL.lib")
 
 
+//Nome para os mecanismos de sincronizaçao do servidor
+TCHAR EventInitjogo[] = TEXT("EventoIniciaJogo");
+
+
 jogadorinfo *ArrayJogadores;
 
 DadosdoJogo objectosNoMapa;
@@ -111,17 +115,17 @@ void colocaNavesEsquiva() {
 		x = CalculaPosRandEsquiva(x_max);
 
 		y = CalculaPosRandEsquiva(y_max);
-
-		if (VerificaPosicao(x, y) == 1) {
+	
+		if (VerificaPosicaoPreencheTAb(&x, &y) == 1) {
 
 			objectosNoMapa.NaveEnemyTipo2->tipo = NaveEsquiva;
 			objectosNoMapa.NaveEnemyTipo2->x = x;
 			objectosNoMapa.NaveEnemyTipo2->y = y;
-			preencheBlocosServidor(x, y, contaEsquiva, NaveEsquiva);
-
+			preencheBlocosServidor(x, y, contaEsquiva, NaveEsquiva,LarguraNaveDefault);
+	
 			contaEsquiva++;
 		}
-
+	
 	}
 	ReleaseMutex(dadosServidor.mutexTabuleiro);
 
@@ -147,12 +151,6 @@ void colocaNavesBasicas() {
 
 	for (int x = 0; x < dimMapa_x - 2; x += 2) {
 
-		if (totalNaves < NavesPorLinha) {
-
-			flag = 1;
-
-		}
-
 		for (int y = initPos; y < endPos; y += 2) {
 
 			if (contaBasica < totalNavesBasicas) {
@@ -160,21 +158,21 @@ void colocaNavesBasicas() {
 				objectosNoMapa.NaveEnemyTipo1[contaBasica].x = x;
 
 				objectosNoMapa.NaveEnemyTipo1[contaBasica].y = y;
-
-				preencheBlocosServidor(x, y, contaBasica, NaveBasica);
-
+				
+				preencheBlocosServidor(x, y, contaBasica, NaveBasica,LarguraNaveDefault);
+				
 				contaBasica += 1;
 
 				totalNaves--;
 
 			}
 		}
-
-		if (flag == 1) {
+		if (totalNaves < NavesPorLinha) {
 
 			initPos = (dimMapa_y / 2) - (totalNaves);
 
-			flag = 0;
+			flag = 1;
+
 		}
 	}
 	ReleaseMutex(dadosServidor.mutexTabuleiro);
@@ -211,7 +209,7 @@ int IniciaNavesInimigas() {
 	objectosNoMapa.NaveEnemyTipo1 = criaArrayNaves(dadosServidor.initJogo.MaxNavesBasicas);
 	objectosNoMapa.NaveEnemyTipo2 = criaArrayNaves(dadosServidor.initJogo.MaxNavesEsquivas);
 	objectosNoMapa.NaveEnemyTipo3 = criaArrayNaves(dadosServidor.initJogo.MaxNaveBoss);
-
+	
 	limpaTabuleiro(); //ver os dois
 
 	ColocaNavesTab(); //ver os dois
@@ -256,7 +254,7 @@ int verificaPlayerNoArray(TCHAR *nome) {
 	//TODO mutex
 	for (int i = 0; i < dadosServidor.NumCliNoArray; i++) {
 
-		if (wcscmp(ArrayJogadores[i].nome,nome)==0) {
+		if (wcscmp(ArrayJogadores[i].nome, nome) == 0) {
 			//TODO fim mutex
 			return 1; //TODO encontrou 1
 		}
@@ -265,14 +263,14 @@ int verificaPlayerNoArray(TCHAR *nome) {
 	return 0;
 }
 //recebe o pacote filtra a informação e coloca na pos certa do array
-void ColocaCliArray(packet *aux,int pos) {
+void ColocaCliArray(packet *aux, int pos) {
 
 	ArrayJogadores[pos].IdJogador = aux->Cliente_id;
 
 	ArrayJogadores[pos].pontuacao = aux->pontuacao;
 
-	wcscpy_s(ArrayJogadores[pos].nome, aux->dataPacket.nome); 
-	
+	wcscpy_s(ArrayJogadores[pos].nome, aux->dataPacket.nome);
+
 	dadosServidor.NumCliNoArray += 1;
 
 }
@@ -281,28 +279,28 @@ void alocaColocaPlayerNoArray(packet *aux) {
 
 	jogadorinfo *arrayAux;
 
-	arrayAux = (jogadorinfo*) malloc(sizeof(jogadorinfo) * (dadosServidor.NumCliNoArray + 1));
+	arrayAux = (jogadorinfo*)malloc(sizeof(jogadorinfo) * (dadosServidor.NumCliNoArray + 1));
 
 	if (arrayAux == NULL) {
-		
+
 		_tprintf(TEXT("Erro a criar um novo espaço no array\n"));
 		exit(-1);
 	}
 	//mutex TODO
 																// copiar o conteudo de um array para o outro
-	for (int i = 0; i <dadosServidor.NumCliNoArray; i++) {
+	for (int i = 0; i < dadosServidor.NumCliNoArray; i++) {
 		arrayAux[i] = ArrayJogadores[i];							//passar do original para o auxiliar menos o ultimo cliente
 	}
-																	//Agora o nosso array já tem mais uma posicao
+	//Agora o nosso array já tem mais uma posicao
 	ArrayJogadores = arrayAux;
-																	//O numero de jogadores no array é incrementado nesta função
-	ColocaCliArray(aux,dadosServidor.NumCliNoArray);
+	//O numero de jogadores no array é incrementado nesta função
+	ColocaCliArray(aux, dadosServidor.NumCliNoArray);
 }
 //Funcao que vai tratar o Login de um determinado Cliente
-packet trataPacoteLogin(packet *aux){
+packet trataPacoteLogin(packet *aux) {
 
 	packet resposta;
-															//se for o primeiro cliente ->aloca->coloca
+	//se for o primeiro cliente ->aloca->coloca
 	if (dadosServidor.NumCliNoArray == 0) {
 
 		ColocaCliArray(aux, dadosServidor.NumCliNoArray);
@@ -332,13 +330,85 @@ packet trataPacoteLogin(packet *aux){
 		}
 	}
 	wcscpy_s(resposta.dataPacket.nome, aux->dataPacket.nome);
-	
+
 	return resposta;
 }
-int PosJogadorParaMovimentar(Packet *aux) {
+void verificaComandoJogador(int comando, int PosJogador) {
+
+	switch (comando)
+	{
+		case cima:
+		
+			if (VerificaPosicaoJogo(&ArrayJogadores[PosJogador].posicao[0], &ArrayJogadores[PosJogador].posicao[1], NaveJogador, cima) == 1) {
+
+				LimpaPosTabuleiro(ArrayJogadores[PosJogador].posicao[0], ArrayJogadores[PosJogador].posicao[1], bloco_vazio, LarguraNaveDefault);
+
+				ArrayJogadores[PosJogador].posicao[1] -= 1;
+			
+				preencheBlocosServidor(ArrayJogadores[PosJogador].posicao[0], ArrayJogadores[PosJogador].posicao[1], PosJogador, NaveJogador, LarguraNaveDefault);
+
+			}
+			break;
+		
+			
+		case baixo: 
+
+			if (VerificaPosicaoJogo(&ArrayJogadores[PosJogador].posicao[0], &ArrayJogadores[PosJogador].posicao[1], NaveJogador, baixo) == 1) {
+
+				LimpaPosTabuleiro(ArrayJogadores[PosJogador].posicao[0], ArrayJogadores[PosJogador].posicao[1], bloco_vazio, LarguraNaveDefault);
+
+				ArrayJogadores[PosJogador].posicao[1] += 1;
+
+				preencheBlocosServidor(ArrayJogadores[PosJogador].posicao[0], ArrayJogadores[PosJogador].posicao[1], PosJogador, NaveJogador, LarguraNaveDefault);
+
+			}
+			break;
+	
+		case esquerda:
+
+			if (VerificaPosicaoJogo(&ArrayJogadores[PosJogador].posicao[0], &ArrayJogadores[PosJogador].posicao[1], NaveJogador, esquerda) == 1) {
+
+				LimpaPosTabuleiro(ArrayJogadores[PosJogador].posicao[0], ArrayJogadores[PosJogador].posicao[1], bloco_vazio, LarguraNaveDefault);
+
+				ArrayJogadores[PosJogador].posicao[0] -= 1;
+
+				preencheBlocosServidor(ArrayJogadores[PosJogador].posicao[0], ArrayJogadores[PosJogador].posicao[1], PosJogador, NaveJogador, LarguraNaveDefault);
+
+			}
+			break;
+
+		 case direita:
+
+			 if (VerificaPosicaoJogo(&ArrayJogadores[PosJogador].posicao[0], &ArrayJogadores[PosJogador].posicao[1], NaveJogador, esquerda) == 1) {
+
+				 LimpaPosTabuleiro(ArrayJogadores[PosJogador].posicao[0], ArrayJogadores[PosJogador].posicao[1], bloco_vazio, LarguraNaveDefault);
+
+				 ArrayJogadores[PosJogador].posicao[0] += 1;
+
+				 preencheBlocosServidor(ArrayJogadores[PosJogador].posicao[0], ArrayJogadores[PosJogador].posicao[1], PosJogador, NaveJogador, LarguraNaveDefault);
+
+			 }
+			break;
+
+		case Tiro:
+			break;
+
+		 case PowerUp1:
+			break;
+
+		case PowerUp2:
+			break;
+
+		case PowerUp3:
+			break;
+
+	}
+
+}
+int VerificaPosicaoJogador(Packet *aux) {
 
 	for (int i = 0; i < dadosServidor.NumMaxClientes; i++) {
-		if (ArrayJogadores[i].IdJogador == aux.Cliente_id)
+		if (ArrayJogadores[i].IdJogador == aux->Cliente_id)
 			return i;
 	}
 }
@@ -372,11 +442,11 @@ void TrataPacotesGwtoServ() {
 		
 			case ComandosJogador:
 				
-				PosJogador = PosJogadorParaMovimentar(aux);
+				PosJogador = VerificaPosicaoJogador(aux);
 				
 				WaitForSingleObject(dadosServidor.mutexTabuleiro, INFINITE);
 
-				resposta = TrataPacoteComandosJogo( aux, &ArrayJogadores[PosJogador].posicao[0], &ArrayJogadores[PosJogador].posicao[1]);
+				verificaComandoJogador(aux->dataPacket.comando, PosJogador);
 				
 				ReleaseMutex(dadosServidor.mutexTabuleiro);
 			

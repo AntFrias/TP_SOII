@@ -28,12 +28,6 @@
 #define ninimigas1 34
 #define ninimigas2 50
 
-
-//Nome para os mecanismos de sincronizaçao do servidor
-
-TCHAR EventInitjogo[] = TEXT("EventoIniciaJogo");
-
-
 //Tiros
 
 
@@ -134,11 +128,13 @@ void colocaNavesBasicas();
 //prototipos de funçoes relativas ao Jogo no ficheiro jogo.cpp
 void limpaTabuleiro();
 void mostraTabuleiro();
-int VerificaPosicao(int x, int y);
-void preencheBlocosServidor(int x, int y, int pos, int tipo);	 // esta funcao serve para preencher os blocos do tabuleiro
+int VerificaPosicaoPreencheTAb(int *x, int *y);
+int VerificaPosicaoJogo(int *x, int *y, int tipo, int orientacao);
+void LimpaPosTabuleiro(int x, int y, int tipo, int Largura);
+void preencheBlocosServidor(int x, int y, int pos, int tipo, int Largura);	 // esta funcao serve para preencher os blocos do tabuleiro
 void ColocaNavesTab();
 void IniciarJogo();	// funcao que vai inicar o jogo propriamente dito quando os jogadores decidirem começar a jogar
-Packet TrataPacoteComandosJogo(Packet *aux, int *x, int *y);
+
 
 
 
