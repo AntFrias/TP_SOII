@@ -39,79 +39,165 @@ int VerificaPosicaoPreencheTAb(int *x, int *y) {
 		return 0;
 
 }
+// verifica posicao da nave Esquiva
+int VerificaPosicaoNaveEsquiva(int *x, int *y, int orientacao) {
+
+	switch (orientacao)
+	{
+	case cima:
+		if (*x + 1 < dimMapa_x && *y - 1 >= 0) {
+
+			if (blocoServ[*x][*y - 1].tipo == bloco_vazio && blocoServ[*x + 1][*y - 1].tipo == bloco_vazio) {
+
+				return 1;
+
+			}
+			else {
+
+				return 0;
+			}
+		}
+		break;
+
+	case baixo:
+		if (*x + 1 < dimMapa_x && *y + 1 < dimMapa_y) {
+
+			if (blocoServ[*x][*y + 1].tipo == bloco_vazio && blocoServ[*x + 1][*y + 1].tipo == bloco_vazio) {
+
+				return 1;
+
+			}
+			else {
+
+				return 0;
+			}
+		}
+		break;
+
+	case esquerda:
+		if (*x - 1 >= 0 && *y + 1 < dimMapa_y) {
+
+			if (blocoServ[*x - 1][*y].tipo == bloco_vazio && blocoServ[*x - 1][*y + 1].tipo == bloco_vazio) {
+
+				return 1;
+
+			}
+			else {
+
+				return 0;
+
+			}
+		}
+		break;
+
+	case direita:
+		if (*x + 1 < dimMapa_x && *y + 1 < dimMapa_y) {
+
+			if (blocoServ[*x + 1][*y].tipo == bloco_vazio && blocoServ[*x + 1][*y + 1].tipo == bloco_vazio) {
+
+				return 1;
+
+			}
+			else {
+
+				return 0;
+			}
+		}
+		break;
+	}
+	return 0;
+}
+int VerificaPosNaveJogador(int *x, int *y, int orientacao) {
+
+	switch (orientacao)
+	{
+	case cima:
+		if (*x + 1 < dimMapa_x && *y - 1 >= dimMapa_y - 4) {
+
+			if (blocoServ[*x][*y - 1].tipo == bloco_vazio && blocoServ[*x + 1][*y - 1].tipo == bloco_vazio) {
+
+				return 1;
+
+			}
+			else {
+
+				return 0;
+			}
+		}
+		break;
+
+	case baixo:
+		if (*x + 1 < dimMapa_x && *y + 1 < dimMapa_y) {
+
+			if (blocoServ[*x][*y + 1].tipo == bloco_vazio && blocoServ[*x + 1][*y + 1].tipo == bloco_vazio) {
+
+				return 1;
+
+			}
+			else {
+
+				return 0;
+			}
+		}
+		break;
+
+	case esquerda:
+		if (*x - 1 >= 0 && *y + 1 < dimMapa_y) {
+
+			if (blocoServ[*x - 1][*y].tipo == bloco_vazio && blocoServ[*x - 1][*y + 1].tipo == bloco_vazio) {
+
+				return 1;
+
+			}
+			else {
+
+				return 0;
+
+			}
+		}
+		break;
+
+	case direita:
+		if (*x + 1 < dimMapa_x && *y + 1 < dimMapa_y) {
+
+			if (blocoServ[*x + 1][*y].tipo == bloco_vazio && blocoServ[*x + 1][*y + 1].tipo == bloco_vazio) {
+
+				return 1;
+
+			}
+			else {
+
+				return 0;
+			}
+		}
+		break;
+	}
+	return 0;
+}
 // funcao que verifica a posicacao para onde o jogador quer-se movimentar
 int VerificaPosicaoJogo( int *x, int *y, int tipo, int orientacao) {
-
+	int Flag;
 	switch (tipo)
 	{
+		case NaveEsquiva:
+			Flag = VerificaPosicaoNaveEsquiva(x, y, orientacao);
+			return Flag;
+			break;
 		case NaveJogador:
-		
-				switch (orientacao)
-				{
-					case cima:
-						if (*x + 1 < dimMapa_x && *y - 1 >= 0) {
-
-							if (blocoServ[*x][*y - 1].tipo == bloco_vazio && blocoServ[*x + 1][*y - 1].tipo == bloco_vazio){
-							
-								return 1;
-							
-							} else {
-							
-								return 0;
-							}
-						}
-						break;
-					
-					case baixo: 
-						if ( *x + 1 < dimMapa_x && *y + 1 < dimMapa_y){
-							
-							if (blocoServ[*x][*y + 1].tipo == bloco_vazio && blocoServ[*x + 1][*y + 1].tipo == bloco_vazio){
-							
-								return 1;
-							
-							} else {
-								
-								return 0;
-							}
-						}
-						break;
-					
-					case esquerda: 
-						if ( *x - 1 >= 0 && *y + 1 < dimMapa_y) {
-
-							if (blocoServ[*x - 1][*y].tipo == bloco_vazio && blocoServ[*x - 1][*y + 1].tipo == bloco_vazio) {
-							
-								return 1;
-							
-							} else {
-							
-								return 0;
-							
-							}
-						}
-						break;
-
-					case direita:
-						if (*x + 1 < dimMapa_x && *y + 1 < dimMapa_y) {
-							
-							if (blocoServ[*x + 1][*y].tipo == bloco_vazio && blocoServ[*x + 1][*y + 1].tipo == bloco_vazio) {
-								
-								return 1;
-							
-							} else {
-							
-								return 0;
-							}
-						}
-						break;
-				}
-	
-		
+			Flag = VerificaPosNaveJogador(x, y, orientacao);
+			return Flag;
+			break;
+		case NaveBasica:
+			break;
+		case NaveBoss:
+			break;
+		case LancaTiro:
+			break;
+		case PowerUp1:
 			break;
 	}
 	return 0;
 }
-//
 // funcao vai limpar as posicoes do tabuleiro
 void LimpaPosTabuleiro(int x, int y, int tipo, int Largura) {
 
@@ -146,7 +232,7 @@ void ColocaNavesTab() {
 	colocaNavesBasicas();
 
 	colocaNavesEsquiva();
-	_tprintf(TEXT("\ncheguei aqui3"));
+	
 	mostraTabuleiro();
 	_tprintf(TEXT("\n\n"));
 	mostraTabCom();

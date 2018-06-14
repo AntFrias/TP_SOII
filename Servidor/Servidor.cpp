@@ -23,13 +23,84 @@ void mostraNaveBasica() {
 	}
 }
 // vai fazer a gestao de todas as naves inimigas
+void verificaComandosJogo(int comando, int PosObjeto, int tipoObjeto) {
+
+	switch (comando)
+	{
+	case cima:
+
+		if (VerificaPosicaoJogo(&ArrayJogadores[PosObjeto].posicao[0], &ArrayJogadores[PosObjeto].posicao[1], tipoObjeto, cima) == 1) {
+
+			LimpaPosTabuleiro(ArrayJogadores[PosObjeto].posicao[0], ArrayJogadores[PosObjeto].posicao[1], bloco_vazio, LarguraNaveDefault);
+
+			ArrayJogadores[PosObjeto].posicao[1] -= 1;
+
+			preencheBlocosServidor(ArrayJogadores[PosObjeto].posicao[0], ArrayJogadores[PosObjeto].posicao[1], PosObjeto, tipoObjeto, LarguraNaveDefault);
+
+		}
+		break;
+
+
+	case baixo:
+
+		if (VerificaPosicaoJogo(&ArrayJogadores[PosObjeto].posicao[0], &ArrayJogadores[PosObjeto].posicao[1], tipoObjeto, baixo) == 1) {
+
+			LimpaPosTabuleiro(ArrayJogadores[PosObjeto].posicao[0], ArrayJogadores[PosObjeto].posicao[1], bloco_vazio, LarguraNaveDefault);
+
+			ArrayJogadores[PosObjeto].posicao[1] += 1;
+
+			preencheBlocosServidor(ArrayJogadores[PosObjeto].posicao[0], ArrayJogadores[PosObjeto].posicao[1], PosObjeto, tipoObjeto, LarguraNaveDefault);
+
+		}
+		break;
+
+	case esquerda:
+
+		if (VerificaPosicaoJogo(&ArrayJogadores[PosObjeto].posicao[0], &ArrayJogadores[PosObjeto].posicao[1], tipoObjeto, esquerda) == 1) {
+
+			LimpaPosTabuleiro(ArrayJogadores[PosObjeto].posicao[0], ArrayJogadores[PosObjeto].posicao[1], bloco_vazio, LarguraNaveDefault);
+
+			ArrayJogadores[PosObjeto].posicao[0] -= 1;
+
+			preencheBlocosServidor(ArrayJogadores[PosObjeto].posicao[0], ArrayJogadores[PosObjeto].posicao[1], PosObjeto, tipoObjeto, LarguraNaveDefault);
+
+		}
+		break;
+
+	case direita:
+
+		if (VerificaPosicaoJogo(&ArrayJogadores[PosObjeto].posicao[0], &ArrayJogadores[PosObjeto].posicao[1], tipoObjeto, esquerda) == 1) {
+
+			LimpaPosTabuleiro(ArrayJogadores[PosObjeto].posicao[0], ArrayJogadores[PosObjeto].posicao[1], bloco_vazio, LarguraNaveDefault);
+
+			ArrayJogadores[PosObjeto].posicao[0] += 1;
+
+			preencheBlocosServidor(ArrayJogadores[PosObjeto].posicao[0], ArrayJogadores[PosObjeto].posicao[1], PosObjeto, tipoObjeto, LarguraNaveDefault);
+
+		}
+		break;
+
+	case LancaTiro:
+		break;
+
+	case PowerUp1:
+		break;
+
+	case PowerUp2:
+		break;
+
+	case PowerUp3:
+		break;
+
+	}
+}
 int GestorNaveBoss(LPVOID aux) {
 
 	Nave *naveInimigaTipo3 = (Nave*)aux;
 
 	int nNaves = dadosServidor.initJogo.MaxNaveBoss;
 
-	int coord_x = CoordWindow_x, coord_y = CoordWindow_y;
+	//int coord_x, coord_y;
 
 	do {
 
@@ -42,16 +113,34 @@ int GestorNaveBoss(LPVOID aux) {
 // vai fazer a gestao de todas as naves inimigas
 int GestorNaveEsquiva(LPVOID aux) {
 
-	Nave *naveInimigaTipo2 = (Nave*)aux;
+	Nave *naveEsquiva = (Nave*)aux;
 
 	int nNaves = dadosServidor.initJogo.MaxNavesEsquivas;
 
-	int coord_x = CoordWindow_x, coord_y = CoordWindow_y;
+	int opcao = 0, opcao_min = cima, opcao_max = LancaTiro;
 
 	do {
 
-		//algortimo movimento da nave
+		WaitForSingleObject(dadosServidor.EventoIniciaJogo, INFINITE);
+		
+		for (int i = 0; i < nNaves; i++) {
 
+			if (naveEsquiva[i].vida > 0) {
+				
+				opcao = rand() % (opcao_max + 1 - opcao_min) + opcao_min;
+
+				while (opcao < opcao_min  && opcao > opcao_max) {
+
+					opcao = rand() % (opcao_max + 1 - opcao_min) + opcao_min;
+
+				}
+				WaitForSingleObject(dadosServidor.mutexTabuleiro, INFINITE);
+					
+				verificaComandosJogo(opcao, i, NaveEsquiva);
+				
+				ReleaseMutex(dadosServidor.mutexTabuleiro);
+			}
+		}
 
 
 
@@ -61,16 +150,16 @@ int GestorNaveEsquiva(LPVOID aux) {
 // vai fazer a gestao de todas as naves inimigas
 int GestorNaveBasica(LPVOID aux) {
 
-	Nave *naveInimigaTipo1 = (Nave*)aux;
+	Nave *naveInimigaBasica = (Nave*)aux;
 
 	int nNaves = dadosServidor.initJogo.MaxNavesBasicas;
 
-	int coord_x = CoordWindow_x, coord_y = CoordWindow_y;
+	int coord_x, coord_y;
 
 	do {
-
+		WaitForSingleObject(dadosServidor.EventoIniciaJogo, INFINITE);
+		
 		//algortimo movimento da nave
-
 
 
 
@@ -333,78 +422,6 @@ packet trataPacoteLogin(packet *aux) {
 
 	return resposta;
 }
-void verificaComandoJogador(int comando, int PosJogador) {
-
-	switch (comando)
-	{
-		case cima:
-		
-			if (VerificaPosicaoJogo(&ArrayJogadores[PosJogador].posicao[0], &ArrayJogadores[PosJogador].posicao[1], NaveJogador, cima) == 1) {
-
-				LimpaPosTabuleiro(ArrayJogadores[PosJogador].posicao[0], ArrayJogadores[PosJogador].posicao[1], bloco_vazio, LarguraNaveDefault);
-
-				ArrayJogadores[PosJogador].posicao[1] -= 1;
-			
-				preencheBlocosServidor(ArrayJogadores[PosJogador].posicao[0], ArrayJogadores[PosJogador].posicao[1], PosJogador, NaveJogador, LarguraNaveDefault);
-
-			}
-			break;
-		
-			
-		case baixo: 
-
-			if (VerificaPosicaoJogo(&ArrayJogadores[PosJogador].posicao[0], &ArrayJogadores[PosJogador].posicao[1], NaveJogador, baixo) == 1) {
-
-				LimpaPosTabuleiro(ArrayJogadores[PosJogador].posicao[0], ArrayJogadores[PosJogador].posicao[1], bloco_vazio, LarguraNaveDefault);
-
-				ArrayJogadores[PosJogador].posicao[1] += 1;
-
-				preencheBlocosServidor(ArrayJogadores[PosJogador].posicao[0], ArrayJogadores[PosJogador].posicao[1], PosJogador, NaveJogador, LarguraNaveDefault);
-
-			}
-			break;
-	
-		case esquerda:
-
-			if (VerificaPosicaoJogo(&ArrayJogadores[PosJogador].posicao[0], &ArrayJogadores[PosJogador].posicao[1], NaveJogador, esquerda) == 1) {
-
-				LimpaPosTabuleiro(ArrayJogadores[PosJogador].posicao[0], ArrayJogadores[PosJogador].posicao[1], bloco_vazio, LarguraNaveDefault);
-
-				ArrayJogadores[PosJogador].posicao[0] -= 1;
-
-				preencheBlocosServidor(ArrayJogadores[PosJogador].posicao[0], ArrayJogadores[PosJogador].posicao[1], PosJogador, NaveJogador, LarguraNaveDefault);
-
-			}
-			break;
-
-		 case direita:
-
-			 if (VerificaPosicaoJogo(&ArrayJogadores[PosJogador].posicao[0], &ArrayJogadores[PosJogador].posicao[1], NaveJogador, esquerda) == 1) {
-
-				 LimpaPosTabuleiro(ArrayJogadores[PosJogador].posicao[0], ArrayJogadores[PosJogador].posicao[1], bloco_vazio, LarguraNaveDefault);
-
-				 ArrayJogadores[PosJogador].posicao[0] += 1;
-
-				 preencheBlocosServidor(ArrayJogadores[PosJogador].posicao[0], ArrayJogadores[PosJogador].posicao[1], PosJogador, NaveJogador, LarguraNaveDefault);
-
-			 }
-			break;
-
-		case Tiro:
-			break;
-
-		 case PowerUp1:
-			break;
-
-		case PowerUp2:
-			break;
-
-		case PowerUp3:
-			break;
-
-	}
-
-}
 int VerificaPosicaoJogador(Packet *aux) {
 
 	for (int i = 0; i < dadosServidor.NumMaxClientes; i++) {
@@ -431,27 +448,34 @@ void TrataPacotesGwtoServ() {
 
 				resposta.Cliente_id = aux->Cliente_id;
 
+				escrevebuffer(&resposta, nomeServtoGw);
+
+				break;
+
 			case IniciaJogoIndividual:
 
 				IniciaAmbienteJogo(IniciaJogoIndividual);
+				
+				break;
 
 			case IniciaJogoMultiplayer:
 
 				IniciaAmbienteJogo(IniciaJogoMultiplayer);
 
-		
-			case ComandosJogador:
+				break;
+
+			case AtualizacaoJogo:
 				
 				PosJogador = VerificaPosicaoJogador(aux);
 				
 				WaitForSingleObject(dadosServidor.mutexTabuleiro, INFINITE);
 
-				verificaComandoJogador(aux->dataPacket.comando, PosJogador);
+				verificaComandosJogo(aux->dataPacket.comando, PosJogador, NaveJogador);
 				
 				ReleaseMutex(dadosServidor.mutexTabuleiro);
+				break;
 			
 		}
-		escrevebuffer(&resposta, nomeServtoGw);
 	}
 }
 // Inicia o array do Cliente
