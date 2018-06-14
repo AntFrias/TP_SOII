@@ -1,4 +1,6 @@
+#include "../AcessoMemDLL/stdafx.h"
 #include "Servidor.h"
+#pragma comment(lib, "../x64/Debug/AcessoMemDLL.lib")
 
 
 
@@ -33,9 +35,11 @@ void mostraTabuleiro() {
 
 }
 int VerificaPosicao( int x, int y) {
-
-	if (blocoServ[x][y].tipo == bloco_vazio && blocoServ[x][y + LarguraNaveDefault].tipo == bloco_vazio && blocoServ[x + LarguraNaveDefault][y].tipo == bloco_vazio & blocoServ[x + LarguraNaveDefault][y + LarguraNaveDefault].tipo == bloco_vazio)
-		return 1;
+	if (x < 40 || y < 40)
+		if (blocoServ[x][y].tipo == bloco_vazio && blocoServ[x][y + LarguraNaveDefault].tipo == bloco_vazio && blocoServ[x + LarguraNaveDefault][y].tipo == bloco_vazio & blocoServ[x + LarguraNaveDefault][y + LarguraNaveDefault].tipo == bloco_vazio)
+			return 1;
+		else
+			return 0;
 	else
 		return 0;
 }
@@ -67,5 +71,25 @@ void ColocaNavesTab() {
 }
 //Funcao que irá iniciar o jogo e as respetivas movimentacoes quando o jogador decidir jogar
 void IniciarJogo() {
+
+}
+
+Packet TrataPacoteComandosJogo(Packet *aux, int *x, int *y) {
+
+	Packet resposta;
+
+	switch (aux->dataPacket.comando) {
+		
+	case cima:
+		
+
+	case baixo:
+
+	case esquerda:
+		x = x - 1;
+		if ( verificaPosicao(x, y) == 1)
+
+	case direita:
+	}
 
 }
