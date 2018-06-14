@@ -1,5 +1,10 @@
+#include "../AcessoMemDLL/stdafx.h"
 #include "Servidor.h"
+#pragma comment(lib, "../x64/Debug/AcessoMemDLL.lib")
 
+
+//Nome para os mecanismos de sincronizaçao do servidor
+TCHAR EventInitjogo[] = TEXT("EventoIniciaJogo");
 
 
 jogadorinfo *ArrayJogadores;
@@ -11,7 +16,7 @@ dataServer dadosServidor;
 
 void mostraNaveBasica() {
 
-	for (int i = 0; i < dadosServidor.initJogo.MaxNavesInimigas1; i++) {
+	for (int i = 0; i < dadosServidor.initJogo.MaxNavesBasicas; i++) {
 
 		_tprintf(TEXT("\npos da nave [%d][%d]"), objectosNoMapa.NaveEnemyTipo1[i].x, objectosNoMapa.NaveEnemyTipo1[i].y);
 
@@ -22,7 +27,7 @@ int GestorNaveBoss(LPVOID aux) {
 
 	Nave *naveInimigaTipo3 = (Nave*)aux;
 
-	int nNaves = dadosServidor.initJogo.MaxNavesInimigas3;
+	int nNaves = dadosServidor.initJogo.MaxNaveBoss;
 
 	int coord_x = CoordWindow_x, coord_y = CoordWindow_y;
 
@@ -39,7 +44,7 @@ int GestorNaveEsquiva(LPVOID aux) {
 
 	Nave *naveInimigaTipo2 = (Nave*)aux;
 
-	int nNaves = dadosServidor.initJogo.MaxNavesInimigas2;
+	int nNaves = dadosServidor.initJogo.MaxNavesEsquivas;
 
 	int coord_x = CoordWindow_x, coord_y = CoordWindow_y;
 
@@ -58,7 +63,7 @@ int GestorNaveBasica(LPVOID aux) {
 
 	Nave *naveInimigaTipo1 = (Nave*)aux;
 
-	int nNaves = dadosServidor.initJogo.MaxNavesInimigas1;
+	int nNaves = dadosServidor.initJogo.MaxNavesBasicas;
 
 	int coord_x = CoordWindow_x, coord_y = CoordWindow_y;
 
@@ -95,7 +100,7 @@ void colocaNavesEsquiva() {
 
 	srand(time(NULL));
 
-	int totalNavesEsquiva = dadosServidor.initJogo.MaxNavesInimigas2;
+	int totalNavesEsquiva = dadosServidor.initJogo.MaxNavesEsquivas;
 
 	int contaEsquiva = 0;
 
@@ -110,17 +115,17 @@ void colocaNavesEsquiva() {
 		x = CalculaPosRandEsquiva(x_max);
 
 		y = CalculaPosRandEsquiva(y_max);
-
-		if (VerificaPosicao(x, y) == 1) {
+	
+		if (VerificaPosicaoPreencheTAb(&x, &y) == 1) {
 
 			objectosNoMapa.NaveEnemyTipo2->tipo = NaveEsquiva;
 			objectosNoMapa.NaveEnemyTipo2->x = x;
 			objectosNoMapa.NaveEnemyTipo2->y = y;
-			preencheBlocosServidor(x, y, contaEsquiva, NaveEsquiva);
-
+			preencheBlocosServidor(x, y, contaEsquiva, NaveEsquiva,LarguraNaveDefault);
+	
 			contaEsquiva++;
 		}
-
+	
 	}
 	ReleaseMutex(dadosServidor.mutexTabuleiro);
 
@@ -128,7 +133,7 @@ void colocaNavesEsquiva() {
 //coloca naves Basicas no Tabuleiro
 void colocaNavesBasicas() {
 
-	int totalNavesBasicas = dadosServidor.initJogo.MaxNavesInimigas1, totalNaves = dadosServidor.initJogo.MaxNavesInimigas1;
+	int totalNavesBasicas = dadosServidor.initJogo.MaxNavesBasicas, totalNaves = dadosServidor.initJogo.MaxNavesEsquivas;
 
 	int contaBasica = 0, NavesPorLinha = 0, initPos = 0, endPos = 0, flag = 0;
 
@@ -146,12 +151,6 @@ void colocaNavesBasicas() {
 
 	for (int x = 0; x < dimMapa_x - 2; x += 2) {
 
-		if (totalNaves < NavesPorLinha) {
-
-			flag = 1;
-
-		}
-
 		for (int y = initPos; y < endPos; y += 2) {
 
 			if (contaBasica < totalNavesBasicas) {
@@ -159,21 +158,21 @@ void colocaNavesBasicas() {
 				objectosNoMapa.NaveEnemyTipo1[contaBasica].x = x;
 
 				objectosNoMapa.NaveEnemyTipo1[contaBasica].y = y;
-
-				preencheBlocosServidor(x, y, contaBasica, NaveBasica);
-
+				
+				preencheBlocosServidor(x, y, contaBasica, NaveBasica,LarguraNaveDefault);
+				
 				contaBasica += 1;
 
 				totalNaves--;
 
 			}
 		}
-
-		if (flag == 1) {
+		if (totalNaves < NavesPorLinha) {
 
 			initPos = (dimMapa_y / 2) - (totalNaves);
 
-			flag = 0;
+			flag = 1;
+
 		}
 	}
 	ReleaseMutex(dadosServidor.mutexTabuleiro);
@@ -207,10 +206,10 @@ int IniciaNavesInimigas() {
 
 	//int coord_x = CoordWindow_x, coord_y = CoordWindow_y;
 
-	objectosNoMapa.NaveEnemyTipo1 = criaArrayNaves(dadosServidor.initJogo.MaxNavesInimigas1);
-	objectosNoMapa.NaveEnemyTipo2 = criaArrayNaves(dadosServidor.initJogo.MaxNavesInimigas2);
-	objectosNoMapa.NaveEnemyTipo3 = criaArrayNaves(dadosServidor.initJogo.MaxNavesInimigas3);
-
+	objectosNoMapa.NaveEnemyTipo1 = criaArrayNaves(dadosServidor.initJogo.MaxNavesBasicas);
+	objectosNoMapa.NaveEnemyTipo2 = criaArrayNaves(dadosServidor.initJogo.MaxNavesEsquivas);
+	objectosNoMapa.NaveEnemyTipo3 = criaArrayNaves(dadosServidor.initJogo.MaxNaveBoss);
+	
 	limpaTabuleiro(); //ver os dois
 
 	ColocaNavesTab(); //ver os dois
@@ -234,6 +233,13 @@ int IniciaNavesInimigas() {
 
 	return 0;
 }
+//funcao que irá iniciar o jogo apos um jogador seleccionar a opçao jogar
+void IniciaAmbienteJogo(int njogadores) {
+
+	if (njogadores == IniciaJogoIndividual)
+		IniciarJogo();
+
+}
 //func que lista os clientes
 void mostraClinoArray() {
 
@@ -248,7 +254,7 @@ int verificaPlayerNoArray(TCHAR *nome) {
 	//TODO mutex
 	for (int i = 0; i < dadosServidor.NumCliNoArray; i++) {
 
-		if (wcscmp(ArrayJogadores[i].nome,nome)==0) {
+		if (wcscmp(ArrayJogadores[i].nome, nome) == 0) {
 			//TODO fim mutex
 			return 1; //TODO encontrou 1
 		}
@@ -257,14 +263,14 @@ int verificaPlayerNoArray(TCHAR *nome) {
 	return 0;
 }
 //recebe o pacote filtra a informação e coloca na pos certa do array
-void ColocaCliArray(packet *aux,int pos) {
+void ColocaCliArray(packet *aux, int pos) {
 
 	ArrayJogadores[pos].IdJogador = aux->Cliente_id;
 
 	ArrayJogadores[pos].pontuacao = aux->pontuacao;
 
-	wcscpy_s(ArrayJogadores[pos].nome, aux->dataPacket.nome); 
-	
+	wcscpy_s(ArrayJogadores[pos].nome, aux->dataPacket.nome);
+
 	dadosServidor.NumCliNoArray += 1;
 
 }
@@ -273,38 +279,32 @@ void alocaColocaPlayerNoArray(packet *aux) {
 
 	jogadorinfo *arrayAux;
 
-	arrayAux = (jogadorinfo*) malloc(sizeof(jogadorinfo) * (dadosServidor.NumCliNoArray + 1));
+	arrayAux = (jogadorinfo*)malloc(sizeof(jogadorinfo) * (dadosServidor.NumCliNoArray + 1));
 
 	if (arrayAux == NULL) {
-		
+
 		_tprintf(TEXT("Erro a criar um novo espaço no array\n"));
 		exit(-1);
 	}
 	//mutex TODO
 																// copiar o conteudo de um array para o outro
-	for (int i = 0; i <dadosServidor.NumCliNoArray; i++) {
+	for (int i = 0; i < dadosServidor.NumCliNoArray; i++) {
 		arrayAux[i] = ArrayJogadores[i];							//passar do original para o auxiliar menos o ultimo cliente
 	}
-																	//Agora o nosso array já tem mais uma posicao
+	//Agora o nosso array já tem mais uma posicao
 	ArrayJogadores = arrayAux;
-																	//O numero de jogadores no array é incrementado nesta função
-	ColocaCliArray(aux,dadosServidor.NumCliNoArray);
-}
-//funcao que irá iniciar o jogo apos um jogador seleccionar a opçao jogar
-void IniciaAmbienteJogo(int njogadores) {
-
-	if (njogadores == IniciaJogoIndividual)
-		IniciarJogo();
-
+	//O numero de jogadores no array é incrementado nesta função
+	ColocaCliArray(aux, dadosServidor.NumCliNoArray);
 }
 //Funcao que vai tratar o Login de um determinado Cliente
-packet trataPacoteLogin(packet *aux){
+packet trataPacoteLogin(packet *aux) {
 
 	packet resposta;
-															//se for o primeiro cliente ->aloca->coloca
+	//se for o primeiro cliente ->aloca->coloca
 	if (dadosServidor.NumCliNoArray == 0) {
 
 		ColocaCliArray(aux, dadosServidor.NumCliNoArray);
+
 		resposta.tipo = user_login_sucesso;
 	}
 	else {
@@ -330,13 +330,94 @@ packet trataPacoteLogin(packet *aux){
 		}
 	}
 	wcscpy_s(resposta.dataPacket.nome, aux->dataPacket.nome);
-	
+
 	return resposta;
+}
+void verificaComandoJogador(int comando, int PosJogador) {
+
+	switch (comando)
+	{
+		case cima:
+		
+			if (VerificaPosicaoJogo(&ArrayJogadores[PosJogador].posicao[0], &ArrayJogadores[PosJogador].posicao[1], NaveJogador, cima) == 1) {
+
+				LimpaPosTabuleiro(ArrayJogadores[PosJogador].posicao[0], ArrayJogadores[PosJogador].posicao[1], bloco_vazio, LarguraNaveDefault);
+
+				ArrayJogadores[PosJogador].posicao[1] -= 1;
+			
+				preencheBlocosServidor(ArrayJogadores[PosJogador].posicao[0], ArrayJogadores[PosJogador].posicao[1], PosJogador, NaveJogador, LarguraNaveDefault);
+
+			}
+			break;
+		
+			
+		case baixo: 
+
+			if (VerificaPosicaoJogo(&ArrayJogadores[PosJogador].posicao[0], &ArrayJogadores[PosJogador].posicao[1], NaveJogador, baixo) == 1) {
+
+				LimpaPosTabuleiro(ArrayJogadores[PosJogador].posicao[0], ArrayJogadores[PosJogador].posicao[1], bloco_vazio, LarguraNaveDefault);
+
+				ArrayJogadores[PosJogador].posicao[1] += 1;
+
+				preencheBlocosServidor(ArrayJogadores[PosJogador].posicao[0], ArrayJogadores[PosJogador].posicao[1], PosJogador, NaveJogador, LarguraNaveDefault);
+
+			}
+			break;
+	
+		case esquerda:
+
+			if (VerificaPosicaoJogo(&ArrayJogadores[PosJogador].posicao[0], &ArrayJogadores[PosJogador].posicao[1], NaveJogador, esquerda) == 1) {
+
+				LimpaPosTabuleiro(ArrayJogadores[PosJogador].posicao[0], ArrayJogadores[PosJogador].posicao[1], bloco_vazio, LarguraNaveDefault);
+
+				ArrayJogadores[PosJogador].posicao[0] -= 1;
+
+				preencheBlocosServidor(ArrayJogadores[PosJogador].posicao[0], ArrayJogadores[PosJogador].posicao[1], PosJogador, NaveJogador, LarguraNaveDefault);
+
+			}
+			break;
+
+		 case direita:
+
+			 if (VerificaPosicaoJogo(&ArrayJogadores[PosJogador].posicao[0], &ArrayJogadores[PosJogador].posicao[1], NaveJogador, esquerda) == 1) {
+
+				 LimpaPosTabuleiro(ArrayJogadores[PosJogador].posicao[0], ArrayJogadores[PosJogador].posicao[1], bloco_vazio, LarguraNaveDefault);
+
+				 ArrayJogadores[PosJogador].posicao[0] += 1;
+
+				 preencheBlocosServidor(ArrayJogadores[PosJogador].posicao[0], ArrayJogadores[PosJogador].posicao[1], PosJogador, NaveJogador, LarguraNaveDefault);
+
+			 }
+			break;
+
+		case Tiro:
+			break;
+
+		 case PowerUp1:
+			break;
+
+		case PowerUp2:
+			break;
+
+		case PowerUp3:
+			break;
+
+	}
+
+}
+int VerificaPosicaoJogador(Packet *aux) {
+
+	for (int i = 0; i < dadosServidor.NumMaxClientes; i++) {
+		if (ArrayJogadores[i].IdJogador == aux->Cliente_id)
+			return i;
+	}
 }
 // Funcao que vai fazer o tratamento de pacotes
 void TrataPacotesGwtoServ() {
 
 	packet *aux, resposta;
+
+	int PosJogador;
 
 	while (dadosServidor.ServidorUp == 1) {
 		
@@ -344,21 +425,32 @@ void TrataPacotesGwtoServ() {
 
 		switch (aux->tipo) {
 
-		case user_login: 
+			case user_login: 
 
-			resposta = trataPacoteLogin(aux);			// trata pacote de login
+				resposta = trataPacoteLogin(aux);			// trata pacote de login
 
-			resposta.Cliente_id = aux->Cliente_id;
+				resposta.Cliente_id = aux->Cliente_id;
 
-		case IniciaJogoIndividual:
+			case IniciaJogoIndividual:
 
-			IniciaAmbienteJogo(IniciaJogoIndividual);
+				IniciaAmbienteJogo(IniciaJogoIndividual);
 
-		case IniciaJogoMultiplayer:
-			IniciaAmbienteJogo(IniciaJogoMultiplayer);
+			case IniciaJogoMultiplayer:
 
+				IniciaAmbienteJogo(IniciaJogoMultiplayer);
+
+		
+			case ComandosJogador:
+				
+				PosJogador = VerificaPosicaoJogador(aux);
+				
+				WaitForSingleObject(dadosServidor.mutexTabuleiro, INFINITE);
+
+				verificaComandoJogador(aux->dataPacket.comando, PosJogador);
+				
+				ReleaseMutex(dadosServidor.mutexTabuleiro);
+			
 		}
-	
 		escrevebuffer(&resposta, nomeServtoGw);
 	}
 }
@@ -376,37 +468,56 @@ jogadorinfo * iniciaArrayCli(){ //Alocação do Array
 	return Aux;
 
 }
-// inicia os servi�os e a configura�ao do Servidor;
-int IniciarServidor() {
+// inicializa sincronizaçao usada para executar funçoes no servidor
+void IniciaSincronizacaoServidor() {
 
-	TCHAR c;
+	dadosServidor.EventoIniciaJogo = CreateEvent(NULL, 0, 0, EventInitjogo);
+	
+	if (dadosServidor.EventoIniciaJogo == NULL) {
+		
+		exit(-1);
+
+	}
+
+	dadosServidor.mutexTabuleiro = CreateMutex(NULL, FALSE, mutexAtualizaBloco);
+
+	if (dadosServidor.mutexTabuleiro == NULL) {
+
+		exit(-1);
+	}
+
+}
+// Funcao vai atualizar a informaçao inicial do jogo
+void AtualizaInformacaoInicialJogo() {
+
 	ArrayJogadores = NULL;
 	dadosServidor.NumMaxClientes = nMaxJogadores; //nMaxPlay
 	dadosServidor.ServidorUp = 1;
 	dadosServidor.NumCliNoArray = 0;
-	//////////////////////////////////////////////////////////////////////////////////////////////////
-	dadosServidor.initJogo.MaxNavesInimigas1 = ninimigas1;
-	dadosServidor.initJogo.MaxNavesInimigas2 = ninimigas2;
-	dadosServidor.initJogo.MaxNavesInimigas3 = 1;
-	//////////////////////////////////////////////////////////////////////////////////////////////////
-	dadosServidor.mutexTabuleiro = CreateMutex(NULL, FALSE, mutexAtualizaBloco);
+	
+	dadosServidor.initJogo.MaxNavesBasicas = ninimigas1;
+	dadosServidor.initJogo.MaxNavesEsquivas = ninimigas2;
+	dadosServidor.initJogo.MaxNaveBoss = 1;
+	
+}
+// inicia os servi�os e a configura�ao do Servidor;
+int IniciarServidor() {
 
+	TCHAR c;
+
+	
+	AtualizaInformacaoInicialJogo();
 
 	CriaMemoriaPartilhada();															// cria os Buffers na memoria partilhada e sincronizacao
 
+	IniciaSincronizacaoServidor();
+
 	ArrayJogadores = iniciaArrayCli();
 																				
-	dadosServidor.hThreadSerToGw = CreateThread( NULL,0,(LPTHREAD_START_ROUTINE)TrataPacotesGwtoServ,(LPVOID) NULL,0,&dadosServidor.IdThreadSertoGw);
-											
-		_tprintf(TEXT(" \n\n\n\n\n2.iniciar Naves inimigas para jogo ? "));
-
-	_tscanf_s(TEXT("%c"), &c, 1);
-	
-	if (c == 's' || c == 'S') {
-		IniciaNavesInimigas();
-	
-	}
-	
+	dadosServidor.hThreadSerToGw = CreateThread( NULL,0,(LPTHREAD_START_ROUTINE)TrataPacotesGwtoServ,(LPVOID) NULL,0,&dadosServidor.IdThreadSertoGw); // fica a espera de pacotes no buffer
+												
+	IniciaNavesInimigas();
+	//
 	//criaStatusServerRegistry (0 );
 	return 0;
 }

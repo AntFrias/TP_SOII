@@ -13,8 +13,7 @@
 #include <shellapi.h>
 #include <winbase.h>
 
-#include "../AcessoMemDLL/stdafx.h"
-#pragma comment(lib, "../x64/Debug/AcessoMemDLL.lib")
+
 
 //max powerUp
 #define maxClientePowerUp 3
@@ -30,14 +29,7 @@
 #define ninimigas2 50
 
 //Tiros
-enum EnumTiros {
-	
-	tiroJogador= 1,
-	tiroNaveEnemy,
-	tiroNuclear,
-	tiroBoss
 
-};
 
 // //Estrutura Tiro
 typedef struct tiroo {
@@ -89,10 +81,10 @@ typedef struct Jogador_Info {
 // extrutura Configuraçao Inicial do Jogo
 typedef struct ConfiguracaoInicialJogo {
 	int MaxJogadores;
-	int MaxNavesInimigas1;
-	int MaxNavesInimigas2;
-	int MaxNavesInimigas3;
-	int taxaDeDiparoBasica;
+	int MaxNavesBasicas;
+	int MaxNavesEsquivas;
+	int MaxNaveBoss;
+	int taxaDisparoNaveBasica;
 
 	int MaxPowerups;
 	int DuracaoPowerup;
@@ -125,6 +117,7 @@ typedef struct Gestao_servidor {
 	HANDLE hThreadSerToGw;
 	DWORD IdThreadSertoGw;
 	HANDLE mutexTabuleiro;
+	HANDLE EventoIniciaJogo;
 
 }dataServer;
 
@@ -135,11 +128,14 @@ void colocaNavesBasicas();
 //prototipos de funçoes relativas ao Jogo no ficheiro jogo.cpp
 void limpaTabuleiro();
 void mostraTabuleiro();
-int VerificaPosicao(int x, int y);
-void preencheBlocosServidor(int x, int y, int pos, int tipo);	 // esta funcao serve para preencher os blocos do tabuleiro
+int VerificaPosicaoPreencheTAb(int *x, int *y);
+int VerificaPosicaoJogo(int *x, int *y, int tipo, int orientacao);
+void LimpaPosTabuleiro(int x, int y, int tipo, int Largura);
+void preencheBlocosServidor(int x, int y, int pos, int tipo, int Largura);	 // esta funcao serve para preencher os blocos do tabuleiro
 void ColocaNavesTab();
 void IniciarJogo();	// funcao que vai inicar o jogo propriamente dito quando os jogadores decidirem começar a jogar
 
+//
 
 
 
