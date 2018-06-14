@@ -6,6 +6,9 @@ configur configuracoes;
 alteracaoTab tabAux[5];
 bipm bipMaps;
 
+
+HWND hwnd;  // janela principal
+
 void TrataPacote(packet pacoteTratar) {
 
 
@@ -14,7 +17,7 @@ void TrataPacote(packet pacoteTratar) {
 			case user_login_sucesso: { // Se for bem logado recebe a mensagem que vai começar pelo jogo meter depois no servidor -> user_login_sucesso e aqui tb
 
 				MessageBox(NULL, TEXT("Login efetuado com sucesso!\nEspere que o Jogo comece "), TEXT("AGUARDE"), MB_OK | MB_ICONINFORMATION);
-				SetEvent(Cliente.EventJogar);
+				
 				break;
 			}
 			
@@ -177,10 +180,10 @@ LRESULT CALLBACK Configuracoes(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lPara
 {
 	switch (uMsg)
 	{
-	case WM_DESTROY:
-		PostQuitMessage(0);
-		return 0;
-
+	//case WM_DESTROY:
+	//	PostQuitMessage(0);
+	//	return 0;
+	/*
 	case WM_PAINT:
 	{
 		PAINTSTRUCT ps;
@@ -191,6 +194,7 @@ LRESULT CALLBACK Configuracoes(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lPara
 		EndPaint(hwnd, &ps);
 		break;
 	}
+	*/
 	case WM_INITDIALOG: 
 	{
 		SetWindowText(GetDlgItem(hwnd, IDC_Nome), TEXT("Joao"));	// por texto por default
@@ -202,6 +206,7 @@ LRESULT CALLBACK Configuracoes(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lPara
 		SetWindowText(GetDlgItem(hwnd, IDC_POWERUP1), TEXT("Z"));	// por texto por default
 		SetWindowText(GetDlgItem(hwnd, IDC_POWERUP2), TEXT("X"));	// por texto por default
 		SetWindowText(GetDlgItem(hwnd, IDC_POWERUP3), TEXT("C"));	// por texto por default
+
 		
 		break;
 	}
@@ -216,28 +221,36 @@ LRESULT CALLBACK Configuracoes(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lPara
 			GetWindowText(GetDlgItem(hwnd, IDC_Nome), buff, 10);
 			wcscpy_s(configuracoes.nome, buff);
 			
-			//MessageBox(NULL,configuracoes.nome,TEXT("exemplo"),MB_OK | MB_ICONERROR); //para ver se está a buscar o nome bem
+			MessageBox(NULL,configuracoes.nome,TEXT("exemplo"),MB_OK | MB_ICONERROR); //para ver se está a buscar o nome bem
 			
 			//Teclas
-			TCHAR aux[1];
-			GetWindowText(GetDlgItem(hwnd, IDC_ESQUERDA), aux,1);
+			TCHAR aux[2];
+
+			GetDlgItemText(hwnd, IDC_CIMA, aux, 1);
+			configuracoes.CIMA = aux[0];//TCHAR ('w');//aux[0];
+			MessageBox(NULL, aux, TEXT("LETRA"), MB_OK);
+			
+
+			GetDlgItemText(hwnd, IDC_ESQUERDA, aux,1);
 			configuracoes.ESQUERDA = aux[0];
-			GetWindowText(GetDlgItem(hwnd, IDC_ESQUERDA), aux, 1);
-			configuracoes.CIMA = aux[0];
-			GetWindowText(GetDlgItem(hwnd, IDC_ESQUERDA), aux, 1);
+
+			GetDlgItemText(hwnd, IDC_BAIXO, aux, 1);
 			configuracoes.BAIXO = aux[0];
-			GetWindowText(GetDlgItem(hwnd, IDC_ESQUERDA), aux, 1);
+
+			GetDlgItemText(hwnd, IDC_DIREITA, aux, 1);
 			configuracoes.DIREITA = aux[0];
 
-			GetWindowText(GetDlgItem(hwnd, IDC_tiro), aux, 1);
+			GetDlgItemText(hwnd, IDC_tiro, aux, 1);
 			configuracoes.TIRO = aux[0];
 
 			//PowerUps
-			GetWindowText(GetDlgItem(hwnd, IDC_ESQUERDA), aux, 1);
+			GetDlgItemText(hwnd, IDC_POWERUP1, aux, 1);
 			configuracoes.POWERUP1 = aux[0];
-			GetWindowText(GetDlgItem(hwnd, IDC_ESQUERDA), aux, 1);
+
+			GetDlgItemText(hwnd, IDC_POWERUP2, aux, 1);
 			configuracoes.POWERUP2 = aux[0];
-			GetWindowText(GetDlgItem(hwnd, IDC_ESQUERDA), aux, 1);
+
+			GetDlgItemText(hwnd, IDC_POWERUP3, aux, 1);
 			configuracoes.POWERUP3 = aux[0];
 			//NESTA ALTURA JA TENHO AS CONFIGURAÇÕES DENTRO DA ESTRUTURA configuracoes
 			
@@ -251,9 +264,11 @@ LRESULT CALLBACK Configuracoes(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lPara
 			
 			Envia(PacoteLogin);
 
-			WaitForSingleObject(Cliente.EventJogar,INFINITE);
 			EndDialog(hwnd, 0); //isto é para fechar a janela 
-			PostQuitMessage(0); //isto é para fechar a janela
+			//PostQuitMessage(0); //isto é para fechar a janxxxx -> o ciclo de mensagens
+			ShowWindow(hwnd, SW_SHOWDEFAULT);
+			UpdateWindow(hwnd);
+
 			break;
 		}
 		
@@ -312,11 +327,16 @@ LRESULT CALLBACK WindowProc(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
 		EndPaint(hwnd, &Ps);
 		break;
 	}
-	/*case WM_CHAR: {
+	case WM_CHAR: {
 		packet enviaTecla;
-		switch (wParam) {
+
+		if ((TCHAR)wParam == configuracoes.CIMA) {
+			exit(0);
+		}
+
+		/*switch (wParam) {
 		
-		case (wchar_t)configuracoes.CIMA: {
+		case (TCHAR)configuracoes.CIMA: {
 			
 			enviaTecla.tipo = 20 ;//alterar aqui
 			enviaTecla.dataPacket.movimento = cima;
@@ -386,10 +406,10 @@ LRESULT CALLBACK WindowProc(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
 		default:
 			//nao faz nada se não houver correspondencia
 
-		}
+		}*/
 
 		break;
-	}*/
+	}
 
 	default:
 		return DefWindowProc(hwnd, uMsg, wParam, lParam);
@@ -398,16 +418,13 @@ LRESULT CALLBACK WindowProc(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
 	return 0;
 }
 
-int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR LpCmdLine, int ncmdshow)
-{
+int WINAPI _tWinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPTSTR LpCmdLine, int ncmdshow)
+{//o professor colocou assim _tWinMain
 
 
-#ifdef _UNICODE
-#define _tWinMain wWinMain
-#else
-#define _tWinMain WinMain
-#endif
 
+
+	MessageBox(NULL,TEXT("jgjgjgjgj"),TEXT("LETRA"),MB_OK);
 
 	tabAux[0].tipo = NaveBasica;
 	tabAux[0].x = 0;
@@ -439,14 +456,16 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR LpCmdLine
 	///////////////////////////////////////Configuraçoes//////////////////////////////////////////////////////////////
 	HWND hDlg = CreateDialogParam(hInstance, MAKEINTRESOURCE(IDD_DIALOG1), 0, Configuracoes, 0);
 	ShowWindow(hDlg, ncmdshow);
-	
+
+	Sleep(10000);
+
 	MSG msg = {};
 	
-	while (GetMessage(&msg, NULL, 0, 0))
+	/*while (GetMessage(&msg, NULL, 0, 0))
 	{
 		TranslateMessage(&msg);
 		DispatchMessage(&msg);
-	}
+	}*/
 	
 	////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 	
@@ -461,7 +480,7 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR LpCmdLine
 	RegisterClass(&wc);
 	
 	// Create the window.
-	HWND hwnd = CreateWindowEx(
+	hwnd = CreateWindowEx(
 		0,                              // Optional window styles.
 		CLASS_NAME,                     // Window class
 		L" -> Space Invader <- ",      // Window text
@@ -481,8 +500,8 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR LpCmdLine
 		return 0;
 	}
 
-	ShowWindow(hwnd, ncmdshow);
-	UpdateWindow(hwnd);
+	//ShowWindow(hwnd, ncmdshow);
+	//UpdateWindow(hwnd);
 	
 	
 	// para estar sempre em loop
@@ -495,7 +514,7 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR LpCmdLine
 	
 	//espera pela thread que le
 	WaitForSingleObject(Cliente.ht, INFINITE);
-	
+
 	return 0;
 }
 
