@@ -111,6 +111,7 @@ int VerificaPosicaoJogo( int *x, int *y, int tipo, int orientacao) {
 	}
 	return 0;
 }
+//
 // funcao vai limpar as posicoes do tabuleiro
 void LimpaPosTabuleiro(int x, int y, int tipo, int Largura) {
 

@@ -135,7 +135,7 @@ void preencheBlocosServidor(int x, int y, int pos, int tipo, int Largura);	 // e
 void ColocaNavesTab();
 void IniciarJogo();	// funcao que vai inicar o jogo propriamente dito quando os jogadores decidirem começar a jogar
 
-
+//
 
 
 
