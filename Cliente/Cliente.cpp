@@ -4,7 +4,7 @@
 EstruturaCli Cliente;
 configur configuracoes;
 alteracaoTab tabAux[5];
-
+bipm bipMaps;
 
 void TrataPacote(packet pacoteTratar) {
 
@@ -158,6 +158,21 @@ void IniciaCliente() {
 
 }
 
+
+void carregaBitMaps() {
+
+
+	bipMaps.Wallpaper = (HBITMAP)LoadImage(NULL, L"../../Imagens/imagemInicial.bmp", IMAGE_BITMAP, 800, 800, LR_LOADFROMFILE); 
+	bipMaps.Basica = (HBITMAP)LoadImage(NULL, L"../../Imagens/Basica.bmp", IMAGE_BITMAP, 40, 40, LR_LOADFROMFILE);
+	bipMaps.Bomba = (HBITMAP)LoadImage(NULL, L"../../Imagens/Bomba.bmp", IMAGE_BITMAP, 20, 40, LR_LOADFROMFILE);
+	bipMaps.Defensora1 = (HBITMAP)LoadImage(NULL, L"../../Imagens/Defensora1.bmp", IMAGE_BITMAP, 40, 40, LR_LOADFROMFILE);
+	bipMaps.Defensora2 = (HBITMAP)LoadImage(NULL, L"../../Imagens/Defensora2.bmp", IMAGE_BITMAP, 40, 40, LR_LOADFROMFILE);
+	bipMaps.Esquiva = (HBITMAP)LoadImage(NULL, L"../../Imagens/Esquiva.bmp", IMAGE_BITMAP, 40, 40, LR_LOADFROMFILE);
+	bipMaps.Tiro = (HBITMAP)LoadImage(NULL, L"../../Imagens/tiro.bmp", IMAGE_BITMAP, 20, 40, LR_LOADFROMFILE);
+	bipMaps.Boss = (HBITMAP)LoadImage(NULL, L"../../Imagens/boss.bmp", IMAGE_BITMAP, 40, 40, LR_LOADFROMFILE);
+
+}
+
 LRESULT CALLBACK Configuracoes(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
 {
 	switch (uMsg)
@@ -183,9 +198,10 @@ LRESULT CALLBACK Configuracoes(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lPara
 		SetWindowText(GetDlgItem(hwnd, IDC_CIMA), TEXT("W"));		// por texto por default
 		SetWindowText(GetDlgItem(hwnd, IDC_BAIXO), TEXT("S"));		// por texto por default
 		SetWindowText(GetDlgItem(hwnd, IDC_DIREITA), TEXT("D"));	// por texto por default
+		SetWindowText(GetDlgItem(hwnd, IDC_tiro), TEXT("V"));	// por texto por default
 		SetWindowText(GetDlgItem(hwnd, IDC_POWERUP1), TEXT("Z"));	// por texto por default
 		SetWindowText(GetDlgItem(hwnd, IDC_POWERUP2), TEXT("X"));	// por texto por default
-		SetWindowText(GetDlgItem(hwnd, IDC_POWERUP3), TEXT("V"));	// por texto por default
+		SetWindowText(GetDlgItem(hwnd, IDC_POWERUP3), TEXT("C"));	// por texto por default
 		
 		break;
 	}
@@ -212,6 +228,9 @@ LRESULT CALLBACK Configuracoes(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lPara
 			configuracoes.BAIXO = aux[0];
 			GetWindowText(GetDlgItem(hwnd, IDC_ESQUERDA), aux, 1);
 			configuracoes.DIREITA = aux[0];
+
+			GetWindowText(GetDlgItem(hwnd, IDC_tiro), aux, 1);
+			configuracoes.TIRO = aux[0];
 
 			//PowerUps
 			GetWindowText(GetDlgItem(hwnd, IDC_ESQUERDA), aux, 1);
@@ -257,8 +276,6 @@ LRESULT CALLBACK Configuracoes(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lPara
 LRESULT CALLBACK WindowProc(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
 {
 
-
-
 	/////////////TESTE
 	HDC hDC, MemDCExercising;
 	PAINTSTRUCT Ps;
@@ -277,21 +294,102 @@ LRESULT CALLBACK WindowProc(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
 		hDC = BeginPaint(hwnd, &Ps);
 
 		// Load the bitmap from the resource
-		bmpExercising = (HBITMAP)LoadImage(NULL, L"../../Imagens/imagemInicial.bmp", IMAGE_BITMAP, 800, 800, LR_LOADFROMFILE);
+		//ja carreguei antes
+		//bmpExercising = (HBITMAP)LoadImage(NULL, L"../../Imagens/imagemInicial.bmp", IMAGE_BITMAP, 800, 800, LR_LOADFROMFILE);
+		
 		// Create a memory device compatible with the above DC variable
 		MemDCExercising = CreateCompatibleDC(hDC);
+		
 		// Select the new bitmap
-		SelectObject(MemDCExercising, bmpExercising);
+		//SelectObject(MemDCExercising, bmpExercising);
 
 		// Copy the bits from the memory DC into the current dc
-		BitBlt(hDC, 0, 0, 800, 800, MemDCExercising, 0, 0, SRCCOPY);
+		//BitBlt(hDC, 0, 0, 800, 800, MemDCExercising, 0, 0, SRCCOPY);
 
 		// Restore the old bitmap
-		DeleteDC(MemDCExercising);
-		DeleteObject(bmpExercising);
+		//DeleteDC(MemDCExercising);
+		//DeleteObject(bmpExercising);
 		EndPaint(hwnd, &Ps);
 		break;
 	}
+	/*case WM_CHAR: {
+		packet enviaTecla;
+		switch (wParam) {
+		
+		case (wchar_t)configuracoes.CIMA: {
+			
+			enviaTecla.tipo = 20 ;//alterar aqui
+			enviaTecla.dataPacket.movimento = cima;
+			
+			Envia(enviaTecla);
+			
+			break;
+		}
+		case configuracoes.BAIXO: {
+
+			enviaTecla.tipo = 20 ;//altear aqui
+			enviaTecla.dataPacket.movimento = baixo;
+
+			Envia(enviaTecla);
+			break;
+		}
+		case configuracoes.ESQUERDA: {
+
+			enviaTecla.tipo = 20; //alterar aqui
+			enviaTecla.dataPacket.movimento = esquerda;
+
+			Envia(enviaTecla);
+			break;
+		}
+		case configuracoes.DIREITA: {
+
+			enviaTecla.tipo = 20; //alterar aqui
+			enviaTecla.dataPacket.movimento = cima;
+
+			Envia(enviaTecla);
+			break;
+		}
+		case configuracoes.TIRO: {
+
+			enviaTecla.tipo = 20 
+			enviaTecla.dataPacket.movimento = espaco; // alterar isto com o frias
+
+			Envia(enviaTecla);
+			break;
+		}
+		case configuracoes.POWERUP1: {
+
+			enviaTecla.tipo = 20;
+			enviaTecla.dataPacket.movimento = z;
+
+			Envia(enviaTecla);
+			break;
+		}
+		case configuracoes.POWERUP2: {
+
+			enviaTecla.tipo = 20 ;
+			enviaTecla.dataPacket.movimento = x;
+
+			Envia(enviaTecla);
+			break;
+		}
+		case configuracoes.POWERUP3: {
+
+			enviaTecla.tipo = 20 ;
+			enviaTecla.dataPacket.movimento = c;
+
+			Envia(enviaTecla);
+			break;
+		}
+		
+
+		default:
+			//nao faz nada se não houver correspondencia
+
+		}
+
+		break;
+	}*/
 
 	default:
 		return DefWindowProc(hwnd, uMsg, wParam, lParam);
@@ -316,19 +414,19 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR LpCmdLine
 	tabAux[0].y = 0;
 
 	tabAux[1].tipo = tiroJogador;
-	tabAux[1].x = 0;
-	tabAux[1].y = 0;
+	tabAux[1].x = 10;
+	tabAux[1].y = 4;
 
 	tabAux[4].tipo = NaveJogador;
-	tabAux[4].x = 0;
-	tabAux[4].y = 0;
+	tabAux[4].x = 4;
+	tabAux[4].y = 12;
 
 	tabAux[2].tipo = NavesEsquiva;
-	tabAux[2].x = 0;
-	tabAux[2].y = 0;
+	tabAux[2].x = 12;
+	tabAux[2].y = 23;
 
 	tabAux[3].tipo = NaveBasica;
-	tabAux[3].x = 0;
+	tabAux[3].x = 2;
 	tabAux[3].y = 0;
 
 	IniciaCliente(); // lança a thread que escuta no named pipe
@@ -352,13 +450,12 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR LpCmdLine
 	
 	////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 	
-
-	///
-
+	carregaBitMaps();
+	///////////////////////////////////////////////////////////////////////////////////////////////////////////////
 	wc.lpfnWndProc = WindowProc;
 	wc.hInstance = hInstance;
 	wc.lpszClassName = CLASS_NAME;
-	wc.hbrBackground = (HBRUSH)(COLOR_WINDOW + 1);
+	wc.hbrBackground = (HBRUSH)GetStockObject(BLACK_BRUSH);
 	wc.hIcon = (HICON)LoadImage(NULL, L"../../Imagens/Logot.ico", IMAGE_ICON, 32, 32, LR_LOADFROMFILE);
 	wc.hCursor =(HCURSOR)LoadImage(NULL, L"../../Imagens/Cursor.cur", IMAGE_CURSOR, 32, 32, LR_LOADFROMFILE);
 	RegisterClass(&wc);

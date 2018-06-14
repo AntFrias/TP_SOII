@@ -48,9 +48,23 @@ enum EnumDados {
 //Tamanho do array de blocos ocupados
 #define Blocoscupados 100
 
+typedef struct img {
+
+	HBITMAP Wallpaper;
+	HBITMAP Basica;
+	HBITMAP Bomba;
+	HBITMAP Defensora1;
+	HBITMAP Defensora2;
+	HBITMAP Esquiva;
+	HBITMAP Tiro;
+	HBITMAP Boss;
+
+}bipm;
+
 typedef struct configs {
 
 	TCHAR nome[10];
+	TCHAR TIRO;
 	TCHAR CIMA, BAIXO, ESQUERDA, DIREITA;
 	TCHAR POWERUP1, POWERUP2, POWERUP3;
 
