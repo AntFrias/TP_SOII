@@ -64,8 +64,7 @@ void verificaComandosJogo(int comando, int PosObjeto, int tipoObjeto) {
 
 			y -= 1;
 
-			preencheBlocosServidor(x, y, PosObjeto, tipoObjeto, LarguraNaveDefault);
-
+			preencheBlocosServidor(&x, &y, PosObjeto, tipoObjeto, LarguraNaveDefault);
 		}
 		break;
 
@@ -77,7 +76,7 @@ void verificaComandosJogo(int comando, int PosObjeto, int tipoObjeto) {
 
 			y += 1;
 
-			preencheBlocosServidor(x, y, PosObjeto, tipoObjeto, LarguraNaveDefault);
+			preencheBlocosServidor(&x, &y, PosObjeto, tipoObjeto, LarguraNaveDefault);
 
 		}
 		break;
@@ -90,7 +89,7 @@ void verificaComandosJogo(int comando, int PosObjeto, int tipoObjeto) {
 
 			x -= 1;
 
-			preencheBlocosServidor(x, y, PosObjeto, tipoObjeto, LarguraNaveDefault);
+			preencheBlocosServidor(&x, &y, PosObjeto, tipoObjeto, LarguraNaveDefault);
 
 		}
 		break;
@@ -103,7 +102,7 @@ void verificaComandosJogo(int comando, int PosObjeto, int tipoObjeto) {
 
 			x += 1;
 
-			preencheBlocosServidor(x, y, PosObjeto, tipoObjeto, LarguraNaveDefault);
+			preencheBlocosServidor(&x, &y, PosObjeto, tipoObjeto, LarguraNaveDefault);
 
 		}
 		break;
@@ -145,7 +144,7 @@ int GestorNaveEsquiva(LPVOID aux) {
 
 	int nNaves = dadosServidor.initJogo.MaxNavesEsquivas;
 
-	int opcao = 0, opcao_min = cima, opcao_max = LancaTiro;
+	int opcao = 0, opcao_min = cima, opcao_max = direita;
 
 	do {
 
@@ -239,7 +238,7 @@ void colocaNavesEsquiva() {
 			objectosNoMapa.NaveEnemyTipo2->tipo = NaveEsquiva;
 			objectosNoMapa.NaveEnemyTipo2->x = x;
 			objectosNoMapa.NaveEnemyTipo2->y = y;
-			preencheBlocosServidor(x, y, contaEsquiva, NaveEsquiva,LarguraNaveDefault);
+			preencheBlocosServidor(&x, &y, contaEsquiva, NaveEsquiva,LarguraNaveDefault);
 	
 			contaEsquiva++;
 		}
@@ -277,7 +276,7 @@ void colocaNavesBasicas() {
 
 				objectosNoMapa.NaveEnemyTipo1[contaBasica].y = y;
 				
-				preencheBlocosServidor(x, y, contaBasica, NaveBasica,LarguraNaveDefault);
+				preencheBlocosServidor(&x, &y, contaBasica, NaveBasica,LarguraNaveDefault);
 				
 				contaBasica += 1;
 
@@ -353,16 +352,18 @@ int IniciaNavesInimigas() {
 }
 //funcao que irá iniciar o jogo apos um jogador seleccionar a opçao jogar
 void IniciaAmbienteJogo(int pos) {
-
+	_tprintf(TEXT("\ncheguei ao inicia Jogo\n"));
 	int *x = &ArrayJogadores[pos].posicao[0], *y = &ArrayJogadores[pos].posicao[1];
-
+	
 
 	if (dadosServidor.estadoJogo == 0) {
 		dadosServidor.estadoJogo = 1;
 		///POR AQUI O EVENTO PARA A MOVIMENTAÇÃO DAS NAVES
 		WaitForSingleObject(dadosServidor.mutexTabuleiro,INFINITE);
-		IniciarJogo(x,y);
+		IniciarJogo(x,y,pos);
+		_tprintf(TEXT("\nPOSX: %d POSY: %d\n"), *x, *y);
 		ReleaseMutex(dadosServidor.mutexTabuleiro);
+
 	}
 }
 //func que lista os clientes

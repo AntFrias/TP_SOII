@@ -202,22 +202,22 @@ int VerificaPosicaoJogo( int *x, int *y, int tipo, int orientacao) {
 // funcao vai limpar as posicoes do tabuleiro
 void LimpaPosTabuleiro(int x, int y, int tipo, int Largura) {
 
-	for (int i = x; i < x + Largura; i++) {
+	for (int i = x; i < x + Largura; i++) {///j
 
-		for (int j = y; j < y + Largura; j++) {
+		for (int j = y; j < y + Largura; j++) { ///i
 
 			blocoServ[i][j].tipo = tipo;
-
+			/// ver aqui
 			escreveBufferTabuleiro(i, j, blocoServ[i][j].tipo);
 		}
 	}
 }
 // preenche Bocos no tabuleiro do servidor e no bufferTabuleiro
-void preencheBlocosServidor(int x, int y, int pos, int tipo, int Largura) {
-	
-	for (int i = x; i < x + Largura; i++) {
+void preencheBlocosServidor(int *x, int *y, int pos, int tipo, int Largura) {
+	_tprintf(TEXT("\ncheguei aqui com a posX %d e poxY %d com o tipo %d\n"),*x,*y,tipo);
+	for (int i = *x; i < *x + Largura; i++) {
 
-		for (int j = y; j < y + Largura; j++) {
+		for (int j = *y; j < *y + Largura; j++) {
 
 			blocoServ[i][j].tipo = tipo;
 
@@ -240,7 +240,7 @@ void ColocaNavesTab() {
 
 }
 //Funcao que irá iniciar o jogo e as respetivas movimentacoes quando o jogador decidir jogar
-void IniciarJogo(int *x, int *y) {
+void IniciarJogo(int *x, int *y,int pos) {
 
 	int posX = 0, posY = dimMapa_y - 2, x_min = 0, x_max = dimMapa_x - 1;
 	
@@ -257,5 +257,8 @@ void IniciarJogo(int *x, int *y) {
 
 	*x = posX;
 	*y = posY;
+	preencheBlocosServidor(x, y, pos, NaveJogador, LarguraNaveDefault);
+	
+
 }
 
