@@ -3,9 +3,12 @@
 
 EstruturaCli Cliente;
 configur configuracoes;
+alteracaoTab tabAux[5];
+bipm bipMaps;
+packet PacoteEnvio;
 
 
-
+HWND hwndPrincipal;  // janela principal
 
 void TrataPacote(packet pacoteTratar) {
 
@@ -14,22 +17,22 @@ void TrataPacote(packet pacoteTratar) {
 			
 			case user_login_sucesso: { // Se for bem logado recebe a mensagem que vai começar pelo jogo meter depois no servidor -> user_login_sucesso e aqui tb
 
-				MessageBox(NULL, pacoteTratar.dataPacket.nome, TEXT("NOME"), MB_OK | MB_ICONINFORMATION);
-
+				MessageBox(NULL, TEXT("Login efetuado com sucesso!\nEspere que o Jogo comece "), TEXT("AGUARDE"), MB_OK | MB_ICONINFORMATION);
+				
 				break;
 			}
 			
 			case user_Login_falhou: {
 
-				MessageBox(NULL, TEXT("Ja se encontra um jogador com o mesmo nome"), TEXT("ERRO"), MB_OK | MB_ICONERROR);
-				exit(0);
+				//MessageBox(NULL, TEXT("Ja se encontra um jogador com o mesmo nome"), TEXT("ERRO"), MB_OK | MB_ICONERROR);
+				//exit(0);
 				break;
 			}
 
 			case max_players_atingido: {
 
 				MessageBox(NULL, TEXT("O servidor está cheio.\nTente mais tarde"), TEXT("ERRO"), MB_OK | MB_ICONERROR);
-				exit(0);
+				//exit(0);
 				break;
 			}
 		
@@ -39,7 +42,7 @@ void TrataPacote(packet pacoteTratar) {
 
 }
 
-void Envia(packet PacoteEnvio) {
+void Envia() {
 
 	DWORD  nBytesLidos;
 	BOOL ret;
@@ -52,27 +55,31 @@ void Envia(packet PacoteEnvio) {
 			//_tprintf(TEXT("Erro ao criar evento\n"));
 		}
 
-		//inicializa coisas para o named pipe
-		ZeroMemory(&Ov, sizeof(Ov));
-		ResetEvent(IOReady);
-		Ov.hEvent = IOReady;
+		while (1) {
+			WaitForSingleObject(Cliente.EventEnvia,INFINITE);
 
-		//escrever no pipe
-		WriteFile(Cliente.pipe, &PacoteEnvio, sizeof(packet), &nBytesLidos, &Ov);
-	
-		WaitForSingleObject(IOReady, INFINITE);
+			//inicializa coisas para o named pipe
+			ZeroMemory(&Ov, sizeof(Ov));
+			ResetEvent(IOReady);
+			Ov.hEvent = IOReady;
 
-		ret = GetOverlappedResult(Cliente.pipe, &Ov, &nBytesLidos, FALSE);
+			//escrever no pipe
+			WriteFile(Cliente.pipe, &PacoteEnvio, sizeof(packet), &nBytesLidos, &Ov);
 
-		if (!ret || !nBytesLidos) {
-			
-			//_tprintf(TEXT("Nao escrevi nada\n"), ret, nBytesLidos);
-			//return -1;
-			OutputDebugString(TEXT("ret ou nbyres = 0!!!\n"));
+			WaitForSingleObject(IOReady, INFINITE);
+
+			ret = GetOverlappedResult(Cliente.pipe, &Ov, &nBytesLidos, FALSE);
+
+			if (!ret || !nBytesLidos) {
+
+				//_tprintf(TEXT("Nao escrevi nada\n"), ret, nBytesLidos);
+				//return -1;
+				OutputDebugString(TEXT("ret ou nbyres = 0!!!\n"));
+			}
+			//_tprintf(TEXT("[CLIENTE] Enviei %d bytes ao GATEWAY ...(WriteFile)\n"), nBytesLidos);
+			OutputDebugString(TEXT("Passei o enviei1!!!\n"));
+			ResetEvent(Cliente.EventEnvia);
 		}
-		//_tprintf(TEXT("[CLIENTE] Enviei %d bytes ao GATEWAY ...(WriteFile)\n"), nBytesLidos);
-		OutputDebugString(TEXT("Passei o enviei1!!!\n"));
-
 }
 
 void escuta() {
@@ -142,13 +149,33 @@ void escuta() {
 
 }
 
-
 void IniciaCliente() {
 
 
 	//thread escuta no pipe
-	Cliente.ht = CreateThread(NULL, 0, (LPTHREAD_START_ROUTINE)escuta, (LPVOID)NULL, 0, &Cliente.IDth);
+	Cliente.htEscuta = CreateThread(NULL, 0, (LPTHREAD_START_ROUTINE)escuta, (LPVOID)NULL, 0, &Cliente.IDEscuta);
 
+	Cliente.htEnvia = CreateThread(NULL,0, (LPTHREAD_START_ROUTINE)Envia, (LPVOID)NULL, 0, &Cliente.IDEnvia);
+	Cliente.EventEnvia = CreateEvent(
+		NULL,               // default security attributes
+		TRUE,               // manual-reset event
+		FALSE,              // initial state is nonsignaled
+		NULL // object name
+	);
+
+}
+
+void carregaBitMaps() {
+
+
+	bipMaps.Wallpaper = (HBITMAP)LoadImage(NULL, L"../../Imagens/imagemInicial.bmp", IMAGE_BITMAP, 800, 800, LR_LOADFROMFILE); 
+	bipMaps.Basica = (HBITMAP)LoadImage(NULL, L"../../Imagens/Basica.bmp", IMAGE_BITMAP, 40, 40, LR_LOADFROMFILE);
+	bipMaps.Bomba = (HBITMAP)LoadImage(NULL, L"../../Imagens/Bomba.bmp", IMAGE_BITMAP, 20, 40, LR_LOADFROMFILE);
+	bipMaps.Defensora1 = (HBITMAP)LoadImage(NULL, L"../../Imagens/Defensora1.bmp", IMAGE_BITMAP, 40, 40, LR_LOADFROMFILE);
+	bipMaps.Defensora2 = (HBITMAP)LoadImage(NULL, L"../../Imagens/Defensora2.bmp", IMAGE_BITMAP, 40, 40, LR_LOADFROMFILE);
+	bipMaps.Esquiva = (HBITMAP)LoadImage(NULL, L"../../Imagens/Esquiva.bmp", IMAGE_BITMAP, 40, 40, LR_LOADFROMFILE);
+	bipMaps.Tiro = (HBITMAP)LoadImage(NULL, L"../../Imagens/tiro.bmp", IMAGE_BITMAP, 20, 40, LR_LOADFROMFILE);
+	bipMaps.Boss = (HBITMAP)LoadImage(NULL, L"../../Imagens/boss.bmp", IMAGE_BITMAP, 40, 40, LR_LOADFROMFILE);
 
 }
 
@@ -156,81 +183,86 @@ LRESULT CALLBACK Configuracoes(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lPara
 {
 	switch (uMsg)
 	{
-	case WM_DESTROY:
-		PostQuitMessage(0);
-		return 0;
-
-	case WM_PAINT:
-	{
-		PAINTSTRUCT ps;
-		HDC hdc = BeginPaint(hwnd, &ps);
-
-		FillRect(hdc, &ps.rcPaint, (HBRUSH)(COLOR_WINDOW + 1));
-
-		EndPaint(hwnd, &ps);
-		break;
-	}
 	case WM_INITDIALOG: 
-	{
 		SetWindowText(GetDlgItem(hwnd, IDC_Nome), TEXT("Joao"));	// por texto por default
 		SetWindowText(GetDlgItem(hwnd, IDC_ESQUERDA), TEXT("A"));	// por texto por default
 		SetWindowText(GetDlgItem(hwnd, IDC_CIMA), TEXT("W"));		// por texto por default
 		SetWindowText(GetDlgItem(hwnd, IDC_BAIXO), TEXT("S"));		// por texto por default
 		SetWindowText(GetDlgItem(hwnd, IDC_DIREITA), TEXT("D"));	// por texto por default
+		SetWindowText(GetDlgItem(hwnd, IDC_tiro), TEXT("V"));	// por texto por default
 		SetWindowText(GetDlgItem(hwnd, IDC_POWERUP1), TEXT("Z"));	// por texto por default
 		SetWindowText(GetDlgItem(hwnd, IDC_POWERUP2), TEXT("X"));	// por texto por default
-		SetWindowText(GetDlgItem(hwnd, IDC_POWERUP3), TEXT("V"));	// por texto por default
-		
+		SetWindowText(GetDlgItem(hwnd, IDC_POWERUP3), TEXT("C"));	// por texto por default
 		break;
-	}
+
 	case WM_COMMAND:
 		switch (LOWORD(wParam))
 		{
 		case IDOK:
-		{
-			packet PacoteLogin;
-			//NOME
-			TCHAR buff[11];
-			GetWindowText(GetDlgItem(hwnd, IDC_Nome), buff, 10);
+		{  
+			TCHAR buff[9];
+			GetWindowText(GetDlgItem(hwnd, IDC_Nome), buff, 9);
 			wcscpy_s(configuracoes.nome, buff);
 			
 			//MessageBox(NULL,configuracoes.nome,TEXT("exemplo"),MB_OK | MB_ICONERROR); //para ver se está a buscar o nome bem
 			
 			//Teclas
-			TCHAR aux[1];
-			GetWindowText(GetDlgItem(hwnd, IDC_ESQUERDA), aux,1);
-			configuracoes.ESQUERDA = aux[0];
-			GetWindowText(GetDlgItem(hwnd, IDC_ESQUERDA), aux, 1);
+			TCHAR aux[2];
+
+			GetDlgItemText(hwnd, IDC_CIMA, aux, 2);
 			configuracoes.CIMA = aux[0];
-			GetWindowText(GetDlgItem(hwnd, IDC_ESQUERDA), aux, 1);
+			aux[1] = TEXT('\0');
+			//MessageBox(NULL, aux, TEXT("LETRA"), MB_OK);
+			
+			GetDlgItemText(hwnd, IDC_ESQUERDA, aux,2);
+			configuracoes.ESQUERDA = aux[0];
+			aux[1] = TEXT('\0');
+
+			GetDlgItemText(hwnd, IDC_BAIXO, aux, 2);
 			configuracoes.BAIXO = aux[0];
-			GetWindowText(GetDlgItem(hwnd, IDC_ESQUERDA), aux, 1);
+			aux[1] = TEXT('\0');
+
+			GetDlgItemText(hwnd, IDC_DIREITA, aux, 2);
 			configuracoes.DIREITA = aux[0];
+			aux[1] = TEXT('\0');
+
+			GetDlgItemText(hwnd, IDC_tiro, aux, 2);
+			configuracoes.TIRO = aux[0];
+			aux[1] = TEXT('\0');
 
 			//PowerUps
-			GetWindowText(GetDlgItem(hwnd, IDC_ESQUERDA), aux, 1);
+			GetDlgItemText(hwnd, IDC_POWERUP1, aux, 2);
 			configuracoes.POWERUP1 = aux[0];
-			GetWindowText(GetDlgItem(hwnd, IDC_ESQUERDA), aux, 1);
+			aux[1] = TEXT('\0');
+
+			GetDlgItemText(hwnd, IDC_POWERUP2, aux, 2);
 			configuracoes.POWERUP2 = aux[0];
-			GetWindowText(GetDlgItem(hwnd, IDC_ESQUERDA), aux, 1);
+			aux[1] = TEXT('\0');
+
+			GetDlgItemText(hwnd, IDC_POWERUP3, aux, 2);
 			configuracoes.POWERUP3 = aux[0];
-			//NESTA ALTURA JA TENHO AS CONFIGURAÇÕES DENTRO DA ESTRUTURA configuracoes
+			aux[1] = TEXT('\0');
+			
 			
 
 			//TODO prencher pacote aqui e fazer com que a janela nao feche
 			//até que o servidor responda que o login esteja correto e o jogo pronto
 			
 			//prenche pacote ;-)
-			PacoteLogin.tipo = user_login;
-			wcscpy_s(PacoteLogin.dataPacket.nome, configuracoes.nome);
-			
-			Envia(PacoteLogin);
-			
-			//EndDialog(hwnd, 0); //isto é para fechar a janela 
-			//PostQuitMessage(0); //isto é para fechar a janela
+			PacoteEnvio.tipo = user_login;
+			wcscpy_s(PacoteEnvio.dataPacket.nome, configuracoes.nome);
+			SetEvent(Cliente.EventEnvia);
+
+			//Envia(PacoteLogin); ///  com reservas
+
+			EndDialog(hwnd, 0); //isto é para fechar a janela 
+			//PostQuitMessage(0); //isto é para fechar a janxxxx -> o ciclo de mensagens
+			ShowWindow(hwndPrincipal, SW_SHOWDEFAULT);
+			UpdateWindow(hwndPrincipal);
+
 			break;
 		}
-		
+		break;
 		case IDCANCEL:
 		
 			exit(0);
@@ -249,20 +281,70 @@ LRESULT CALLBACK Configuracoes(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lPara
 
 LRESULT CALLBACK WindowProc(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
 {
-	switch (uMsg)
-	{
+
+	/////////////TESTE
+	HDC hDC, MemDCExercising;
+	PAINTSTRUCT Ps;
+	//HBITMAP bmpExercising;
+
+	////////////
+
+	switch (uMsg)	{
+
 	case WM_DESTROY:
 		PostQuitMessage(0);
 		return 0;
 
-	case WM_PAINT:
-	{
-		PAINTSTRUCT ps;
-		HDC hdc = BeginPaint(hwnd, &ps);
+	case WM_PAINT:	{
+		hDC = BeginPaint(hwnd, &Ps);
 
-		FillRect(hdc, &ps.rcPaint, (HBRUSH)(COLOR_WINDOW + 1));
+		// Load the bitmap from the resource
+		//ja carreguei antes
+		//bmpExercising = (HBITMAP)LoadImage(NULL, L"../../Imagens/imagemInicial.bmp", IMAGE_BITMAP, 800, 800, LR_LOADFROMFILE);
+		
+		// Create a memory device compatible with the above DC variable
+		//MemDCExercising = CreateCompatibleDC(hDC);
+		
+		// Select the new bitmap
+		//SelectObject(MemDCExercising, bmpExercising);
 
-		EndPaint(hwnd, &ps);
+		// Copy the bits from the memory DC into the current dc
+		//BitBlt(hDC, 0, 0, 800, 800, MemDCExercising, 0, 0, SRCCOPY);
+
+		// Restore the old bitmap
+		//DeleteDC(MemDCExercising);
+		//DeleteObject(bmpExercising);
+		EndPaint(hwnd, &Ps);
+		break;
+	}
+	case WM_CHAR: {
+
+		if ((TCHAR)wParam == configuracoes.CIMA) {
+			PacoteEnvio.tipo = user_login;
+			wcscpy_s(PacoteEnvio.dataPacket.nome, TEXT("teste"));
+			SetEvent(Cliente.EventEnvia);
+		}
+		if ((TCHAR)wParam == configuracoes.BAIXO) {
+			exit(0);
+		}
+		if ((TCHAR)wParam == configuracoes.ESQUERDA) {
+			exit(0);
+		}
+		if ((TCHAR)wParam == configuracoes.DIREITA) {
+			exit(0);
+		}
+		if ((TCHAR)wParam == configuracoes.TIRO) {
+			exit(0);
+		}
+		if ((TCHAR)wParam == configuracoes.POWERUP1) {
+			exit(0);
+		}
+		if ((TCHAR)wParam == configuracoes.POWERUP2) {
+			exit(0);
+		}
+		if ((TCHAR)wParam == configuracoes.POWERUP3) {
+			exit(0);
+		}
 		break;
 	}
 
@@ -273,14 +355,28 @@ LRESULT CALLBACK WindowProc(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
 	return 0;
 }
 
-int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR LpCmdLine, int ncmdshow)
+int WINAPI _tWinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPTSTR LpCmdLine, int ncmdshow)
 {
 
-#ifdef _UNICODE
-#define _tWinMain wWinMain
-#else
-#define _tWinMain WinMain
-#endif
+	tabAux[0].tipo = NaveBasica;
+	tabAux[0].x = 0;
+	tabAux[0].y = 0;
+
+	tabAux[1].tipo = tiroJogador;
+	tabAux[1].x = 10;
+	tabAux[1].y = 4;
+
+	tabAux[4].tipo = NaveJogador;
+	tabAux[4].x = 4;
+	tabAux[4].y = 12;
+
+	tabAux[2].tipo = NavesEsquiva;
+	tabAux[2].x = 12;
+	tabAux[2].y = 23;
+
+	tabAux[3].tipo = NaveBasica;
+	tabAux[3].x = 2;
+	tabAux[3].y = 0;
 
 	IniciaCliente(); // lança a thread que escuta no named pipe
 	
@@ -290,36 +386,32 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR LpCmdLine
 	WNDCLASS wc = {};
 
 	///////////////////////////////////////Configuraçoes//////////////////////////////////////////////////////////////
-	HWND hDlg = CreateDialogParam(hInstance, MAKEINTRESOURCE(IDD_DIALOG1), 0, Configuracoes, 0);
+	HWND hDlg = CreateDialog(hInstance, MAKEINTRESOURCE(IDD_DIALOG1), 0, Configuracoes);
 	ShowWindow(hDlg, ncmdshow);
-	
+
 	MSG msg = {};
-	
-	while (GetMessage(&msg, NULL, 0, 0))
-	{
-		TranslateMessage(&msg);
-		DispatchMessage(&msg);
-	}
 	
 	////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 	
+	carregaBitMaps();
+	///////////////////////////////////////////////////////////////////////////////////////////////////////////////
 	wc.lpfnWndProc = WindowProc;
 	wc.hInstance = hInstance;
 	wc.lpszClassName = CLASS_NAME;
-	wc.hbrBackground = (HBRUSH)(COLOR_WINDOW + 1);
+	wc.hbrBackground = (HBRUSH)GetStockObject(BLACK_BRUSH);
 	wc.hIcon = (HICON)LoadImage(NULL, L"../../Imagens/Logot.ico", IMAGE_ICON, 32, 32, LR_LOADFROMFILE);
 	wc.hCursor =(HCURSOR)LoadImage(NULL, L"../../Imagens/Cursor.cur", IMAGE_CURSOR, 32, 32, LR_LOADFROMFILE);
 	RegisterClass(&wc);
 	
 	// Create the window.
-	HWND hwnd = CreateWindowEx(
+	hwndPrincipal = CreateWindowEx(
 		0,                              // Optional window styles.
 		CLASS_NAME,                     // Window class
 		L" -> Space Invader <- ",      // Window text
 		WS_OVERLAPPEDWINDOW,            // Window style
 
 										// Size and position
-		CW_USEDEFAULT, CW_USEDEFAULT, CW_USEDEFAULT, CW_USEDEFAULT,
+		0, 0, 800, 800,
 
 		NULL,       // Parent window    
 		NULL,       // Menu
@@ -327,26 +419,19 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR LpCmdLine
 		NULL        // Additional application data
 	);
 
-	if (hwnd == NULL)
+	if (hwndPrincipal == NULL)
 	{
 		return 0;
 	}
-
-	ShowWindow(hwnd, ncmdshow);
-	UpdateWindow(hwnd);
 	
 	
-	// para estar sempre em loop
-	msg = {};
 	while (GetMessage(&msg, NULL, 0, 0))
 	{
 		TranslateMessage(&msg);
 		DispatchMessage(&msg);
 	}
 	
-	//espera pela thread que le
-	WaitForSingleObject(Cliente.ht, INFINITE);
-	
+
 	return 0;
 }
 

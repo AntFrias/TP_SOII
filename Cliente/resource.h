@@ -13,6 +13,8 @@
 #define IDC_POWERUP2                    1014
 #define IDC_EDIT11                      1015
 #define IDC_POWERUP3                    1015
+#define IDC_EDIT1                       1017
+#define IDC_tiro                        1017
 
 // Next default values for new objects
 // 
@@ -20,7 +22,7 @@
 #ifndef APSTUDIO_READONLY_SYMBOLS
 #define _APS_NEXT_RESOURCE_VALUE        103
 #define _APS_NEXT_COMMAND_VALUE         40001
-#define _APS_NEXT_CONTROL_VALUE         1017
+#define _APS_NEXT_CONTROL_VALUE         1019
 #define _APS_NEXT_SYMED_VALUE           101
 #endif
 #endif
