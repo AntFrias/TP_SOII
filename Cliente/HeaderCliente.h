@@ -48,9 +48,23 @@ enum EnumDados {
 //Tamanho do array de blocos ocupados
 #define Blocoscupados 100
 
+typedef struct img {
+
+	HBITMAP Wallpaper;
+	HBITMAP Basica;
+	HBITMAP Bomba;
+	HBITMAP Defensora1;
+	HBITMAP Defensora2;
+	HBITMAP Esquiva;
+	HBITMAP Tiro;
+	HBITMAP Boss;
+
+}bipm;
+
 typedef struct configs {
 
 	TCHAR nome[10];
+	TCHAR TIRO;
 	TCHAR CIMA, BAIXO, ESQUERDA, DIREITA;
 	TCHAR POWERUP1, POWERUP2, POWERUP3;
 
@@ -62,9 +76,10 @@ typedef struct estrCli {
 	int cor;
 	int alive;
 	TCHAR nome[50];
-	HANDLE ht;
-	DWORD IDth;
-	HANDLE pipe;
+	HANDLE htEscuta,htEnvia;
+	DWORD IDEscuta, IDEnvia;
+	HANDLE pipe, EventEnvia;
+
 
 }EstruturaCli;
 
@@ -74,6 +89,26 @@ typedef struct BlocoMemPartilhada {
 	int Cor;
 
 }Bloco;
+// informaçao acerca dos objetos do Mapa
+enum OjectosTabuleiro {
+
+	bloco_vazio = 0,
+	NaveBasica = 1,
+	NavesEsquiva,
+	NaveBoss,
+	NaveJogador,
+	tiroJogador,
+	bombaInimiga,
+
+	PowerUpEscudo,
+	PowerUpGelo,
+	PowerUpBateria,
+	PowerUpMais,
+	PowerUpVida,
+	PowerUpAlcool,
+	PowerUpNuclear
+
+};
 typedef struct alteracaoDoTab {
 
 	int x, y;
