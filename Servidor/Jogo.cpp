@@ -240,7 +240,22 @@ void ColocaNavesTab() {
 
 }
 //Funcao que irá iniciar o jogo e as respetivas movimentacoes quando o jogador decidir jogar
-void IniciarJogo() {
+void IniciarJogo(int *x, int *y) {
 
+	int posX = 0, posY = dimMapa_y - 2, x_min = 0, x_max = dimMapa_x - 1;
+	
+	do{
+	
+		do {
+
+			posX = rand() % (x_max + 1 - x_min) + x_min;
+
+		} while (posX < 0 && posX < dimMapa_x);
+
+
+	}while (VerificaPosicaoPreencheTAb(&posX, &posY) == 0);
+
+	*x = posX;
+	*y = posY;
 }
 

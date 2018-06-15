@@ -352,11 +352,18 @@ int IniciaNavesInimigas() {
 	return 0;
 }
 //funcao que irá iniciar o jogo apos um jogador seleccionar a opçao jogar
-void IniciaAmbienteJogo(int njogadores) {
+void IniciaAmbienteJogo(int pos) {
 
-	if (njogadores == IniciaJogoIndividual)
-		IniciarJogo();
+	int *x = &ArrayJogadores[pos].posicao[0], *y = &ArrayJogadores[pos].posicao[1];
 
+
+	if (dadosServidor.estadoJogo == 0) {
+		dadosServidor.estadoJogo = 1;
+		///POR AQUI O EVENTO PARA A MOVIMENTAÇÃO DAS NAVES
+		WaitForSingleObject(dadosServidor.mutexTabuleiro,INFINITE);
+		IniciarJogo(x,y);
+		ReleaseMutex(dadosServidor.mutexTabuleiro);
+	}
 }
 //func que lista os clientes
 void mostraClinoArray() {
@@ -481,16 +488,10 @@ void TrataPacotesGwtoServ() {
 
 				break;
 
-			case IniciaJogoIndividual:
-
-				IniciaAmbienteJogo(IniciaJogoIndividual);
-				
-				break;
-
 			case IniciaJogoMultiplayer:
-
-				IniciaAmbienteJogo(IniciaJogoMultiplayer);
-
+				PosJogador = VerificaPosicaoJogador(aux);
+				IniciaAmbienteJogo(PosJogador);
+				
 				break;
 
 			case AtualizacaoJogo:
@@ -546,6 +547,7 @@ void AtualizaInformacaoInicialJogo() {
 	ArrayJogadores = NULL;
 	dadosServidor.NumMaxClientes = nMaxJogadores; //nMaxPlay
 	dadosServidor.ServidorUp = 1;
+	dadosServidor.estadoJogo = 0;
 	dadosServidor.NumCliNoArray = 0;
 	
 	dadosServidor.initJogo.MaxNavesBasicas = ninimigas1;
