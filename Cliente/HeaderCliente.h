@@ -76,9 +76,9 @@ typedef struct estrCli {
 	int cor;
 	int alive;
 	TCHAR nome[50];
-	HANDLE ht;
-	DWORD IDth;
-	HANDLE pipe, EventJogar;
+	HANDLE htEscuta,htEnvia;
+	DWORD IDEscuta, IDEnvia;
+	HANDLE pipe, EventEnvia;
 
 
 }EstruturaCli;
