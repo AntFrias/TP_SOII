@@ -60,7 +60,7 @@ int VerificaPosicaoNaveEsquiva(int *x, int *y, int orientacao) {
 		break;
 
 	case baixo:
-		if (*x + 1 < dimMapa_x && *y + 1 < dimMapa_y) {
+		if (*x + 1 < dimMapa_x && *y + 1 < dimMapa_y - 4) {
 
 			if (blocoServ[*x][*y + 1].tipo == bloco_vazio && blocoServ[*x + 1][*y + 1].tipo == bloco_vazio) {
 
@@ -75,7 +75,7 @@ int VerificaPosicaoNaveEsquiva(int *x, int *y, int orientacao) {
 		break;
 
 	case esquerda:
-		if (*x - 1 >= 0 && *y + 1 < dimMapa_y) {
+		if (*x - 1 >= 0 && *y + 1 < dimMapa_y - 4) {
 
 			if (blocoServ[*x - 1][*y].tipo == bloco_vazio && blocoServ[*x - 1][*y + 1].tipo == bloco_vazio) {
 
@@ -91,7 +91,7 @@ int VerificaPosicaoNaveEsquiva(int *x, int *y, int orientacao) {
 		break;
 
 	case direita:
-		if (*x + 1 < dimMapa_x && *y + 1 < dimMapa_y) {
+		if (*x + 1 < dimMapa_x && *y + 1 < dimMapa_y - 4) {
 
 			if (blocoServ[*x + 1][*y].tipo == bloco_vazio && blocoServ[*x + 1][*y + 1].tipo == bloco_vazio) {
 
@@ -107,6 +107,7 @@ int VerificaPosicaoNaveEsquiva(int *x, int *y, int orientacao) {
 	}
 	return 0;
 }
+// verifica posicao da nave jogador dentro da area onde se pode movimentar
 int VerificaPosNaveJogador(int *x, int *y, int orientacao) {
 
 	switch (orientacao)

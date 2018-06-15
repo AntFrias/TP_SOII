@@ -23,59 +23,87 @@ void mostraNaveBasica() {
 	}
 }
 // vai fazer a gestao de todas as naves inimigas
+void CarregaPosObjeto(int PosObjeto, int tipoObjeto, int *x, int *y) {
+
+	switch (tipoObjeto) {
+
+		case NaveJogador:
+			*x = ArrayJogadores[PosObjeto].posicao[0];
+			*y = ArrayJogadores[PosObjeto].posicao[1];
+			break;
+		case NaveEsquiva:
+			*x = objectosNoMapa.NaveEnemyTipo2[PosObjeto].x;
+			*y = objectosNoMapa.NaveEnemyTipo2[PosObjeto].y;
+			break;
+		case NaveBasica:
+			*x = objectosNoMapa.NaveEnemyTipo1[PosObjeto].x;
+			*y = objectosNoMapa.NaveEnemyTipo1[PosObjeto].y;
+			break;
+		case NaveBoss:
+			*x = objectosNoMapa.NaveEnemyTipo3[PosObjeto].x;
+			*y = objectosNoMapa.NaveEnemyTipo3[PosObjeto].y;
+			break;
+		case LancaTiro:
+			break;
+	}
+}
+// Vai verificar os comandos digitados pelas naves todas do jogo
 void verificaComandosJogo(int comando, int PosObjeto, int tipoObjeto) {
 
+	int x, y; 
+
+	CarregaPosObjeto(PosObjeto, tipoObjeto, &x, &y);
+	
 	switch (comando)
 	{
 	case cima:
 
-		if (VerificaPosicaoJogo(&ArrayJogadores[PosObjeto].posicao[0], &ArrayJogadores[PosObjeto].posicao[1], tipoObjeto, cima) == 1) {
+		if (VerificaPosicaoJogo(&x, &y, tipoObjeto, cima) == 1) {
 
-			LimpaPosTabuleiro(ArrayJogadores[PosObjeto].posicao[0], ArrayJogadores[PosObjeto].posicao[1], bloco_vazio, LarguraNaveDefault);
+			LimpaPosTabuleiro( x, y, bloco_vazio, LarguraNaveDefault);
 
-			ArrayJogadores[PosObjeto].posicao[1] -= 1;
+			y -= 1;
 
-			preencheBlocosServidor(ArrayJogadores[PosObjeto].posicao[0], ArrayJogadores[PosObjeto].posicao[1], PosObjeto, tipoObjeto, LarguraNaveDefault);
+			preencheBlocosServidor(x, y, PosObjeto, tipoObjeto, LarguraNaveDefault);
 
 		}
 		break;
 
-
 	case baixo:
 
-		if (VerificaPosicaoJogo(&ArrayJogadores[PosObjeto].posicao[0], &ArrayJogadores[PosObjeto].posicao[1], tipoObjeto, baixo) == 1) {
+		if (VerificaPosicaoJogo(&x, &y, tipoObjeto, baixo) == 1) {
 
-			LimpaPosTabuleiro(ArrayJogadores[PosObjeto].posicao[0], ArrayJogadores[PosObjeto].posicao[1], bloco_vazio, LarguraNaveDefault);
+			LimpaPosTabuleiro(x, y, bloco_vazio, LarguraNaveDefault);
 
-			ArrayJogadores[PosObjeto].posicao[1] += 1;
+			y += 1;
 
-			preencheBlocosServidor(ArrayJogadores[PosObjeto].posicao[0], ArrayJogadores[PosObjeto].posicao[1], PosObjeto, tipoObjeto, LarguraNaveDefault);
+			preencheBlocosServidor(x, y, PosObjeto, tipoObjeto, LarguraNaveDefault);
 
 		}
 		break;
 
 	case esquerda:
 
-		if (VerificaPosicaoJogo(&ArrayJogadores[PosObjeto].posicao[0], &ArrayJogadores[PosObjeto].posicao[1], tipoObjeto, esquerda) == 1) {
+		if (VerificaPosicaoJogo(&x, &y, tipoObjeto, esquerda) == 1) {
 
-			LimpaPosTabuleiro(ArrayJogadores[PosObjeto].posicao[0], ArrayJogadores[PosObjeto].posicao[1], bloco_vazio, LarguraNaveDefault);
+			LimpaPosTabuleiro(x, y, bloco_vazio, LarguraNaveDefault);
 
-			ArrayJogadores[PosObjeto].posicao[0] -= 1;
+			x -= 1;
 
-			preencheBlocosServidor(ArrayJogadores[PosObjeto].posicao[0], ArrayJogadores[PosObjeto].posicao[1], PosObjeto, tipoObjeto, LarguraNaveDefault);
+			preencheBlocosServidor(x, y, PosObjeto, tipoObjeto, LarguraNaveDefault);
 
 		}
 		break;
 
 	case direita:
 
-		if (VerificaPosicaoJogo(&ArrayJogadores[PosObjeto].posicao[0], &ArrayJogadores[PosObjeto].posicao[1], tipoObjeto, esquerda) == 1) {
+		if (VerificaPosicaoJogo(&x, &y, tipoObjeto, esquerda) == 1) {
 
-			LimpaPosTabuleiro(ArrayJogadores[PosObjeto].posicao[0], ArrayJogadores[PosObjeto].posicao[1], bloco_vazio, LarguraNaveDefault);
+			LimpaPosTabuleiro(x, y, bloco_vazio, LarguraNaveDefault);
 
-			ArrayJogadores[PosObjeto].posicao[0] += 1;
+			x += 1;
 
-			preencheBlocosServidor(ArrayJogadores[PosObjeto].posicao[0], ArrayJogadores[PosObjeto].posicao[1], PosObjeto, tipoObjeto, LarguraNaveDefault);
+			preencheBlocosServidor(x, y, PosObjeto, tipoObjeto, LarguraNaveDefault);
 
 		}
 		break;
@@ -141,10 +169,8 @@ int GestorNaveEsquiva(LPVOID aux) {
 				ReleaseMutex(dadosServidor.mutexTabuleiro);
 			}
 		}
-
-
-
 	} while (nNaves > 0);
+
 	return 0;
 }
 // vai fazer a gestao de todas as naves inimigas
@@ -154,15 +180,18 @@ int GestorNaveBasica(LPVOID aux) {
 
 	int nNaves = dadosServidor.initJogo.MaxNavesBasicas;
 
-	int coord_x, coord_y;
+	int opcao = esquerda;
 
 	do {
 		WaitForSingleObject(dadosServidor.EventoIniciaJogo, INFINITE);
 		
-		//algortimo movimento da nave
+		for (int i = 0; i < nNaves; i++) {
 
+			if (naveInimigaBasica[i].vida > 0) {
 
-
+				_tprintf(TEXT("por Implementar"));
+			}
+		}
 	} while (nNaves > 0);
 
 	return 0;
