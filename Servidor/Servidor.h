@@ -13,6 +13,8 @@
 #include <shellapi.h>
 #include <winbase.h>
 
+
+
 //max powerUp
 #define maxClientePowerUp 3
 
@@ -23,18 +25,11 @@
 #define velociadadeNaveEsquiva 10 
 
 //numero de naves inimigas apenas para testes
-#define ninimigas1 50
-#define ninimigas2 10
+#define ninimigas1 34
+#define ninimigas2 50
 
 //Tiros
-enum EnumTiros {
-	
-	tiroJogador= 1,
-	tiroNaveEnemy,
-	tiroNuclear,
-	tiroBoss
 
-};
 
 // //Estrutura Tiro
 typedef struct tiroo {
@@ -44,6 +39,15 @@ typedef struct tiroo {
 	int posJogador; // no array para identificar de quem é o tiro
 
 }tiro;
+
+typedef struct BlocoTabServidor {
+
+	int tipo;
+	int id;
+	int posArray;
+	//pensar na cor
+
+}BlocoServ;
 
 // Estrutura de suporte ás naves
 typedef struct naves {
@@ -55,27 +59,14 @@ typedef struct naves {
 	int velocidadeBase;
 }Nave;
 
-// extrutura Configuraçao Inicial do Jogo
-typedef struct ConfiguracaoInicialJogo {				
-	int MaxJogadores;
-	int MaxNavesInimigas1;
-	int MaxNavesInimigas2;
-	int MaxNavesInimigas3;
-	int taxaDeDiparoBasica;
-
-	int MaxPowerups;
-	int DuracaoPowerup;
-	int VidasJogador;
-}confInitJogo;
-
-typedef struct DadosDoGame {
+typedef struct DadosJogo {
 
 	Nave *NaveEnemyTipo1, *NaveEnemyTipo2, *NaveEnemyTipo3;
 
 }DadosdoJogo;
 
 // Extrutura Jogador
-typedef struct Jogador_Info {							
+typedef struct Jogador_Info {
 
 	TCHAR nome[10];
 	int IdJogador;
@@ -87,46 +78,64 @@ typedef struct Jogador_Info {
 	//PowerUp Powerup;
 }jogadorinfo;
 
+// extrutura Configuraçao Inicial do Jogo
+typedef struct ConfiguracaoInicialJogo {
+	int MaxJogadores;
+	int MaxNavesBasicas;
+	int MaxNavesEsquivas;
+	int MaxNaveBoss;
+	int taxaDisparoNaveBasica;
+
+	int MaxPowerups;
+	int DuracaoPowerup;
+	int VidasJogador;
+}confInitJogo;
+
 //extrutura cria registry to put option server on = 1
-typedef struct RegistryServer {							
+typedef struct RegistryServer {
 
 	HKEY Chave;
 	DWORD statServer, ServerUp;
-	
+
 }registryServer;
 
+// extrutura TOP10
+typedef struct Top10 {
+	TCHAR name[10];
+	int	pontuacao;
+}top10;
+
 // Extrutura com os dados do servidor;
-typedef struct Gestao_servidor{							
+typedef struct Gestao_servidor {
 
 	int NumMaxClientes;
 	int NumCliNoArray;
 	BOOL inicioJogo;
 	BOOL ServidorUp;
 	confInitJogo initJogo;
-	registryServer ServerUp; // ver se isto vai ser necessario
+	//registryServer ServerUp; // ver se isto vai ser necessario
 	HANDLE hThreadSerToGw;
 	DWORD IdThreadSertoGw;
 	HANDLE mutexTabuleiro;
+	HANDLE EventoIniciaJogo;
 
 }dataServer;
 
-typedef struct BlocoTabServidor {
+//prototipos das funçoes relativas ás Naves no ficheiro Naves.cpp
+void colocaNavesEsquiva();
+void colocaNavesBasicas();
 
-	int tipo;
-	int id;
-	int posArray;
-	//pensar na cor
+//prototipos de funçoes relativas ao Jogo no ficheiro jogo.cpp
+void limpaTabuleiro();
+void mostraTabuleiro();
+int VerificaPosicaoPreencheTAb(int *x, int *y);
+int VerificaPosicaoJogo(int *x, int *y, int tipo, int orientacao);
+void LimpaPosTabuleiro(int x, int y, int tipo, int Largura);
+void preencheBlocosServidor(int x, int y, int pos, int tipo, int Largura);	 // esta funcao serve para preencher os blocos do tabuleiro
+void ColocaNavesTab();
+void IniciarJogo();	// funcao que vai inicar o jogo propriamente dito quando os jogadores decidirem começar a jogar
 
-}BlocoServ;
-
-// extrutura TOP10
-typedef struct Top10 {								
-	TCHAR name[10];
-	int	pontuacao;
-}top10;
-
-
-
+//
 
 
 
