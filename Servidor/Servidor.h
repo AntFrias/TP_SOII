@@ -109,6 +109,7 @@ typedef struct Top10 {
 typedef struct Gestao_servidor {
 
 	int NumMaxClientes;
+	int estadoJogo;
 	int NumCliNoArray;
 	BOOL inicioJogo;
 	BOOL ServidorUp;
@@ -131,9 +132,9 @@ void mostraTabuleiro();
 int VerificaPosicaoPreencheTAb(int *x, int *y);
 int VerificaPosicaoJogo(int *x, int *y, int tipo, int orientacao);
 void LimpaPosTabuleiro(int x, int y, int tipo, int Largura);
-void preencheBlocosServidor(int x, int y, int pos, int tipo, int Largura);	 // esta funcao serve para preencher os blocos do tabuleiro
+void preencheBlocosServidor(int *x, int *y, int pos, int tipo, int Largura);	 // esta funcao serve para preencher os blocos do tabuleiro
 void ColocaNavesTab();
-void IniciarJogo();	// funcao que vai inicar o jogo propriamente dito quando os jogadores decidirem começar a jogar
+void IniciarJogo(int *x,int *y,int pos);	// funcao que vai inicar o jogo propriamente dito quando os jogadores decidirem começar a jogar
 
 //
 

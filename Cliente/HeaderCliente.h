@@ -12,31 +12,27 @@
 #include <shellapi.h>
 #include <winbase.h>
 
-enum MovimentoDaNave { //ver no lado do servidor se esta igual
+enum EnumDados {
 
-	cima = 1,
+	user_login = 1,				//Pedido de login pelo Cliente
+	user_login_sucesso,			//inicio das respostas do login
+	user_Login_falhou,
+	user_login_Limite_clientes,
+
+	IniciaJogoMultiplayer = 10,
+	JogoIniciado,
+
+	AtualizacaoJogo = 20,			// resposta ao pedido de inicio de jogo
+	cima,
 	baixo,
 	esquerda,
 	direita,
-	espaco,
-	z,      //ativa powerUp1
-	x,		//ativa powerUp2
-	c,		//ativa powerUp3
-};
-enum EnumDados {
-
-	user_login = 1,
-	user_login_sucesso,
-	user_Login_falhou,
-	user_login_Limite_clientes,
-	max_players_atingido,
-
-	IniciaJogoIndividual = 10,
-	IniciaJogoMultiplayer,
-	AtualizacaoJogo
+	LancaTiro,			// manda tiro 
+	PowerUp1,       //ativa powerUp1
+	PowerUp2,		//ativa powerUp2
+	PowerUp3		//ativa powerUp3
 
 };
-
 
 //nome do Pipe de comunicaçao Servidor <-> Cliente
 #define PIPE_NAME TEXT("\\\\.\\pipe\\teste")
@@ -127,8 +123,7 @@ typedef struct Packet {
 	union datPacket
 	{
 		TCHAR nome[10];
-		int movimento;
-		int tiro;
+		int comando;
 		//PowerUpp PowerUp;
 		alteracaoTab arrayTab[Blocoscupados];
 
