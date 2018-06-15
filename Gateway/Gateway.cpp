@@ -215,7 +215,7 @@ void LePacotesBufferServtoGw() {
 		Resposta = LerBufferServtoGw();
 		// se a opçao do jogador for jogar individual irá lançar a thread que irá enviar lhe o jogo atualizado;
 		//falta por a versao de iniciar jogo Multiplayer aqui
-		if (Resposta->tipo == IniciaJogoIndividual ) {
+		if (Resposta->tipo == IniciaJogoMultiplayer ) {
 
 			hThredEnviaTabuleiro = CreateThread(NULL, 0, (LPTHREAD_START_ROUTINE)iniciaThreadJogo, (LPVOID)NULL, 0, &idThreadEnviaTabuleiro);
 

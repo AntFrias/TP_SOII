@@ -18,7 +18,9 @@ void TrataPacote(packet pacoteTratar) {
 			case user_login_sucesso: { // Se for bem logado recebe a mensagem que vai começar pelo jogo meter depois no servidor -> user_login_sucesso e aqui tb
 
 				MessageBox(NULL, TEXT("Login efetuado com sucesso!\nEspere que o Jogo comece "), TEXT("AGUARDE"), MB_OK | MB_ICONINFORMATION);
-				
+				MessageBox(NULL, TEXT("Deseja iniciar o Jogo?"), TEXT("AGUARDE"), MB_OK | MB_ICONINFORMATION);
+				PacoteEnvio.tipo = IniciaJogoMultiplayer;
+				SetEvent(Cliente.EventEnvia);
 				break;
 			}
 			
@@ -29,7 +31,7 @@ void TrataPacote(packet pacoteTratar) {
 				break;
 			}
 
-			case max_players_atingido: {
+			case user_login_Limite_clientes: {
 
 				MessageBox(NULL, TEXT("O servidor está cheio.\nTente mais tarde"), TEXT("ERRO"), MB_OK | MB_ICONERROR);
 				//exit(0);
@@ -320,9 +322,10 @@ LRESULT CALLBACK WindowProc(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
 	case WM_CHAR: {
 
 		if ((TCHAR)wParam == configuracoes.CIMA) {
-			PacoteEnvio.tipo = user_login;
-			wcscpy_s(PacoteEnvio.dataPacket.nome, TEXT("teste"));
+			PacoteEnvio.tipo = AtualizacaoJogo;
+			PacoteEnvio.dataPacket.comando = cima;
 			SetEvent(Cliente.EventEnvia);
+
 		}
 		if ((TCHAR)wParam == configuracoes.BAIXO) {
 			exit(0);
