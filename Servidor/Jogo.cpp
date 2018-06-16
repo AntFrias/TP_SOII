@@ -113,8 +113,8 @@ int VerificaPosNaveJogador(int *x, int *y, int orientacao) {
 	switch (orientacao)
 	{
 	case cima:
-		if (*x + 1 < dimMapa_x && *y - 1 >= dimMapa_y - 4) {
-
+		if (*y < dimMapa_y  && *y - 1 >= dimMapa_y - RegiaoNaveJogador) {
+			
 			if (blocoServ[*x][*y - 1].tipo == bloco_vazio && blocoServ[*x + 1][*y - 1].tipo == bloco_vazio) {
 
 				return 1;
@@ -128,7 +128,7 @@ int VerificaPosNaveJogador(int *x, int *y, int orientacao) {
 		break;
 
 	case baixo:
-		if (*x + 1 < dimMapa_x && *y + 1 < dimMapa_y) {
+		if (*y + 1 < dimMapa_y - 1) {
 
 			if (blocoServ[*x][*y + 1].tipo == bloco_vazio && blocoServ[*x + 1][*y + 1].tipo == bloco_vazio) {
 
@@ -143,7 +143,7 @@ int VerificaPosNaveJogador(int *x, int *y, int orientacao) {
 		break;
 
 	case esquerda:
-		if (*x - 1 >= 0 && *y + 1 < dimMapa_y) {
+		if (*x - 1 >= 0 && *y + 1 < dimMapa_y ) {
 
 			if (blocoServ[*x - 1][*y].tipo == bloco_vazio && blocoServ[*x - 1][*y + 1].tipo == bloco_vazio) {
 
@@ -214,7 +214,7 @@ void LimpaPosTabuleiro(int x, int y, int tipo, int Largura) {
 }
 // preenche Bocos no tabuleiro do servidor e no bufferTabuleiro
 void preencheBlocosServidor(int *x, int *y, int pos, int tipo, int Largura) {
-	_tprintf(TEXT("\ncheguei aqui com a posX %d e poxY %d com o tipo %d\n"),*x,*y,tipo);
+
 	for (int i = *x; i < *x + Largura; i++) {
 
 		for (int j = *y; j < *y + Largura; j++) {
@@ -257,7 +257,10 @@ void IniciarJogo(int *x, int *y,int pos) {
 
 	*x = posX;
 	*y = posY;
-	preencheBlocosServidor(x, y, pos, NaveJogador, LarguraNaveDefault);
+
+	preencheBlocosServidor(y, x, pos, NaveJogador, LarguraNaveDefault);
+	_tprintf(TEXT("\n\n\n"));
+	mostraTabuleiro();
 	
 
 }
