@@ -9,7 +9,14 @@ packet PacoteEnvio;
 
 
 HWND hwndPrincipal;  // janela principal
+void LimpaPacotedEnvio() {
 
+	PacoteEnvio.Cliente_id = 0;
+	PacoteEnvio.numObjetos = 0;
+	PacoteEnvio.pontuacao = 0;
+	PacoteEnvio.tipo = 0;
+
+}
 void TrataPacote(packet pacoteTratar) {
 
 
@@ -322,31 +329,53 @@ LRESULT CALLBACK WindowProc(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
 	case WM_CHAR: {
 
 		if ((TCHAR)wParam == configuracoes.CIMA) {
+			LimpaPacotedEnvio();
 			PacoteEnvio.tipo = AtualizacaoJogo;
 			PacoteEnvio.dataPacket.comando = cima;
 			SetEvent(Cliente.EventEnvia);
 
 		}
 		if ((TCHAR)wParam == configuracoes.BAIXO) {
-			exit(0);
+			LimpaPacotedEnvio();
+			PacoteEnvio.tipo = AtualizacaoJogo;
+			PacoteEnvio.dataPacket.comando = baixo;
+			SetEvent(Cliente.EventEnvia);
 		}
 		if ((TCHAR)wParam == configuracoes.ESQUERDA) {
-			exit(0);
+			LimpaPacotedEnvio();
+			PacoteEnvio.tipo = AtualizacaoJogo;
+			PacoteEnvio.dataPacket.comando = esquerda;
+			SetEvent(Cliente.EventEnvia);
 		}
 		if ((TCHAR)wParam == configuracoes.DIREITA) {
-			exit(0);
+			LimpaPacotedEnvio();
+			PacoteEnvio.tipo = AtualizacaoJogo;
+			PacoteEnvio.dataPacket.comando = direita;
+			SetEvent(Cliente.EventEnvia);
 		}
 		if ((TCHAR)wParam == configuracoes.TIRO) {
-			exit(0);
+			LimpaPacotedEnvio();
+			PacoteEnvio.tipo = AtualizacaoJogo;
+			PacoteEnvio.dataPacket.comando = LancaTiro;
+			SetEvent(Cliente.EventEnvia);
 		}
 		if ((TCHAR)wParam == configuracoes.POWERUP1) {
-			exit(0);
+			LimpaPacotedEnvio();
+			PacoteEnvio.tipo = AtualizacaoJogo;
+			PacoteEnvio.dataPacket.comando = PowerUp1;
+			SetEvent(Cliente.EventEnvia);
 		}
 		if ((TCHAR)wParam == configuracoes.POWERUP2) {
-			exit(0);
+			LimpaPacotedEnvio();
+			PacoteEnvio.tipo = AtualizacaoJogo;
+			PacoteEnvio.dataPacket.comando = PowerUp2;
+			SetEvent(Cliente.EventEnvia);
 		}
 		if ((TCHAR)wParam == configuracoes.POWERUP3) {
-			exit(0);
+			LimpaPacotedEnvio();
+			PacoteEnvio.tipo = AtualizacaoJogo;
+			PacoteEnvio.dataPacket.comando = PowerUp3;
+			SetEvent(Cliente.EventEnvia);
 		}
 		break;
 	}
