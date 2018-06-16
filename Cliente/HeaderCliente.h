@@ -37,9 +37,7 @@ enum EnumDados {
 //nome do Pipe de comunicaçao Servidor <-> Cliente
 #define PIPE_NAME TEXT("\\\\.\\pipe\\teste")
 
-//define as dimensoes do mapa onde ocorrerá o jogo
-#define dimMapa_x 20
-#define dimMapa_y 30
+#define escala 20
 
 //Tamanho do array de blocos ocupados
 #define Blocoscupados 100
