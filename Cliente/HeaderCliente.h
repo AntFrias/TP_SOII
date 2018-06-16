@@ -55,6 +55,20 @@ typedef struct img {
 
 }bipm;
 
+typedef struct hcds {
+
+	HDC Wallpaper;
+	HDC Basica;
+	HDC Bomba;
+	HDC Defensora1;
+	HDC Defensora2;
+	HDC Esquiva;
+	HDC Tiro;
+	HDC Boss;
+
+
+}hdcImg;
+
 typedef struct configs {
 
 	TCHAR nome[10];
