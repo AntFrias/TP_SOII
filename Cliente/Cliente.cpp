@@ -6,15 +6,16 @@ configur configuracoes;
 alteracaoTab tabAux[5];
 bipm bipMaps;
 packet PacoteEnvio;
-
+hdcImg hdcDasImg;
 
 HWND hwndPrincipal;  // janela principal
+
 void LimpaPacotedEnvio() {
 
-	PacoteEnvio.Cliente_id = 0;
-	PacoteEnvio.numObjetos = 0;
-	PacoteEnvio.pontuacao = 0;
-	PacoteEnvio.tipo = 0;
+	PacoteEnvio.Cliente_id = 999;
+	PacoteEnvio.numObjetos = 999;
+	PacoteEnvio.pontuacao = 999;
+	PacoteEnvio.tipo = 999;
 
 }
 void TrataPacote(packet pacoteTratar) {
@@ -43,6 +44,73 @@ void TrataPacote(packet pacoteTratar) {
 				MessageBox(NULL, TEXT("O servidor está cheio.\nTente mais tarde"), TEXT("ERRO"), MB_OK | MB_ICONERROR);
 				//exit(0);
 				break;
+			}
+		
+			case AtualizacaoJogo: {
+
+				for (int i = 0; i < pacoteTratar.numObjetos; i++) {
+					
+					switch (pacoteTratar.dataPacket.arrayTab[i].tipo) {
+
+						case NaveBasica: {
+							//coloca o respectivo bipmap (ja carregado) para dentro do ecra auxiliar
+							break;
+						}
+						case NavesEsquiva: {
+							//coloca o respectivo bipmap (ja carregado) para dentro do ecra auxiliar
+							break;
+						}
+						case NaveBoss: {
+							//coloca o respectivo bipmap (ja carregado) para dentro do ecra auxiliar
+							break;
+						}
+						case NaveJogador: {
+							//coloca o respectivo bipmap (ja carregado) para dentro do ecra auxiliar
+							break;
+						}
+						case tiroJogador: {
+							//coloca o respectivo bipmap (ja carregado) para dentro do ecra auxiliar
+							break;
+						}
+						case bombaInimiga: {
+							//coloca o respectivo bipmap (ja carregado) para dentro do ecra auxiliar
+							break;
+						}
+						case PowerUpEscudo: {
+							//coloca o respectivo bipmap (ja carregado) para dentro do ecra auxiliar
+							break;
+						}
+						case PowerUpGelo: {
+							//coloca o respectivo bipmap (ja carregado) para dentro do ecra auxiliar
+							break;
+						}
+						case PowerUpBateria: {
+							//coloca o respectivo bipmap (ja carregado) para dentro do ecra auxiliar
+							break;
+						}
+						case PowerUpMais: {
+							//coloca o respectivo bipmap (ja carregado) para dentro do ecra auxiliar
+							break;
+						}
+						case PowerUpVida: {
+							//coloca o respectivo bipmap (ja carregado) para dentro do ecra auxiliar
+							break;
+						}
+						case PowerUpAlcool: {
+							//coloca o respectivo bipmap (ja carregado) para dentro do ecra auxiliar
+							break;
+						}
+						case PowerUpNuclear: {
+							//coloca o respectivo bipmap (ja carregado) para dentro do ecra auxiliar
+							break;
+						}
+						default:
+							break;
+
+					}
+						
+				}
+
 			}
 		
 		default:
@@ -252,17 +320,11 @@ LRESULT CALLBACK Configuracoes(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lPara
 			configuracoes.POWERUP3 = aux[0];
 			aux[1] = TEXT('\0');
 			
-			
-
-			//TODO prencher pacote aqui e fazer com que a janela nao feche
-			//até que o servidor responda que o login esteja correto e o jogo pronto
-			
-			//prenche pacote ;-)
+			//prenche pacote
 			PacoteEnvio.tipo = user_login;
 			wcscpy_s(PacoteEnvio.dataPacket.nome, configuracoes.nome);
 			SetEvent(Cliente.EventEnvia);
 
-			//Envia(PacoteLogin); ///  com reservas
 
 			EndDialog(hwnd, 0); //isto é para fechar a janela 
 			//PostQuitMessage(0); //isto é para fechar a janxxxx -> o ciclo de mensagens
@@ -300,10 +362,13 @@ LRESULT CALLBACK WindowProc(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
 
 	switch (uMsg)	{
 
-	case WM_DESTROY:
+	case WM_DESTROY: {
 		PostQuitMessage(0);
+		//DeleteObject(); //eliminar as janelas feitas para cada um bipmap ... (por mais aqui ... um delete para cada um)
+		//DeleteObject(); //eliminar o ecra auxbuff
+		//DeleteDC(); //eliminar o  ecra aux -> este é o que imprime 
 		return 0;
-
+	}
 	case WM_PAINT:	{
 		hDC = BeginPaint(hwnd, &Ps);
 
@@ -326,6 +391,17 @@ LRESULT CALLBACK WindowProc(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
 		EndPaint(hwnd, &Ps);
 		break;
 	}
+
+	case WM_CREATE: {
+		/*
+			associar aqui o hbitmap à janela correspondente	
+		*/
+		//MemDCExercising = CreateCompatibleDC(hDC);
+				
+		break;
+	}
+	
+
 	case WM_CHAR: {
 
 		if ((TCHAR)wParam == configuracoes.CIMA) {
