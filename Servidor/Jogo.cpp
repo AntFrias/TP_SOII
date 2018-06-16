@@ -199,12 +199,12 @@ int VerificaPosicaoJogo( int *x, int *y, int tipo, int orientacao) {
 	}
 	return 0;
 }
-// funcao vai limpar as posicoes do tabuleiro
+// funcao vai limpar as posicoes do tabuleiro //
 void LimpaPosTabuleiro(int x, int y, int tipo, int Largura) {
 
 	for (int i = x; i < x + Largura; i++) {///j
 
-		for (int j = y; j < y + Largura; j++) { ///i
+		for (int j = y; j < y + Largura; j++) { ///i   
 
 			blocoServ[i][j].tipo = tipo;
 			/// ver aqui
