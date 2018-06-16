@@ -22,7 +22,32 @@ void mostraNaveBasica() {
 
 	}
 }
-// vai fazer a gestao de todas as naves inimigas
+
+
+void alteraPosicaoObjeto(int PosObjeto, int tipoObjeto, int *x, int *y) {
+	switch (tipoObjeto) {
+
+	case NaveJogador:
+		ArrayJogadores[PosObjeto].posicao[0] = *x;
+		ArrayJogadores[PosObjeto].posicao[1] = *y;
+		break;
+	case NaveEsquiva:
+		objectosNoMapa.NaveEnemyTipo2[PosObjeto].x = *x;
+		objectosNoMapa.NaveEnemyTipo2[PosObjeto].y = *y;
+		break;
+	case NaveBasica:
+		objectosNoMapa.NaveEnemyTipo1[PosObjeto].x = *x;
+		objectosNoMapa.NaveEnemyTipo1[PosObjeto].y = *y;
+		break;
+	case NaveBoss:
+		objectosNoMapa.NaveEnemyTipo3[PosObjeto].x = *x;
+		objectosNoMapa.NaveEnemyTipo3[PosObjeto].y = *y;
+		break;
+	case LancaTiro:
+		break;
+	}
+
+}
 void CarregaPosObjeto(int PosObjeto, int tipoObjeto, int *x, int *y) {
 
 	switch (tipoObjeto) {
@@ -57,14 +82,18 @@ void verificaComandosJogo(int comando, int PosObjeto, int tipoObjeto) {
 	switch (comando)
 	{
 	case cima:
-
+	
 		if (VerificaPosicaoJogo(&x, &y, tipoObjeto, cima) == 1) {
-
-			LimpaPosTabuleiro( x, y, bloco_vazio, LarguraNaveDefault);
+	
+			LimpaPosTabuleiro( y, x, bloco_vazio, LarguraNaveDefault);
 
 			y -= 1;
 
-			preencheBlocosServidor(&x, &y, PosObjeto, tipoObjeto, LarguraNaveDefault);
+			alteraPosicaoObjeto(PosObjeto, tipoObjeto, &x, &y);
+
+			preencheBlocosServidor(&y, &x, PosObjeto, tipoObjeto, LarguraNaveDefault);
+		
+
 		}
 		break;
 
@@ -72,11 +101,13 @@ void verificaComandosJogo(int comando, int PosObjeto, int tipoObjeto) {
 
 		if (VerificaPosicaoJogo(&x, &y, tipoObjeto, baixo) == 1) {
 
-			LimpaPosTabuleiro(x, y, bloco_vazio, LarguraNaveDefault);
+			LimpaPosTabuleiro(y, x, bloco_vazio, LarguraNaveDefault);
 
 			y += 1;
 
-			preencheBlocosServidor(&x, &y, PosObjeto, tipoObjeto, LarguraNaveDefault);
+			alteraPosicaoObjeto(PosObjeto, tipoObjeto, &x, &y);
+
+			preencheBlocosServidor(&y, &x, PosObjeto, tipoObjeto, LarguraNaveDefault);
 
 		}
 		break;
@@ -85,24 +116,28 @@ void verificaComandosJogo(int comando, int PosObjeto, int tipoObjeto) {
 
 		if (VerificaPosicaoJogo(&x, &y, tipoObjeto, esquerda) == 1) {
 
-			LimpaPosTabuleiro(x, y, bloco_vazio, LarguraNaveDefault);
+			LimpaPosTabuleiro(y, x, bloco_vazio, LarguraNaveDefault);
 
 			x -= 1;
 
-			preencheBlocosServidor(&x, &y, PosObjeto, tipoObjeto, LarguraNaveDefault);
+			alteraPosicaoObjeto(PosObjeto, tipoObjeto, &x, &y);
+
+			preencheBlocosServidor(&y, &x, PosObjeto, tipoObjeto, LarguraNaveDefault);
 
 		}
 		break;
 
 	case direita:
 
-		if (VerificaPosicaoJogo(&x, &y, tipoObjeto, esquerda) == 1) {
+		if (VerificaPosicaoJogo(&x, &y, tipoObjeto, direita) == 1) {
 
-			LimpaPosTabuleiro(x, y, bloco_vazio, LarguraNaveDefault);
+			LimpaPosTabuleiro(y, x, bloco_vazio, LarguraNaveDefault);
 
 			x += 1;
 
-			preencheBlocosServidor(&x, &y, PosObjeto, tipoObjeto, LarguraNaveDefault);
+			alteraPosicaoObjeto(PosObjeto, tipoObjeto, &x, &y);
+
+			preencheBlocosServidor(&y, &x, PosObjeto, tipoObjeto, LarguraNaveDefault);
 
 		}
 		break;
@@ -126,9 +161,6 @@ int GestorNaveBoss(LPVOID aux) {
 	Nave *naveInimigaTipo3 = (Nave*)aux;
 
 	int nNaves = dadosServidor.initJogo.MaxNaveBoss;
-
-	//int coord_x, coord_y;
-
 	do {
 
 		//algortimo movimento da nave
@@ -221,7 +253,7 @@ void colocaNavesEsquiva() {
 
 	int contaEsquiva = 0;
 
-	int x_min = 0, x_max = dimMapa_x - 6, y_min = 0, y_max = dimMapa_x - 2;
+	int x_min = 0, x_max = dimMapa_x - 2, y_min = 0, y_max = dimMapa_y - 6;
 
 	int x = 0, y = 0;
 
@@ -238,7 +270,7 @@ void colocaNavesEsquiva() {
 			objectosNoMapa.NaveEnemyTipo2->tipo = NaveEsquiva;
 			objectosNoMapa.NaveEnemyTipo2->x = x;
 			objectosNoMapa.NaveEnemyTipo2->y = y;
-			preencheBlocosServidor(&x, &y, contaEsquiva, NaveEsquiva,LarguraNaveDefault);
+			preencheBlocosServidor(&y, &x, contaEsquiva, NaveEsquiva,LarguraNaveDefault);
 	
 			contaEsquiva++;
 		}
@@ -250,7 +282,7 @@ void colocaNavesEsquiva() {
 //coloca naves Basicas no Tabuleiro
 void colocaNavesBasicas() {
 
-	int totalNavesBasicas = dadosServidor.initJogo.MaxNavesBasicas, totalNaves = dadosServidor.initJogo.MaxNavesEsquivas;
+	int totalNavesBasicas = dadosServidor.initJogo.MaxNavesBasicas, totalNaves = dadosServidor.initJogo.MaxNavesBasicas;
 
 	int contaBasica = 0, NavesPorLinha = 0, initPos = 0, endPos = 0, flag = 0;
 
@@ -266,9 +298,9 @@ void colocaNavesBasicas() {
 
 	WaitForSingleObject(dadosServidor.mutexTabuleiro, NULL);
 
-	for (int x = 0; x < dimMapa_x - 2; x += 2) {
+	for (int y = 0; y < dimMapa_y; y += 2) {
 
-		for (int y = initPos; y < endPos; y += 2) {
+		for (int x = initPos; x < endPos; x += 2) {
 
 			if (contaBasica < totalNavesBasicas) {
 
@@ -276,20 +308,15 @@ void colocaNavesBasicas() {
 
 				objectosNoMapa.NaveEnemyTipo1[contaBasica].y = y;
 				
-				preencheBlocosServidor(&x, &y, contaBasica, NaveBasica,LarguraNaveDefault);
+				preencheBlocosServidor(&y, &x, contaBasica, NaveBasica,LarguraNaveDefault);
 				
 				contaBasica += 1;
 
 				totalNaves--;
-
 			}
-		}
+		}	
 		if (totalNaves < NavesPorLinha) {
-
-			initPos = (dimMapa_y / 2) - (totalNaves);
-
-			flag = 1;
-
+			initPos = NavesPorLinha / 2;
 		}
 	}
 	ReleaseMutex(dadosServidor.mutexTabuleiro);
@@ -352,7 +379,7 @@ int IniciaNavesInimigas() {
 }
 //funcao que irá iniciar o jogo apos um jogador seleccionar a opçao jogar
 void IniciaAmbienteJogo(int pos) {
-	_tprintf(TEXT("\ncheguei ao inicia Jogo\n"));
+
 	int *x = &ArrayJogadores[pos].posicao[0], *y = &ArrayJogadores[pos].posicao[1];
 	
 
@@ -361,7 +388,7 @@ void IniciaAmbienteJogo(int pos) {
 		///POR AQUI O EVENTO PARA A MOVIMENTAÇÃO DAS NAVES
 		WaitForSingleObject(dadosServidor.mutexTabuleiro,INFINITE);
 		IniciarJogo(x,y,pos);
-		_tprintf(TEXT("\nPOSX: %d POSY: %d\n"), *x, *y);
+
 		ReleaseMutex(dadosServidor.mutexTabuleiro);
 
 	}
@@ -491,18 +518,22 @@ void TrataPacotesGwtoServ() {
 
 			case IniciaJogoMultiplayer:
 				PosJogador = VerificaPosicaoJogador(aux);
+
 				IniciaAmbienteJogo(PosJogador);
 				
 				break;
 
 			case AtualizacaoJogo:
 				
+				
+
 				PosJogador = VerificaPosicaoJogador(aux);
 				
 				WaitForSingleObject(dadosServidor.mutexTabuleiro, INFINITE);
-
+				mostraTabuleiro();
 				verificaComandosJogo(aux->dataPacket.comando, PosJogador, NaveJogador);
-				
+				_tprintf(TEXT("\n\n\n"));
+				mostraTabuleiro();
 				ReleaseMutex(dadosServidor.mutexTabuleiro);
 				break;
 			
@@ -559,9 +590,6 @@ void AtualizaInformacaoInicialJogo() {
 // inicia os servi�os e a configura�ao do Servidor;
 int IniciarServidor() {
 
-	TCHAR c;
-
-	
 	AtualizaInformacaoInicialJogo();
 
 	CriaMemoriaPartilhada();															// cria os Buffers na memoria partilhada e sincronizacao
