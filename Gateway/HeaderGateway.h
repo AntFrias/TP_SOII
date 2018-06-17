@@ -31,6 +31,7 @@ typedef struct Gestao_gateway {
 	DWORD idThreadGwtoSer;
 	int nClientes;
 	unsigned int ServerUp;
+	HANDLE EventoIniciaJogo;
 
 
 }dataGw;
@@ -43,5 +44,8 @@ typedef struct ArrayClientes {
 	unsigned int thAlive;
 
 }clientes;
+
+
+
 
 
