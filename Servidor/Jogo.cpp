@@ -13,6 +13,7 @@ void limpaTabuleiro() {
 			blocoServ[y][x].id = 0; //não existe
 			blocoServ[y][x].tipo = bloco_vazio; //vazio
 			blocoServ[y][x].posArray = 0; //vazio
+	
 			escreveBufferTabuleiro(x, y, bloco_vazio, 0);
 		}
 	}
@@ -201,9 +202,9 @@ void preencheBlocosServidor(int *x, int *y, int pos, int tipo, int Largura) {
 				flag = 0;
 			}
 			else {
+				flag = 0;
 				escreveBufferTabuleiro(j, i, blocoServ[i][j].tipo, flag);
 			}
-			
 		}
 	}
 }
@@ -214,10 +215,6 @@ void ColocaNavesTab() {
 
 	colocaNavesEsquiva();
 	
-	mostraTabuleiro();
-	_tprintf(TEXT("\n\n"));
-	mostraTabCom();
-
 }
 //Funcao que irá iniciar o jogo e as respetivas movimentacoes quando o jogador decidir jogar
 void IniciarJogo(int *x, int *y,int pos) {

@@ -393,6 +393,7 @@ void IniciaAmbienteJogo(int pos) {
 		dadosServidor.estadoJogo = 1;
 		///POR AQUI O EVENTO PARA A MOVIMENTAÇÃO DAS NAVES
 		WaitForSingleObject(dadosServidor.mutexTabuleiro,INFINITE);
+
 		IniciarJogo(x,y,pos);
 
 		ReleaseMutex(dadosServidor.mutexTabuleiro);
@@ -523,28 +524,32 @@ void TrataPacotesGwtoServ() {
 				break;
 
 			case IniciaJogoMultiplayer:
+
 				PosJogador = VerificaPosicaoJogador(aux);
 
 				IniciaAmbienteJogo(PosJogador);
-				
-				resposta.tipo = IniciaJogoMultiplayer;
-
-				escrevebuffer(&resposta, nomeServtoGw);
+					
 				break;
 
 			case AtualizacaoJogo:
 				
-				
-
 				PosJogador = VerificaPosicaoJogador(aux);
 				
 				WaitForSingleObject(dadosServidor.mutexTabuleiro, INFINITE);
 
+				mostraTabuleiro();
+
 				verificaComandosJogo(aux->dataPacket.comando, PosJogador, NaveJogador);
 
+				SetEvent(dadosServidor.EventoInformaGwInicioJogo);
+
+				_tprintf(TEXT("\n\n"));
+
+				mostraTabCom();
+
 				ReleaseMutex(dadosServidor.mutexTabuleiro);
+
 				break;
-			
 		}
 	}
 }
@@ -578,6 +583,14 @@ void IniciaSincronizacaoServidor() {
 	if (dadosServidor.mutexTabuleiro == NULL) {
 
 		exit(-1);
+	}
+
+	dadosServidor.EventoInformaGwInicioJogo = CreateEvent(NULL, TRUE, FALSE, enviaTabClientes);
+
+	if (dadosServidor.EventoInformaGwInicioJogo == NULL) {
+
+		exit(-1);
+
 	}
 
 }

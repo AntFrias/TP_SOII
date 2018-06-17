@@ -121,6 +121,7 @@ typedef struct Gestao_servidor {
 	DWORD IdThreadSertoGw;
 	HANDLE mutexTabuleiro;
 	HANDLE EventoIniciaJogo;
+	HANDLE EventoInformaGwInicioJogo;
 
 }dataServer;
 
