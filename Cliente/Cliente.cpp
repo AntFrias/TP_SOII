@@ -219,12 +219,8 @@ void escuta() {
 			break;
 		}
 		//_tprintf(TEXT("\n\nRecebi este nome %s\n"), PacoteRecebido.dataPacket.nome);
-		//BitBlt(janelaAux, 15,30 , 800, 800, hdcDasImg.Basica, 0, 0, SRCCOPY);
-
-		//BitBlt(janelaAux, 0, 0, 800, 800, hdcDasImg.Wallpaper, 0, 0, SRCCOPY);
-		BitBlt(janelaAux, 0, 0, 800, 800, hdcDasImg.Space, 0, 0, SRCCOPY);
-		TransparentBlt(janelaAux, 15, 30, 40, 40, hdcDasImg.Basica, 0, 0, 40, 40, RGB(255,255,255)); // estica e tira a cor de fundo
-		InvalidateRect(hwndPrincipal,NULL,TRUE);
+	
+	
 		
 		TrataPacote(PacoteRecebido);
 
@@ -373,9 +369,20 @@ LRESULT CALLBACK WindowProc(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
 
 	case WM_DESTROY: {
 		PostQuitMessage(0);
-		//DeleteObject(); //eliminar as janelas feitas para cada um bipmap ... (por mais aqui ... um delete para cada um)
-		//DeleteObject(); //eliminar o ecra auxbuff
-		//DeleteDC(); //eliminar o  ecra aux -> este é o que imprime 
+
+		//eliminar as janelas feitas para cada um bipmap ... (por mais aqui ... um delete para cada um)
+		DeleteObject(bipMaps.Wallpaper); 
+		DeleteObject(bipMaps.Space);
+		DeleteObject(bipMaps.Basica);
+		DeleteObject(bipMaps.Esquiva);
+		DeleteObject(bipMaps.Boss);
+		DeleteObject(bipMaps.Defensora1);
+		DeleteObject(bipMaps.Tiro);
+		DeleteObject(bipMaps.Bomba);
+
+		//eliminar o  ecra aux -> este é o que imprime 
+		DeleteDC(janelaImprime); 
+		DeleteDC(janelaAux);
 		return 0;
 	}
 	case WM_PAINT:	{
@@ -548,10 +555,6 @@ int WINAPI _tWinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPTSTR LpCmdL
 	tabAux[1].x = 10;
 	tabAux[1].y = 4;
 
-	tabAux[4].tipo = NaveJogador;
-	tabAux[4].x = 4;
-	tabAux[4].y = 12;
-
 	tabAux[2].tipo = NavesEsquiva;
 	tabAux[2].x = 12;
 	tabAux[2].y = 23;
@@ -560,7 +563,22 @@ int WINAPI _tWinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPTSTR LpCmdL
 	tabAux[3].x = 2;
 	tabAux[3].y = 0;
 
+	tabAux[4].tipo = NaveJogador;
+	tabAux[4].x = 4;
+	tabAux[4].y = 30;
 
+	
+
+	BitBlt(janelaAux, 0, 0, 800, 800, hdcDasImg.Space, 0, 0, SRCCOPY);
+	TransparentBlt(janelaAux, (tabAux[0].x * 20), (tabAux[0].y * 20), 40, 40, hdcDasImg.Basica, 0, 0, 40, 40, RGB(255, 255, 255)); // estica e tira a cor de fundo
+	TransparentBlt(janelaAux, (tabAux[1].x * 20), (tabAux[1].y * 20), 15, 40, hdcDasImg.Tiro, 0, 0, 20, 40, RGB(255, 255, 255)); // estica e tira a cor de fundo
+	TransparentBlt(janelaAux, (tabAux[2].x * 20), (tabAux[2].y * 20), 40, 40, hdcDasImg.Esquiva, 0, 0, 40, 40, RGB(255, 255, 255)); // estica e tira a cor de fundo
+	TransparentBlt(janelaAux, (tabAux[3].x * 20), (tabAux[3].y * 20), 40, 40, hdcDasImg.Basica, 0, 0, 40, 40, RGB(255, 255, 255)); // estica e tira a cor de fundo
+	TransparentBlt(janelaAux, (tabAux[4].x * 20), (tabAux[4].y * 20), 40, 40, hdcDasImg.Defensora1, 0, 0, 40, 40, RGB(255, 255, 255)); // estica e tira a cor de fundo
+	
+	
+	
+	InvalidateRect(hwndPrincipal, NULL, TRUE);
 
 
 
