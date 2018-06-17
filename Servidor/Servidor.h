@@ -64,6 +64,7 @@ typedef struct naves {
 typedef struct DadosJogo {
 
 	Nave *NaveEnemyTipo1, *NaveEnemyTipo2, *NaveEnemyTipo3;
+	tiro ArrayTiros[MaxTiros];
 
 }DadosdoJogo;
 
@@ -113,6 +114,7 @@ typedef struct Gestao_servidor {
 	int NumMaxClientes;
 	int estadoJogo;
 	int NumCliNoArray;
+	int TotalTiros;
 	BOOL inicioJogo;
 	BOOL ServidorUp;
 	confInitJogo initJogo;
@@ -122,6 +124,9 @@ typedef struct Gestao_servidor {
 	HANDLE mutexTabuleiro;
 	HANDLE EventoIniciaJogo;
 	HANDLE EventoInformaGwInicioJogo;
+	HANDLE EventoLancaTiro;
+	HANDLE MutexTiroArray;
+
 
 }dataServer;
 

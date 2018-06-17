@@ -14,6 +14,7 @@ DadosdoJogo objectosNoMapa;
 dataServer dadosServidor;
 
 
+
 void mostraNaveBasica() {
 
 	for (int i = 0; i < dadosServidor.initJogo.MaxNavesBasicas; i++) {
@@ -70,10 +71,19 @@ void CarregaPosObjeto(int PosObjeto, int tipoObjeto, int *x, int *y) {
 			break;
 	}
 }
+
+int obtemPosicaoTiro() {
+
+	for (int i = 0; i < MaxTiros; i++) {
+
+		return i;
+	}
+	
+}
 // Vai verificar os comandos digitados pelas naves todas do jogo
 void verificaComandosJogo(int comando, int PosObjeto, int tipoObjeto) {
 
-	int x, y; 
+	int x, y, PosTiro = 0; 
 
 	CarregaPosObjeto(PosObjeto, tipoObjeto, &x, &y);
 	
@@ -152,6 +162,13 @@ void verificaComandosJogo(int comando, int PosObjeto, int tipoObjeto) {
 		break;
 
 	case LancaTiro:
+
+		WaitForSingleObject(dadosServidor.MutexTiroArray, INFINITE);
+		PosTiro = obtemPosicaoTiro();
+
+
+
+		ReleaseMutex(dadosServidor.MutexTiroArray);
 		break;
 
 	case PowerUp1:
@@ -253,6 +270,14 @@ int CalculaPosRandEsquiva(int pos_max) {
 	}
 	return pos;
 
+}
+
+void colocaTirosTablueiro() {
+
+	do {
+
+		
+	} while (dadosServidor.ServidorUp == 1);
 }
 //coloca naves Esquiva no tabuleiro 
 void colocaNavesEsquiva() {
@@ -580,6 +605,19 @@ jogadorinfo * iniciaArrayCli(){ //Alocação do Array
 	return Aux;
 
 }
+void InicializaArrayTiros() {
+
+	for (int i = 0; i < MaxTiros; i++) {
+
+		objectosNoMapa.ArrayTiros[i].idJogador = 0;
+
+		objectosNoMapa.ArrayTiros[i].posJogador = 0;
+
+		objectosNoMapa.ArrayTiros[i].x = 0;
+
+		objectosNoMapa.ArrayTiros[i].y = 0;
+	}
+}
 // inicializa sincronizaçao usada para executar funçoes no servidor
 void IniciaSincronizacaoServidor() {
 
@@ -606,6 +644,21 @@ void IniciaSincronizacaoServidor() {
 
 	}
 
+	dadosServidor.EventoLancaTiro = CreateEvent(NULL, TRUE, FALSE, NULL);
+
+	if (dadosServidor.EventoLancaTiro == NULL) {
+	
+		exit(-1);
+	
+	}
+
+	dadosServidor.MutexTiroArray = CreateMutex(NULL, FALSE, NULL);
+
+	if (dadosServidor.MutexTiroArray == NULL) {
+	
+		exit(-1);
+	
+	}
 }
 // Funcao vai atualizar a informaçao inicial do jogo
 void AtualizaInformacaoInicialJogo() {
@@ -614,6 +667,7 @@ void AtualizaInformacaoInicialJogo() {
 	dadosServidor.NumMaxClientes = nMaxJogadores; //nMaxPlay
 	dadosServidor.ServidorUp = 1;
 	dadosServidor.estadoJogo = 0;
+	dadosServidor.TotalTiros = 0;
 	dadosServidor.NumCliNoArray = 0;
 	
 	dadosServidor.initJogo.MaxNavesBasicas = ninimigas1;
@@ -629,6 +683,8 @@ int IniciarServidor() {
 	CriaMemoriaPartilhada();															// cria os Buffers na memoria partilhada e sincronizacao
 
 	IniciaSincronizacaoServidor();
+
+	InicializaArrayTiros();
 
 	ArrayJogadores = iniciaArrayCli();
 																				
