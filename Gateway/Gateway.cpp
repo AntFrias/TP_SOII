@@ -132,8 +132,6 @@ void EnviaRespostaParaCliente(Packet *resposta) {
 			
 			ret = GetOverlappedResult(hPipe, &Ov, &nBytes, FALSE);
 		//}
-	
-
 }
 //Funcao que envia Broadcast de Pacotes para todos os Clientes
 void EnviaBroadcastPacote(Packet *resposta) {
@@ -152,6 +150,7 @@ void EnviaBroadcastPacote(Packet *resposta) {
 	OVERLAPPED Ov;
 
 	for (int i = 0; i < dadosGw.nClientes; i++) {
+		_tprintf(TEXT("\n\nvou enviar um pacote para o Cliente com o id %d"),Clientes[i].id );
 		if (Clientes[i].hPipe != INVALID_HANDLE_VALUE) {
 
 			ZeroMemory(&Ov, sizeof(Ov));
@@ -184,17 +183,15 @@ void iniciaThreadJogo() {
 
 	Packet *resposta;
 	
-	
 	do {
-		_tprintf(TEXT("\n\n\n\n\nVou esperar pelo evento do jogo"));
-		WaitForSingleObject(dadosGw.EventoIniciaJogo, INFINITE);
-		_tprintf(TEXT("\n\n\nVou comecar a enviar o mapa para os clientes de 40 em 40 ms"));
-		resposta = LerBufferTabuleiro();
-		_tprintf(TEXT("\n\n\nCheguei aqui"));
-		Sleep(10000);
-		EnviaRespostaParaCliente(resposta);
 
-		Sleep(40); //25frames
+		WaitForSingleObject(dadosGw.EventoIniciaJogo, INFINITE);
+	
+		resposta = LerBufferTabuleiro();
+		
+		EnviaBroadcastPacote(resposta);
+
+		Sleep(TempoDeEnvioTabuleiro); //25frames
 
 		ResetEvent(dadosGw.EventoIniciaJogo);
 
