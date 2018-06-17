@@ -93,8 +93,6 @@ HANDLE getPipeDoCli(packet *resposta) {
 //Envia Resposta para apenas 1 Cliente
 void EnviaRespostaParaCliente(Packet *resposta) {
 
-	_tprintf(TEXT("O PACOTE TEM ESTE TIPO %d\n"),resposta->tipo);
-
 	DWORD nBytes;
 
 	BOOL ret;
@@ -104,7 +102,7 @@ void EnviaRespostaParaCliente(Packet *resposta) {
 	HANDLE hPipe = NULL;
 
 	hPipe = getPipeDoCli(resposta);
-	_tprintf(TEXT("o id %d nome do cli %s\n"),resposta->Cliente_id,resposta->dataPacket.nome);
+	
 	if(hPipe == NULL) {
 
 		_tprintf(TEXT("\n Erro a Enviar resposta do Gateway para o Cliente"));
@@ -185,58 +183,43 @@ void EnviaBroadcastPacote(Packet *resposta) {
 void iniciaThreadJogo() {
 
 	Packet *resposta;
-
+	
+	
 	do {
-
+		_tprintf(TEXT("\n\n\n\n\nVou esperar pelo evento do jogo"));
+		WaitForSingleObject(dadosGw.EventoIniciaJogo, INFINITE);
+		_tprintf(TEXT("\n\n\nVou comecar a enviar o mapa para os clientes de 40 em 40 ms"));
 		resposta = LerBufferTabuleiro();
-
-		if (resposta != NULL) {
-		
-			resposta->tipo = AtualizacaoJogo;
-		
-			EnviaBroadcastPacote(resposta);
-		}
+		_tprintf(TEXT("\n\n\nCheguei aqui"));
+		Sleep(10000);
+		EnviaRespostaParaCliente(resposta);
 
 		Sleep(40); //25frames
 
+		ResetEvent(dadosGw.EventoIniciaJogo);
+
 	} while (dadosGw.ServerUp == 1);
+
 }
 // Funcao que le Pacotes do buffer servidor --> Gateway
 void LePacotesBufferServtoGw() {
 
 	packet *Resposta;
 
-	HANDLE hThredEnviaTabuleiro;
-
-	DWORD idThreadEnviaTabuleiro;
-
 	do {
 	
 		Resposta = LerBufferServtoGw();
-		// se a opçao do jogador for jogar individual irá lançar a thread que irá enviar lhe o jogo atualizado;
-		//falta por a versao de iniciar jogo Multiplayer aqui
-		if (Resposta->tipo == IniciaJogoMultiplayer ) {
-
-			hThredEnviaTabuleiro = CreateThread(NULL, 0, (LPTHREAD_START_ROUTINE)iniciaThreadJogo, (LPVOID)NULL, 0, &idThreadEnviaTabuleiro);
-
-			if (hThredEnviaTabuleiro == NULL) {
-			
-				_tprintf(TEXT("\n\nErro ao criar Thread que ira enviar o Jogo atualizado para os Clientes"));
-				
-				exit(-1);
-			}
-		}
+	
 		switch (Resposta->tipo) {
 
 		default:
 
 			EnviaRespostaParaCliente(Resposta);
-		
+
+			break;
 		}
 		
 	} while (dadosGw.ServerUp);
-
-	WaitForSingleObject(&idThreadEnviaTabuleiro, INFINITE);
 
 }
 //inicia Comunicaçao com CLiente
@@ -244,8 +227,9 @@ int criaComunicacaoClienteGateway() {
 
 	dadosGw.nClientes = 0;
 	HANDLE hPipe;
-	HANDLE hThreads[21];
+	HANDLE hThreads[22];
 	DWORD idThLeServToGw;
+	DWORD idThreadEnviaTabuleiro;
 	int pos;
 	
 
@@ -254,6 +238,8 @@ int criaComunicacaoClienteGateway() {
 	}
 
 	hThreads[20] = CreateThread(NULL, 0, (LPTHREAD_START_ROUTINE)LePacotesBufferServtoGw, (LPVOID)NULL, 0, &idThLeServToGw);
+
+	hThreads[21] = CreateThread(NULL, 0, (LPTHREAD_START_ROUTINE)iniciaThreadJogo, (LPVOID)NULL, 0, &idThreadEnviaTabuleiro);
 
 	do {
 	
@@ -273,7 +259,6 @@ int criaComunicacaoClienteGateway() {
 			hThreads[dadosGw.nClientes] = CreateThread(NULL, 0, (LPTHREAD_START_ROUTINE)RecebePipeCliente, (LPVOID)&Clientes[dadosGw.nClientes], 0, &Clientes[dadosGw.nClientes].iDThread);  //rever indice
 			
 		}
-		//Sleep(10); // Sleep para obrigar a esperar que a thread se crie antes de incrementar o indice;
 
 		dadosGw.nClientes++;
 
@@ -289,10 +274,25 @@ int criaComunicacaoClienteGateway() {
 	}
 	return 0;
 }
+
+void criaSincronizacaoGateway() {
+
+	dadosGw.EventoIniciaJogo = CreateEvent(NULL, TRUE, FALSE, enviaTabClientes);
+
+	if (dadosGw.EventoIniciaJogo == NULL) {
+
+		_tprintf(TEXT("\n\n Erro a criar evento para dar inicio ao envio do jogo para os clientes"));
+
+		exit(-1);
+	}
+
+}
 // funcao que inicia os servicos do Gateway
 void IniciarGateway() {
 
 	dadosGw.ServerUp = 1;
+
+	criaSincronizacaoGateway();
 
 	_tprintf(TEXT("\n\nGateway\n\n"));
 
