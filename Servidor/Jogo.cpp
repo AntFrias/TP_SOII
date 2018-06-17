@@ -123,9 +123,10 @@ int VerificaPosNaveJogador(int *x, int *y, int orientacao) {
 		}
 		break;
 	case baixo:
-		if (*y + 1 < dimMapa_y) {
-			if (blocoServ[*y + 1][*x].tipo == bloco_vazio && blocoServ[*y + 1][*x + 1].tipo == bloco_vazio) {
-				_tprintf(TEXT("\n\n\n\n\nentrei aqui"));
+		if (*y + 2 < dimMapa_y) {
+			
+			if (blocoServ[*y + 2][*x].tipo == bloco_vazio && blocoServ[*y + 2][*x + 1].tipo == bloco_vazio) {
+			
 				return 1;
 			}
 			else {
@@ -147,8 +148,8 @@ int VerificaPosNaveJogador(int *x, int *y, int orientacao) {
 		break;
 
 	case direita:
-		if (*x + 1 < dimMapa_x) {
-			if (blocoServ[*y][*x + 1].tipo == bloco_vazio && blocoServ[*y + 1][*x + 1].tipo == bloco_vazio) {
+		if (*x + 2 < dimMapa_x) {
+			if (blocoServ[*y][*x + 2].tipo == bloco_vazio && blocoServ[*y + 1][*x + 2].tipo == bloco_vazio) {
 				return 1;
 			}
 			else {
