@@ -40,6 +40,52 @@ int VerificaPosicaoPreencheTAb(int *x, int *y) {
 		return 0;
 
 }
+// verifica posicao do tiro
+int verificaPosicaoTiro(int *x, int *y, int orientacao) {
+
+	int Item = 0;
+
+	switch (orientacao) {
+
+		case cima:
+
+			if (blocoServ[*y + 1][*x].tipo == bloco_vazio) {
+
+				Item = bloco_vazio;
+
+				return Item;
+			
+			}
+			else {
+
+				switch (blocoServ[*y + 1][*x].tipo) {
+
+				case NaveBasica:
+
+					Item = NaveBasica;
+
+					return Item;
+
+					break;
+				case NaveEsquiva:
+
+					Item = NaveEsquiva;
+
+					return Item;
+
+					break;
+
+				case NaveBoss:
+
+					Item = NaveBoss;
+
+					return Item;
+
+					break;
+				}
+			}
+		}
+	}
 // verifica posicao da nave Esquiva
 int VerificaPosicaoNaveEsquiva(int *x, int *y, int orientacao) {  // rever todo este codigo
 
@@ -163,22 +209,62 @@ int VerificaPosicaoJogo( int *x, int *y, int tipo, int orientacao) {
 			break;
 		case NaveBoss:
 			break;
-		case LancaTiro:
+		case tiroJogador:
+			Flag = verificaPosicaoTiro(x, y, orientacao);
+			return Flag;
 			break;
 		case PowerUp1:
 			break;
 	}
 	return 0;
 }
+
+// funcao vai limpar as posicoes do tabuleiro //
+void LimpaPosTabuleiroTiro(int x, int y, int tipo, int Largura) {
+
+	for (int i = y; i <= y + Largura; i++) {
+
+		for (int j = x; j < x + Largura; j++) {
+
+			blocoServ[i][j].tipo = tipo;
+
+			escreveBufferTabuleiro(j, i, blocoServ[i][j].tipo, 0);
+		}
+	}
+}
+void preencheBlocosServidorTiro(int *x, int *y, int pos, int tipo, int Largura) {
+
+	int flag = 0;
+
+	for (int i = *y; i <= *y + Largura; i++) {
+
+		for (int j = *x; j < *x + Largura; j++) {
+
+			blocoServ[i][j].tipo = tipo;
+
+			blocoServ[i][j].posArray = pos;
+
+			if (i == *y  && j == *x) {
+				flag = 1;
+				escreveBufferTabuleiro(j, i, blocoServ[i][j].tipo, flag);
+				flag = 0;
+			}
+			else {
+				flag = 0;
+				escreveBufferTabuleiro(j, i, blocoServ[i][j].tipo, flag);
+			}
+		}
+	}
+}
 // funcao vai limpar as posicoes do tabuleiro //
 void LimpaPosTabuleiro(int x, int y, int tipo, int Largura) {
 
 	for (int i = y; i < y + Largura; i++) {
 
-		for (int j = x; j < x + Largura; j++) {    
+		for (int j = x; j < x + Largura; j++) {
 
 			blocoServ[i][j].tipo = tipo;
-			
+
 			escreveBufferTabuleiro(j, i, blocoServ[i][j].tipo, 0);
 		}
 	}
