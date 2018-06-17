@@ -14,7 +14,80 @@ DadosdoJogo objectosNoMapa;
 dataServer dadosServidor;
 
 
+// vai buscar a posicao do tiro
+int obtemPosicaoTiro() {
 
+	for (int i = 0; i < MaxTiros; i++) {
+
+		if (objectosNoMapa.ArrayTiros[i].tipo == Tirovazio);
+
+		dadosServidor.TotalTiros += 1;
+		
+		return i;
+	}
+
+}
+void trataMovimentacaoTiro(int *x, int *y, int tipo, int PosObjeto) {
+
+	int tipoObjeto, coord_x = *x, coord_y = *y;
+
+	WaitForSingleObject(dadosServidor.mutexTabuleiro, INFINITE);
+
+		switch (tipo) {
+
+		case tiroJogador:
+			tipoObjeto = VerificaPosicaoJogo(x, y, tipo, cima);
+
+			switch (tipoObjeto) {
+
+				case bloco_vazio:
+					LimpaPosTabuleiro(coord_x, coord_y, bloco_vazio, LarguraTiroDefault);
+					*y += 1;
+					preencheBlocosServidor(x, y, PosObjeto, tipoObjeto, LarguraTiroDefault);
+					break;
+			}
+			break;
+		}
+		
+	ReleaseMutex(dadosServidor.mutexTabuleiro);
+}
+void GestorTirosTab() {
+
+
+	do {
+		
+		WaitForSingleObject(dadosServidor.EventoLancaTiro, INFINITE);
+		
+		do {
+			WaitForSingleObject(dadosServidor.MutexTiroArray, INFINITE);
+
+				for (int i = 0; i < MaxTiros; i++) {
+
+					switch (objectosNoMapa.ArrayTiros[i].tipo) {
+					
+						case tiroJogador:
+							trataMovimentacaoTiro(&objectosNoMapa.ArrayTiros[i].x, &objectosNoMapa.ArrayTiros[i].y, objectosNoMapa.ArrayTiros[i].tipo, i);
+							break;
+						case tiroNaveEnemy:
+							trataMovimentacaoTiro(&objectosNoMapa.ArrayTiros[i].x, &objectosNoMapa.ArrayTiros[i].y, objectosNoMapa.ArrayTiros[i].tipo, i);
+							break;
+						case tiroBoss:
+							trataMovimentacaoTiro(&objectosNoMapa.ArrayTiros[i].x, &objectosNoMapa.ArrayTiros[i].y, objectosNoMapa.ArrayTiros[i].tipo, i);
+								break;
+						case tiroNuclear:
+							trataMovimentacaoTiro(&objectosNoMapa.ArrayTiros[i].x, &objectosNoMapa.ArrayTiros[i].y, objectosNoMapa.ArrayTiros[i].tipo, i);
+								break;
+						}
+				}
+			ReleaseMutex(dadosServidor.MutexTiroArray);
+			
+			Sleep(TempoDeEnvioTabuleiro);
+
+		} while (dadosServidor.TotalTiros > 0);
+		
+	} while (dadosServidor.ServidorUp == 1);
+
+}
 void mostraNaveBasica() {
 
 	for (int i = 0; i < dadosServidor.initJogo.MaxNavesBasicas; i++) {
@@ -42,8 +115,9 @@ void alteraPosicaoObjeto(int PosObjeto, int tipoObjeto, int *x, int *y) {
 		objectosNoMapa.NaveEnemyTipo3[PosObjeto].x = *x;
 		objectosNoMapa.NaveEnemyTipo3[PosObjeto].y = *y;
 		break;
-	case LancaTiro:
-		break;
+	case tiroJogador:
+		objectosNoMapa.ArrayTiros[PosObjeto].x = *x;
+		objectosNoMapa.ArrayTiros[PosObjeto].x = *y;
 	}
 
 }
@@ -70,15 +144,6 @@ void CarregaPosObjeto(int PosObjeto, int tipoObjeto, int *x, int *y) {
 		case LancaTiro:
 			break;
 	}
-}
-
-int obtemPosicaoTiro() {
-
-	for (int i = 0; i < MaxTiros; i++) {
-
-		return i;
-	}
-	
 }
 // Vai verificar os comandos digitados pelas naves todas do jogo
 void verificaComandosJogo(int comando, int PosObjeto, int tipoObjeto) {
@@ -164,9 +229,29 @@ void verificaComandosJogo(int comando, int PosObjeto, int tipoObjeto) {
 	case LancaTiro:
 
 		WaitForSingleObject(dadosServidor.MutexTiroArray, INFINITE);
-		PosTiro = obtemPosicaoTiro();
 
+			y = y - 2;
 
+			PosTiro = obtemPosicaoTiro();
+
+			objectosNoMapa.ArrayTiros[PosTiro].tipo = tiroJogador;
+
+			objectosNoMapa.ArrayTiros[PosTiro].posJogador = PosObjeto;
+
+			objectosNoMapa.ArrayTiros[PosTiro].x = x;
+			
+			objectosNoMapa.ArrayTiros[PosTiro].y= y;
+
+			WaitForSingleObject(dadosServidor.mutexTabuleiro, INFINITE);
+
+				preencheBlocosServidor(&x, &y, PosTiro, objectosNoMapa.ArrayTiros[PosTiro].tipo, LarguraTiroDefault);
+			
+			ReleaseMutex(dadosServidor.mutexTabuleiro);
+
+			if (dadosServidor.TotalTiros == 1){
+
+				SetEvent(dadosServidor.EventoLancaTiro);
+			}
 
 		ReleaseMutex(dadosServidor.MutexTiroArray);
 		break;
@@ -376,7 +461,7 @@ Nave *criaArrayNaves(int tam) {
 
 }
 //funcao que vai iniciar as naves no sistema;
-int IniciaNavesInimigas() {
+int IniciaObjetosTabuleiro() {
 
 	Nave *navesInimigas;
 
@@ -385,6 +470,9 @@ int IniciaNavesInimigas() {
 
 	HANDLE hNavesEnemyUlti;
 	DWORD idNavesEnemyUlti;
+
+	HANDLE hTirosTab;
+	DWORD idTirosTab;
 
 
 	//int coord_x = CoordWindow_x, coord_y = CoordWindow_y;
@@ -399,25 +487,35 @@ int IniciaNavesInimigas() {
 
 	ColocaNavesTab(); //ver os dois
 
+	hTirosTab = CreateThread(NULL, 0, (LPTHREAD_START_ROUTINE)GestorTirosTab, (LPVOID)NULL, 0, &idTirosTab);	//thread para tiros no tabuleiro
+
 	hNavesEnemy[0] = CreateThread(NULL, 0, (LPTHREAD_START_ROUTINE)GestorNaveBasica, (LPVOID)NULL, 0, &idNavesEnemy[0]);	//thread para naves Basicas
 	
 	hNavesEnemy[1] = CreateThread(NULL, 0, (LPTHREAD_START_ROUTINE)GestorNaveEsquiva, (LPVOID)NULL, 0, &idNavesEnemy[1]);	//thread para naves Esquivas
 
-	if (hNavesEnemy[0] == NULL || hNavesEnemy[1] == NULL) {
-		_tprintf(TEXT("ERRO ao lançar naves enimigas\n"));
+	if (hNavesEnemy[0] == NULL || hNavesEnemy[1] == NULL || hTirosTab == NULL) {
+
+		_tprintf(TEXT("ERRO ao lançar naves enimigas ou Tiros\n"));
+		
 		return -1;
 	}
 
 	WaitForMultipleObjects(NULL, hNavesEnemy, 0, INFINITE);//so depois de nao haver mais naves a nave boss entra em ação
 														   //TODO fazer função para colocar a utima nave no array
 	hNavesEnemyUlti = CreateThread(NULL, 0, (LPTHREAD_START_ROUTINE)GestorNaveBoss, (LPVOID)NULL, 0, &idNavesEnemyUlti);	// cria thread para nave Boss
-
+	
 	if (hNavesEnemyUlti == NULL) {
 
 		_tprintf(TEXT("ERRO ao lançar Thread para naves enimigas\n"));
 
 		return -1;
 	}
+
+	WaitForSingleObject(hNavesEnemyUlti, INFINITE);
+
+	WaitForSingleObject(hTirosTab, INFINITE);
+
+
 
 	return 0;
 }
@@ -609,6 +707,8 @@ void InicializaArrayTiros() {
 
 	for (int i = 0; i < MaxTiros; i++) {
 
+		objectosNoMapa.ArrayTiros[i].tipo = Tirovazio;
+
 		objectosNoMapa.ArrayTiros[i].idJogador = 0;
 
 		objectosNoMapa.ArrayTiros[i].posJogador = 0;
@@ -689,8 +789,8 @@ int IniciarServidor() {
 	ArrayJogadores = iniciaArrayCli();
 																				
 	dadosServidor.hThreadSerToGw = CreateThread( NULL,0,(LPTHREAD_START_ROUTINE)TrataPacotesGwtoServ,(LPVOID) NULL,0,&dadosServidor.IdThreadSertoGw); // fica a espera de pacotes no buffer
-												
-	IniciaNavesInimigas();
+	
+	IniciaObjetosTabuleiro();
 	//
 	//criaStatusServerRegistry (0 );
 	return 0;

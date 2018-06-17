@@ -26,7 +26,7 @@
 
 //numero de naves inimigas apenas para testes
 #define ninimigas1 38
-#define ninimigas2 58
+#define ninimigas2 6
 
 #define NavesPorLinha 20
 
@@ -36,6 +36,7 @@
 // //Estrutura Tiro
 typedef struct tiroo {
 
+	int tipo;
 	int idJogador;
 	int x, y;
 	int posJogador; // no array para identificar de quem é o tiro
@@ -143,6 +144,8 @@ void LimpaPosTabuleiro(int x, int y, int tipo, int Largura);
 void preencheBlocosServidor(int *x, int *y, int pos, int tipo, int Largura);	 // esta funcao serve para preencher os blocos do tabuleiro
 void ColocaNavesTab();
 void IniciarJogo(int *x,int *y,int pos);	// funcao que vai inicar o jogo propriamente dito quando os jogadores decidirem começar a jogar
+void preencheBlocosServidorTiro(int *x, int *y, int pos, int tipo, int Largura);
+void LimpaPosTabuleiroTiro(int x, int y, int tipo, int Largura);
 
 //
 
