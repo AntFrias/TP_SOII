@@ -54,7 +54,7 @@ void TrataPacote(packet pacoteTratar) {
 					
 					switch (pacoteTratar.dataPacket.arrayTab[i].tipo) {
 
-						case NaveBasica: {
+						case NaveBasica: { 
 							TransparentBlt(janelaAux, (pacoteTratar.dataPacket.arrayTab[i].x * escala), (pacoteTratar.dataPacket.arrayTab[i].y * escala), 40, 40, hdcDasImg.Basica, 0, 0, 40, 40, RGB(255, 255, 255)); // estica e tira a cor de fundo
 							break;
 						}
