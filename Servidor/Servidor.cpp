@@ -22,8 +22,6 @@ void mostraNaveBasica() {
 
 	}
 }
-
-
 void alteraPosicaoObjeto(int PosObjeto, int tipoObjeto, int *x, int *y) {
 	switch (tipoObjeto) {
 
