@@ -13,7 +13,7 @@ void limpaTabuleiro() {
 			blocoServ[y][x].id = 0; //não existe
 			blocoServ[y][x].tipo = bloco_vazio; //vazio
 			blocoServ[y][x].posArray = 0; //vazio
-			escreveBufferTabuleiro(x, y, bloco_vazio);
+			escreveBufferTabuleiro(x, y, bloco_vazio, 0);
 		}
 	}
 }
@@ -40,66 +40,51 @@ int VerificaPosicaoPreencheTAb(int *x, int *y) {
 
 }
 // verifica posicao da nave Esquiva
-int VerificaPosicaoNaveEsquiva(int *x, int *y, int orientacao) {
+int VerificaPosicaoNaveEsquiva(int *x, int *y, int orientacao) {  // rever todo este codigo
 
 	switch (orientacao)
 	{
 	case cima:
-		if (*x + 1 < dimMapa_x && *y - 1 >= 0) {
-
-			if (blocoServ[*x][*y - 1].tipo == bloco_vazio && blocoServ[*x + 1][*y - 1].tipo == bloco_vazio) {
-
+		if (*y - 1 >= dimMapa_y - RegiaoNaveJogador) {
+			if (blocoServ[*y - 1][*x].tipo == bloco_vazio && blocoServ[*y - 1][*x + 1].tipo == bloco_vazio) {
 				return 1;
-
 			}
 			else {
-
 				return 0;
 			}
 		}
 		break;
-
 	case baixo:
-		if (*x + 1 < dimMapa_x && *y + 1 < dimMapa_y - 4) {
+		if (*y + 2 < dimMapa_y) {
 
-			if (blocoServ[*x][*y + 1].tipo == bloco_vazio && blocoServ[*x + 1][*y + 1].tipo == bloco_vazio) {
+			if (blocoServ[*y + 2][*x].tipo == bloco_vazio && blocoServ[*y + 2][*x + 1].tipo == bloco_vazio) {
 
 				return 1;
-
 			}
 			else {
-
 				return 0;
 			}
 		}
 		break;
 
 	case esquerda:
-		if (*x - 1 >= 0 && *y + 1 < dimMapa_y - 4) {
+		if (*x - 1 >= 0) {
 
-			if (blocoServ[*x - 1][*y].tipo == bloco_vazio && blocoServ[*x - 1][*y + 1].tipo == bloco_vazio) {
-
+			if (blocoServ[*y][*x - 1].tipo == bloco_vazio && blocoServ[*y + 1][*x - 1].tipo == bloco_vazio) {
 				return 1;
-
 			}
 			else {
-
 				return 0;
-
 			}
 		}
 		break;
 
 	case direita:
-		if (*x + 1 < dimMapa_x && *y + 1 < dimMapa_y - 4) {
-
-			if (blocoServ[*x + 1][*y].tipo == bloco_vazio && blocoServ[*x + 1][*y + 1].tipo == bloco_vazio) {
-
+		if (*x + 2 < dimMapa_x) {
+			if (blocoServ[*y][*x + 2].tipo == bloco_vazio && blocoServ[*y + 1][*x + 2].tipo == bloco_vazio) {
 				return 1;
-
 			}
 			else {
-
 				return 0;
 			}
 		}
@@ -193,12 +178,14 @@ void LimpaPosTabuleiro(int x, int y, int tipo, int Largura) {
 
 			blocoServ[i][j].tipo = tipo;
 			
-			escreveBufferTabuleiro(j, i, blocoServ[i][j].tipo);
+			escreveBufferTabuleiro(j, i, blocoServ[i][j].tipo, 0);
 		}
 	}
 }
 // preenche Bocos no tabuleiro do servidor e no bufferTabuleiro
 void preencheBlocosServidor(int *x, int *y, int pos, int tipo, int Largura) {
+
+	int flag = 0;
 
 	for (int i = *y; i < *y + Largura; i++) {
 
@@ -208,7 +195,15 @@ void preencheBlocosServidor(int *x, int *y, int pos, int tipo, int Largura) {
 
 			blocoServ[i][j].posArray = pos;
 
-			escreveBufferTabuleiro(j, i, blocoServ[i][j].tipo);
+			if (i == *y  && j == *x) {
+				flag = 1;
+				escreveBufferTabuleiro(j, i, blocoServ[i][j].tipo, flag);
+				flag = 0;
+			}
+			else {
+				escreveBufferTabuleiro(j, i, blocoServ[i][j].tipo, flag);
+			}
+			
 		}
 	}
 }
