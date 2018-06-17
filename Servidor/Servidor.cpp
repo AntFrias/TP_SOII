@@ -90,8 +90,11 @@ void verificaComandosJogo(int comando, int PosObjeto, int tipoObjeto) {
 			alteraPosicaoObjeto(PosObjeto, tipoObjeto, &x, &y);
 
 			preencheBlocosServidor(&x, &y, PosObjeto, tipoObjeto, LarguraNaveDefault);
+
+			SetEvent(dadosServidor.EventoInformaGwInicioJogo);
 		
 		}
+	
 		break;
 
 	case baixo:
@@ -106,7 +109,10 @@ void verificaComandosJogo(int comando, int PosObjeto, int tipoObjeto) {
 
 			preencheBlocosServidor(&x, &y, PosObjeto, tipoObjeto, LarguraNaveDefault);
 
+			SetEvent(dadosServidor.EventoInformaGwInicioJogo);
+
 		}
+	
 		break;
 
 	case esquerda:
@@ -121,7 +127,10 @@ void verificaComandosJogo(int comando, int PosObjeto, int tipoObjeto) {
 
 			preencheBlocosServidor(&x, &y, PosObjeto, tipoObjeto, LarguraNaveDefault);
 
+			SetEvent(dadosServidor.EventoInformaGwInicioJogo);
+
 		}
+	
 		break;
 
 	case direita:
@@ -136,7 +145,10 @@ void verificaComandosJogo(int comando, int PosObjeto, int tipoObjeto) {
 
 			preencheBlocosServidor(&x, &y, PosObjeto, tipoObjeto, LarguraNaveDefault);
 
+			SetEvent(dadosServidor.EventoInformaGwInicioJogo);
+
 		}
+	
 		break;
 
 	case LancaTiro:
@@ -152,6 +164,7 @@ void verificaComandosJogo(int comando, int PosObjeto, int tipoObjeto) {
 		break;
 
 	}
+	
 }
 int GestorNaveBoss(LPVOID aux) {
 
@@ -528,6 +541,8 @@ void TrataPacotesGwtoServ() {
 				PosJogador = VerificaPosicaoJogador(aux);
 
 				IniciaAmbienteJogo(PosJogador);
+
+				SetEvent(dadosServidor.EventoInformaGwInicioJogo);
 					
 				break;
 
@@ -537,13 +552,11 @@ void TrataPacotesGwtoServ() {
 				
 				WaitForSingleObject(dadosServidor.mutexTabuleiro, INFINITE);
 
-				mostraTabuleiro();
+				//mostraTabuleiro();
 
 				verificaComandosJogo(aux->dataPacket.comando, PosJogador, NaveJogador);
 
-				SetEvent(dadosServidor.EventoInformaGwInicioJogo);
-
-				_tprintf(TEXT("\n\n"));
+				//_tprintf(TEXT("\n\n"));
 
 				mostraTabCom();
 
