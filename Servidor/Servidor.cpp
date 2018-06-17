@@ -527,6 +527,9 @@ void TrataPacotesGwtoServ() {
 
 				IniciaAmbienteJogo(PosJogador);
 				
+				resposta.tipo = IniciaJogoMultiplayer;
+
+				escrevebuffer(&resposta, nomeServtoGw);
 				break;
 
 			case AtualizacaoJogo:
@@ -536,10 +539,9 @@ void TrataPacotesGwtoServ() {
 				PosJogador = VerificaPosicaoJogador(aux);
 				
 				WaitForSingleObject(dadosServidor.mutexTabuleiro, INFINITE);
-				mostraTabuleiro();
+
 				verificaComandosJogo(aux->dataPacket.comando, PosJogador, NaveJogador);
-				_tprintf(TEXT("\n\n\n"));
-				mostraTabuleiro();
+
 				ReleaseMutex(dadosServidor.mutexTabuleiro);
 				break;
 			

@@ -45,7 +45,7 @@ int VerificaPosicaoNaveEsquiva(int *x, int *y, int orientacao) {  // rever todo 
 	switch (orientacao)
 	{
 	case cima:
-		if (*y - 1 >= dimMapa_y - RegiaoNaveJogador) {
+		if (*y - 1 >= 0 ) {
 			if (blocoServ[*y - 1][*x].tipo == bloco_vazio && blocoServ[*y - 1][*x + 1].tipo == bloco_vazio) {
 				return 1;
 			}
@@ -55,7 +55,7 @@ int VerificaPosicaoNaveEsquiva(int *x, int *y, int orientacao) {  // rever todo 
 		}
 		break;
 	case baixo:
-		if (*y + 2 < dimMapa_y) {
+		if (*y + 2 < dimMapa_y - RegiaoNaveJogador) {
 
 			if (blocoServ[*y + 2][*x].tipo == bloco_vazio && blocoServ[*y + 2][*x + 1].tipo == bloco_vazio) {
 
@@ -236,11 +236,11 @@ void IniciarJogo(int *x, int *y,int pos) {
 	}while (VerificaPosicaoPreencheTAb(&posX, &posY) == 0);
 
 	*x = posX;
+
 	*y = posY;
 
 	preencheBlocosServidor(x, y, pos, NaveJogador, LarguraNaveDefault);
-	_tprintf(TEXT("\n\n\n"));
-	mostraTabuleiro();
+
 	
 
 }

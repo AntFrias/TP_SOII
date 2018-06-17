@@ -213,25 +213,27 @@ void LePacotesBufferServtoGw() {
 	do {
 	
 		Resposta = LerBufferServtoGw();
-		// se a opçao do jogador for jogar individual irá lançar a thread que irá enviar lhe o jogo atualizado;
-		//falta por a versao de iniciar jogo Multiplayer aqui
-		if (Resposta->tipo == IniciaJogoMultiplayer ) {
+	
+		switch (Resposta->tipo) {
+
+		case IniciaJogoMultiplayer:
 
 			hThredEnviaTabuleiro = CreateThread(NULL, 0, (LPTHREAD_START_ROUTINE)iniciaThreadJogo, (LPVOID)NULL, 0, &idThreadEnviaTabuleiro);
 
 			if (hThredEnviaTabuleiro == NULL) {
-			
+
 				_tprintf(TEXT("\n\nErro ao criar Thread que ira enviar o Jogo atualizado para os Clientes"));
-				
+
 				exit(-1);
 			}
-		}
-		switch (Resposta->tipo) {
+
+			break;
 
 		default:
 
 			EnviaRespostaParaCliente(Resposta);
-		
+
+			break;
 		}
 		
 	} while (dadosGw.ServerUp);
