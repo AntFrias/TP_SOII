@@ -233,7 +233,7 @@ void carregaBitMaps() {
 	bipMaps.Defensora2 = (HBITMAP)LoadImage(NULL, L"../../Imagens/Defensora2.bmp", IMAGE_BITMAP, 40, 40, LR_LOADFROMFILE);
 	bipMaps.Esquiva = (HBITMAP)LoadImage(NULL, L"../../Imagens/Esquiva.bmp", IMAGE_BITMAP, 40, 40, LR_LOADFROMFILE);
 	bipMaps.Tiro = (HBITMAP)LoadImage(NULL, L"../../Imagens/tiro.bmp", IMAGE_BITMAP, 20, 40, LR_LOADFROMFILE);
-	bipMaps.Boss = (HBITMAP)LoadImage(NULL, L"../../Imagens/boss.bmp", IMAGE_BITMAP, 40, 40, LR_LOADFROMFILE);
+	bipMaps.Boss = (HBITMAP)LoadImage(NULL, L"../../Imagens/boss.bmp", IMAGE_BITMAP, 80, 80, LR_LOADFROMFILE);
 	bipMaps.Space = (HBITMAP)LoadImage(NULL, L"../../Imagens/space.bmp", IMAGE_BITMAP, 800, 800, LR_LOADFROMFILE);
 	bipMaps.Presente = (HBITMAP)LoadImage(NULL, L"../../Imagens/presente.bmp", IMAGE_BITMAP, 40, 40, LR_LOADFROMFILE);
 
@@ -417,6 +417,7 @@ LRESULT CALLBACK WindowProc(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
 			PacoteEnvio.tipo = AtualizacaoJogo;
 			PacoteEnvio.dataPacket.comando = cima;
 			SetEvent(Cliente.EventEnvia);
+			PlaySoundA((LPCSTR) "movs.wav", NULL, SND_FILENAME | SND_ASYNC);
 			break;
 
 		}
@@ -425,6 +426,7 @@ LRESULT CALLBACK WindowProc(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
 			PacoteEnvio.tipo = AtualizacaoJogo;
 			PacoteEnvio.dataPacket.comando = baixo;
 			SetEvent(Cliente.EventEnvia);
+			PlaySoundA((LPCSTR) "movs.wav", NULL, SND_FILENAME | SND_ASYNC);
 			break;
 		}
 		if ((TCHAR)wParam == configuracoes.ESQUERDA) {
@@ -432,6 +434,7 @@ LRESULT CALLBACK WindowProc(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
 			PacoteEnvio.tipo = AtualizacaoJogo;
 			PacoteEnvio.dataPacket.comando = esquerda;
 			SetEvent(Cliente.EventEnvia);
+			PlaySoundA((LPCSTR) "movs.wav", NULL, SND_FILENAME | SND_ASYNC);
 			break;
 		}
 		if ((TCHAR)wParam == configuracoes.DIREITA) {
@@ -439,6 +442,7 @@ LRESULT CALLBACK WindowProc(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
 			PacoteEnvio.tipo = AtualizacaoJogo;
 			PacoteEnvio.dataPacket.comando = direita;
 			SetEvent(Cliente.EventEnvia);
+			PlaySoundA((LPCSTR) "movs.wav", NULL, SND_FILENAME | SND_ASYNC);
 			break;
 		}
 		if ((TCHAR)wParam == configuracoes.TIRO) {
@@ -446,6 +450,7 @@ LRESULT CALLBACK WindowProc(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
 			PacoteEnvio.tipo = AtualizacaoJogo;
 			PacoteEnvio.dataPacket.comando = LancaTiro;
 			SetEvent(Cliente.EventEnvia);
+			PlaySoundA((LPCSTR) "shot.wav", NULL, SND_FILENAME | SND_ASYNC);
 			break;
 		}
 		if ((TCHAR)wParam == configuracoes.POWERUP1) {
@@ -577,7 +582,7 @@ int WINAPI _tWinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPTSTR LpCmdL
 	TransparentBlt(janelaAux, (tabAux[4].x * 20), (tabAux[4].y * 20), 40, 40, hdcDasImg.Defensora1, 0, 0, 40, 40, RGB(255, 255, 255)); // estica e tira a cor de fundo
 	TransparentBlt(janelaAux, (tabAux[5].x * 20), (tabAux[5].y * 20), 40, 40, hdcDasImg.Defensora2, 0, 0, 40, 40, RGB(255, 255, 255)); // estica e tira a cor de fundo
 	TransparentBlt(janelaAux, (tabAux[6].x * 20), (tabAux[6].y * 20), 15, 40, hdcDasImg.Bomba, 0, 0, 20, 40, RGB(255, 255, 255)); // estica e tira a cor de fundo
-	TransparentBlt(janelaAux, (tabAux[7].x * 20), (tabAux[7].y * 20), 120, 120, hdcDasImg.Boss, 0, 0, 40, 40, RGB(255, 255, 255)); // estica e tira a cor de fundo
+	TransparentBlt(janelaAux, (tabAux[7].x * 20), (tabAux[7].y * 20), 120, 120, hdcDasImg.Boss, 0, 0, 80, 80, RGB(255, 255, 255)); // estica e tira a cor de fundo
 	
 	InvalidateRect(hwndPrincipal, NULL, TRUE);
 
