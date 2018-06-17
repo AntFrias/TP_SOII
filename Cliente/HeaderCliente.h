@@ -53,6 +53,7 @@ typedef struct img {
 	HBITMAP Tiro;
 	HBITMAP Boss;
 	HBITMAP Space;
+	HBITMAP Presente;
 
 }bipm;
 
@@ -67,6 +68,7 @@ typedef struct hcds {
 	HDC Tiro;
 	HDC Boss;
 	HDC Space;
+	HDC Presente;
 
 
 }hdcImg;

@@ -3,7 +3,7 @@
 
 EstruturaCli Cliente;
 configur configuracoes;
-alteracaoTab tabAux[5];
+alteracaoTab tabAux[8];
 bipm bipMaps;
 packet PacoteEnvio;
 hdcImg hdcDasImg;
@@ -55,55 +55,31 @@ void TrataPacote(packet pacoteTratar) {
 					switch (pacoteTratar.dataPacket.arrayTab[i].tipo) {
 
 						case NaveBasica: {
-							
+							TransparentBlt(janelaAux, (pacoteTratar.dataPacket.arrayTab[i].x * 20), (pacoteTratar.dataPacket.arrayTab[i].y * 20), 40, 40, hdcDasImg.Basica, 0, 0, 40, 40, RGB(255, 255, 255)); // estica e tira a cor de fundo
 							break;
 						}
 						case NavesEsquiva: {
-							
+							TransparentBlt(janelaAux, (pacoteTratar.dataPacket.arrayTab[i].x * 20), (pacoteTratar.dataPacket.arrayTab[i].y * 20), 40, 40, hdcDasImg.Esquiva, 0, 0, 40, 40, RGB(255, 255, 255)); // estica e tira a cor de fundo
 							break;
 						}
 						case NaveBoss: {
-							
+							TransparentBlt(janelaAux, (pacoteTratar.dataPacket.arrayTab[i].x * 20), (pacoteTratar.dataPacket.arrayTab[i].y * 20), 40, 40, hdcDasImg.Boss, 0, 0, 40, 40, RGB(255, 255, 255)); // estica e tira a cor de fundo
 							break;
 						}
 						case NaveJogador: {
-							
+							TransparentBlt(janelaAux, (pacoteTratar.dataPacket.arrayTab[i].x * 20), (pacoteTratar.dataPacket.arrayTab[i].y * 20), 40, 40, hdcDasImg.Defensora1, 0, 0, 40, 40, RGB(255, 255, 255)); // estica e tira a cor de fundo
 							break;
 						}
 						case tiroJogador: {
-							
+							TransparentBlt(janelaAux, (pacoteTratar.dataPacket.arrayTab[i].x * 20), (pacoteTratar.dataPacket.arrayTab[i].y * 20), 15, 40, hdcDasImg.Tiro, 0, 0, 20, 40, RGB(255, 255, 255)); // estica e tira a cor de fundo
 							break;
 						}
 						case bombaInimiga: {
-							
+							TransparentBlt(janelaAux, (pacoteTratar.dataPacket.arrayTab[i].x * 20), (pacoteTratar.dataPacket.arrayTab[i].y * 20), 15, 40, hdcDasImg.Bomba, 0, 0, 20, 40, RGB(255, 255, 255)); // estica e tira a cor de fundo
 							break;
 						}
 						case PowerUpEscudo: {
-							//
-							break;
-						}
-						case PowerUpGelo: {
-						//	
-							break;
-						}
-						case PowerUpBateria: {
-							//
-							break;
-						}
-						case PowerUpMais: {
-							//
-							break;
-						}
-						case PowerUpVida: {
-							//
-							break;
-						}
-						case PowerUpAlcool: {
-							//
-							break;
-						}
-						case PowerUpNuclear: {
-							//
+							TransparentBlt(janelaAux, (pacoteTratar.dataPacket.arrayTab[i].x * 20), (pacoteTratar.dataPacket.arrayTab[i].y * 20), 40, 40, hdcDasImg.Presente, 0, 0, 40, 40, RGB(255, 255, 255)); // estica e tira a cor de fundo
 							break;
 						}
 						default:
@@ -259,6 +235,7 @@ void carregaBitMaps() {
 	bipMaps.Tiro = (HBITMAP)LoadImage(NULL, L"../../Imagens/tiro.bmp", IMAGE_BITMAP, 20, 40, LR_LOADFROMFILE);
 	bipMaps.Boss = (HBITMAP)LoadImage(NULL, L"../../Imagens/boss.bmp", IMAGE_BITMAP, 40, 40, LR_LOADFROMFILE);
 	bipMaps.Space = (HBITMAP)LoadImage(NULL, L"../../Imagens/space.bmp", IMAGE_BITMAP, 800, 800, LR_LOADFROMFILE);
+	bipMaps.Presente = (HBITMAP)LoadImage(NULL, L"../../Imagens/presente.bmp", IMAGE_BITMAP, 40, 40, LR_LOADFROMFILE);
 
 }
 
@@ -267,15 +244,16 @@ LRESULT CALLBACK Configuracoes(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lPara
 	switch (uMsg)
 	{
 	case WM_INITDIALOG: 
-		SetWindowText(GetDlgItem(hwnd, IDC_Nome), TEXT("Joao"));	// por texto por default
-		SetWindowText(GetDlgItem(hwnd, IDC_ESQUERDA), TEXT("A"));	// por texto por default
-		SetWindowText(GetDlgItem(hwnd, IDC_CIMA), TEXT("W"));		// por texto por default
-		SetWindowText(GetDlgItem(hwnd, IDC_BAIXO), TEXT("S"));		// por texto por default
-		SetWindowText(GetDlgItem(hwnd, IDC_DIREITA), TEXT("D"));	// por texto por default
-		SetWindowText(GetDlgItem(hwnd, IDC_tiro), TEXT("V"));	// por texto por default
-		SetWindowText(GetDlgItem(hwnd, IDC_POWERUP1), TEXT("Z"));	// por texto por default
-		SetWindowText(GetDlgItem(hwnd, IDC_POWERUP2), TEXT("X"));	// por texto por default
-		SetWindowText(GetDlgItem(hwnd, IDC_POWERUP3), TEXT("C"));	// por texto por default
+		//colocar o texto por default nas caixas
+		SetWindowText(GetDlgItem(hwnd, IDC_Nome), TEXT("Joao"));	
+		SetWindowText(GetDlgItem(hwnd, IDC_ESQUERDA), TEXT("A"));	
+		SetWindowText(GetDlgItem(hwnd, IDC_CIMA), TEXT("W"));		
+		SetWindowText(GetDlgItem(hwnd, IDC_BAIXO), TEXT("S"));		
+		SetWindowText(GetDlgItem(hwnd, IDC_DIREITA), TEXT("D"));	
+		SetWindowText(GetDlgItem(hwnd, IDC_tiro), TEXT("V"));	
+		SetWindowText(GetDlgItem(hwnd, IDC_POWERUP1), TEXT("Z"));	
+		SetWindowText(GetDlgItem(hwnd, IDC_POWERUP2), TEXT("X"));	
+		SetWindowText(GetDlgItem(hwnd, IDC_POWERUP3), TEXT("C"));	
 		break;
 
 	case WM_COMMAND:
@@ -287,15 +265,12 @@ LRESULT CALLBACK Configuracoes(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lPara
 			GetWindowText(GetDlgItem(hwnd, IDC_Nome), buff, 9);
 			wcscpy_s(configuracoes.nome, buff);
 			
-			//MessageBox(NULL,configuracoes.nome,TEXT("exemplo"),MB_OK | MB_ICONERROR); //para ver se está a buscar o nome bem
-			
 			//Teclas
 			TCHAR aux[2];
-
+			//nao esquecer ... o 2 é a letra mais o \n !!
 			GetDlgItemText(hwnd, IDC_CIMA, aux, 2);
 			configuracoes.CIMA = aux[0];
 			aux[1] = TEXT('\0');
-			//MessageBox(NULL, aux, TEXT("LETRA"), MB_OK);
 			
 			GetDlgItemText(hwnd, IDC_ESQUERDA, aux,2);
 			configuracoes.ESQUERDA = aux[0];
@@ -327,6 +302,7 @@ LRESULT CALLBACK Configuracoes(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lPara
 			aux[1] = TEXT('\0');
 			
 			//prenche pacote
+			LimpaPacotedEnvio();
 			PacoteEnvio.tipo = user_login;
 			wcscpy_s(PacoteEnvio.dataPacket.nome, configuracoes.nome);
 			SetEvent(Cliente.EventEnvia);
@@ -371,14 +347,14 @@ LRESULT CALLBACK WindowProc(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
 		PostQuitMessage(0);
 
 		//eliminar as janelas feitas para cada um bipmap ... (por mais aqui ... um delete para cada um)
-		DeleteObject(bipMaps.Wallpaper); 
-		DeleteObject(bipMaps.Space);
-		DeleteObject(bipMaps.Basica);
-		DeleteObject(bipMaps.Esquiva);
-		DeleteObject(bipMaps.Boss);
-		DeleteObject(bipMaps.Defensora1);
-		DeleteObject(bipMaps.Tiro);
-		DeleteObject(bipMaps.Bomba);
+		DeleteObject(hdcDasImg.Wallpaper);
+		DeleteObject(hdcDasImg.Space);
+		DeleteObject(hdcDasImg.Basica);
+		DeleteObject(hdcDasImg.Esquiva);
+		DeleteObject(hdcDasImg.Boss);
+		DeleteObject(hdcDasImg.Defensora1);
+		DeleteObject(hdcDasImg.Tiro);
+		DeleteObject(hdcDasImg.Bomba);
 
 		//eliminar o  ecra aux -> este é o que imprime 
 		DeleteDC(janelaImprime); 
@@ -387,9 +363,8 @@ LRESULT CALLBACK WindowProc(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
 	}
 	case WM_PAINT:	{
 
-
 		janelaImprime = BeginPaint(hwnd, &Ps);
-
+		//copia do janela auxiliar para a janela a imprimir
 		BitBlt(janelaImprime, 0, 0, 800, 800, janelaAux, 0, 0, SRCCOPY);
 		
 		EndPaint(hwnd, &Ps);
@@ -406,28 +381,29 @@ LRESULT CALLBACK WindowProc(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
 		SelectObject(janelaAux, teste);
 		ReleaseDC(hwndPrincipal, janelaImprime);
 
-
-		// Create a memory device compatible with the above DC variable
+		// Cria uma "janela"( memory device compatible ) para cada bipmap
 		hdcDasImg.Wallpaper = CreateCompatibleDC(janelaAux);
 		hdcDasImg.Space = CreateCompatibleDC(janelaAux);
 		hdcDasImg.Basica = CreateCompatibleDC(janelaAux);
 		hdcDasImg.Esquiva = CreateCompatibleDC(janelaAux);
 		hdcDasImg.Boss = CreateCompatibleDC(janelaAux);
 		hdcDasImg.Defensora1 = CreateCompatibleDC(janelaAux);
+		hdcDasImg.Defensora2 = CreateCompatibleDC(janelaAux);
 		hdcDasImg.Tiro = CreateCompatibleDC(janelaAux);
 		hdcDasImg.Bomba = CreateCompatibleDC(janelaAux);
+		hdcDasImg.Presente = CreateCompatibleDC(janelaAux);
 
-		// Select the new bitmap //colocar o bipMap para dentro do Device Contexts
+		//colocar o bipMap para dentro do Device Contexts
 		SelectObject(hdcDasImg.Wallpaper, bipMaps.Wallpaper);
 		SelectObject(hdcDasImg.Space, bipMaps.Space);
 		SelectObject(hdcDasImg.Basica, bipMaps.Basica); 
 		SelectObject(hdcDasImg.Esquiva, bipMaps.Esquiva);
 		SelectObject(hdcDasImg.Boss, bipMaps.Boss);
-		SelectObject(hdcDasImg.Defensora1, bipMaps.Defensora1); 
+		SelectObject(hdcDasImg.Defensora1, bipMaps.Defensora1);
+		SelectObject(hdcDasImg.Defensora2, bipMaps.Defensora2);
 		SelectObject(hdcDasImg.Tiro, bipMaps.Tiro); 
-		SelectObject(hdcDasImg.Bomba, bipMaps.Bomba); 
-
-
+		SelectObject(hdcDasImg.Bomba, bipMaps.Bomba);
+		SelectObject(hdcDasImg.Presente, bipMaps.Presente);
 				
 		break;
 	}
@@ -435,11 +411,13 @@ LRESULT CALLBACK WindowProc(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
 
 	case WM_CHAR: {
 
+		
 		if ((TCHAR)wParam == configuracoes.CIMA) {
 			LimpaPacotedEnvio();
 			PacoteEnvio.tipo = AtualizacaoJogo;
 			PacoteEnvio.dataPacket.comando = cima;
 			SetEvent(Cliente.EventEnvia);
+			break;
 
 		}
 		if ((TCHAR)wParam == configuracoes.BAIXO) {
@@ -447,43 +425,51 @@ LRESULT CALLBACK WindowProc(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
 			PacoteEnvio.tipo = AtualizacaoJogo;
 			PacoteEnvio.dataPacket.comando = baixo;
 			SetEvent(Cliente.EventEnvia);
+			break;
 		}
 		if ((TCHAR)wParam == configuracoes.ESQUERDA) {
 			LimpaPacotedEnvio();
 			PacoteEnvio.tipo = AtualizacaoJogo;
 			PacoteEnvio.dataPacket.comando = esquerda;
 			SetEvent(Cliente.EventEnvia);
+			break;
 		}
 		if ((TCHAR)wParam == configuracoes.DIREITA) {
 			LimpaPacotedEnvio();
 			PacoteEnvio.tipo = AtualizacaoJogo;
 			PacoteEnvio.dataPacket.comando = direita;
 			SetEvent(Cliente.EventEnvia);
+			break;
 		}
 		if ((TCHAR)wParam == configuracoes.TIRO) {
 			LimpaPacotedEnvio();
 			PacoteEnvio.tipo = AtualizacaoJogo;
 			PacoteEnvio.dataPacket.comando = LancaTiro;
 			SetEvent(Cliente.EventEnvia);
+			break;
 		}
 		if ((TCHAR)wParam == configuracoes.POWERUP1) {
 			LimpaPacotedEnvio();
 			PacoteEnvio.tipo = AtualizacaoJogo;
 			PacoteEnvio.dataPacket.comando = PowerUp1;
 			SetEvent(Cliente.EventEnvia);
+			break;
 		}
 		if ((TCHAR)wParam == configuracoes.POWERUP2) {
 			LimpaPacotedEnvio();
 			PacoteEnvio.tipo = AtualizacaoJogo;
 			PacoteEnvio.dataPacket.comando = PowerUp2;
 			SetEvent(Cliente.EventEnvia);
+			break;
 		}
 		if ((TCHAR)wParam == configuracoes.POWERUP3) {
 			LimpaPacotedEnvio();
 			PacoteEnvio.tipo = AtualizacaoJogo;
 			PacoteEnvio.dataPacket.comando = PowerUp3;
 			SetEvent(Cliente.EventEnvia);
+			break;
 		}
+		
 		break;
 	}
 
@@ -495,12 +481,11 @@ LRESULT CALLBACK WindowProc(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
 }
 
 int WINAPI _tWinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPTSTR LpCmdLine, int ncmdshow)
-{
+{	
+	// lança a thread que escuta no named pipe
+	IniciaCliente(); 
 	
-
-	IniciaCliente(); // lança a thread que escuta no named pipe
-	
-	// Register the window class.
+	//Registar a class da janela
 	const wchar_t CLASS_NAME[] = L"Janela Principal";
 
 	WNDCLASS wc = {};
@@ -508,11 +493,9 @@ int WINAPI _tWinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPTSTR LpCmdL
 	///////////////////////////////////////Configuraçoes//////////////////////////////////////////////////////////////
 	HWND hDlg = CreateDialog(hInstance, MAKEINTRESOURCE(IDD_DIALOG1), 0, Configuracoes);
 	ShowWindow(hDlg, ncmdshow);
-
 	MSG msg = {};
-	
 	////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-	
+	//carregabitmaps para a esturuta
 	carregaBitMaps();
 	///////////////////////////////////////////////////////////////////////////////////////////////////////////////
 	wc.lpfnWndProc = WindowProc;
@@ -523,7 +506,7 @@ int WINAPI _tWinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPTSTR LpCmdL
 	wc.hCursor =(HCURSOR)LoadImage(NULL, L"../../Imagens/Cursor.cur", IMAGE_CURSOR, 32, 32, LR_LOADFROMFILE);
 	RegisterClass(&wc);
 	
-	// Create the window.
+	// Criação da janela principal
 	hwndPrincipal = CreateWindowEx(
 		0,                              // Optional window styles.
 		CLASS_NAME,                     // Window class
@@ -546,6 +529,7 @@ int WINAPI _tWinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPTSTR LpCmdL
 	//Descomentar isto para aparecer o logo no inicio
 	//BitBlt(janelaAux, 0, 0, 800, 800, hdcDasImg.Wallpaper, 0, 0, SRCCOPY);
 	//InvalidateRect(hwndPrincipal, NULL, TRUE);
+	
 
 	tabAux[0].tipo = NaveBasica;
 	tabAux[0].x = 0;
@@ -567,6 +551,22 @@ int WINAPI _tWinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPTSTR LpCmdL
 	tabAux[4].x = 4;
 	tabAux[4].y = 30;
 
+	tabAux[5].tipo = PowerUpVida;
+	tabAux[5].x = 20;
+	tabAux[5].y = 12;
+
+	tabAux[6].tipo = NaveJogador;
+	tabAux[6].x = 30;
+	tabAux[6].y = 15;
+
+	tabAux[6].tipo = bombaInimiga;
+	tabAux[6].x = 18;
+	tabAux[6].y = 29;
+
+	tabAux[7].tipo = NaveBoss;
+	tabAux[7].x = 10;
+	tabAux[7].y = 0;
+
 	
 
 	BitBlt(janelaAux, 0, 0, 800, 800, hdcDasImg.Space, 0, 0, SRCCOPY);
@@ -575,8 +575,9 @@ int WINAPI _tWinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPTSTR LpCmdL
 	TransparentBlt(janelaAux, (tabAux[2].x * 20), (tabAux[2].y * 20), 40, 40, hdcDasImg.Esquiva, 0, 0, 40, 40, RGB(255, 255, 255)); // estica e tira a cor de fundo
 	TransparentBlt(janelaAux, (tabAux[3].x * 20), (tabAux[3].y * 20), 40, 40, hdcDasImg.Basica, 0, 0, 40, 40, RGB(255, 255, 255)); // estica e tira a cor de fundo
 	TransparentBlt(janelaAux, (tabAux[4].x * 20), (tabAux[4].y * 20), 40, 40, hdcDasImg.Defensora1, 0, 0, 40, 40, RGB(255, 255, 255)); // estica e tira a cor de fundo
-	
-	
+	TransparentBlt(janelaAux, (tabAux[5].x * 20), (tabAux[5].y * 20), 40, 40, hdcDasImg.Defensora2, 0, 0, 40, 40, RGB(255, 255, 255)); // estica e tira a cor de fundo
+	TransparentBlt(janelaAux, (tabAux[6].x * 20), (tabAux[6].y * 20), 15, 40, hdcDasImg.Bomba, 0, 0, 20, 40, RGB(255, 255, 255)); // estica e tira a cor de fundo
+	TransparentBlt(janelaAux, (tabAux[7].x * 20), (tabAux[7].y * 20), 120, 120, hdcDasImg.Boss, 0, 0, 40, 40, RGB(255, 255, 255)); // estica e tira a cor de fundo
 	
 	InvalidateRect(hwndPrincipal, NULL, TRUE);
 
