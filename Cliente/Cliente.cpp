@@ -7,6 +7,8 @@ alteracaoTab tabAux[5];
 bipm bipMaps;
 packet PacoteEnvio;
 hdcImg hdcDasImg;
+HDC janelaImprime;
+HDC janelaAux;
 
 HWND hwndPrincipal;  // janela principal
 
@@ -47,69 +49,70 @@ void TrataPacote(packet pacoteTratar) {
 			}
 		
 			case AtualizacaoJogo: {
-
+				BitBlt(janelaAux, 0, 0, 800, 800, hdcDasImg.Space, 0, 0, SRCCOPY);
 				for (int i = 0; i < pacoteTratar.numObjetos; i++) {
 					
 					switch (pacoteTratar.dataPacket.arrayTab[i].tipo) {
 
 						case NaveBasica: {
-							//coloca o respectivo bipmap (ja carregado) para dentro do ecra auxiliar
+							
 							break;
 						}
 						case NavesEsquiva: {
-							//coloca o respectivo bipmap (ja carregado) para dentro do ecra auxiliar
+							
 							break;
 						}
 						case NaveBoss: {
-							//coloca o respectivo bipmap (ja carregado) para dentro do ecra auxiliar
+							
 							break;
 						}
 						case NaveJogador: {
-							//coloca o respectivo bipmap (ja carregado) para dentro do ecra auxiliar
+							
 							break;
 						}
 						case tiroJogador: {
-							//coloca o respectivo bipmap (ja carregado) para dentro do ecra auxiliar
+							
 							break;
 						}
 						case bombaInimiga: {
-							//coloca o respectivo bipmap (ja carregado) para dentro do ecra auxiliar
+							
 							break;
 						}
 						case PowerUpEscudo: {
-							//coloca o respectivo bipmap (ja carregado) para dentro do ecra auxiliar
+							//
 							break;
 						}
 						case PowerUpGelo: {
-							//coloca o respectivo bipmap (ja carregado) para dentro do ecra auxiliar
+						//	
 							break;
 						}
 						case PowerUpBateria: {
-							//coloca o respectivo bipmap (ja carregado) para dentro do ecra auxiliar
+							//
 							break;
 						}
 						case PowerUpMais: {
-							//coloca o respectivo bipmap (ja carregado) para dentro do ecra auxiliar
+							//
 							break;
 						}
 						case PowerUpVida: {
-							//coloca o respectivo bipmap (ja carregado) para dentro do ecra auxiliar
+							//
 							break;
 						}
 						case PowerUpAlcool: {
-							//coloca o respectivo bipmap (ja carregado) para dentro do ecra auxiliar
+							//
 							break;
 						}
 						case PowerUpNuclear: {
-							//coloca o respectivo bipmap (ja carregado) para dentro do ecra auxiliar
+							//
 							break;
 						}
 						default:
 							break;
-
+							
 					}
 						
 				}
+				InvalidateRect(hwndPrincipal, NULL, TRUE);
 
 			}
 		
@@ -166,7 +169,7 @@ void escuta() {
 	BOOL ret;
 	HANDLE IOReady; //handle para o evento
 	OVERLAPPED Ov; // Extrutura para o so interpretar
-
+	
 	IOReady = CreateEvent(NULL, TRUE, FALSE, NULL); // retorno do evento handle
 
 	if (IOReady == NULL) {
@@ -216,6 +219,12 @@ void escuta() {
 			break;
 		}
 		//_tprintf(TEXT("\n\nRecebi este nome %s\n"), PacoteRecebido.dataPacket.nome);
+		//BitBlt(janelaAux, 15,30 , 800, 800, hdcDasImg.Basica, 0, 0, SRCCOPY);
+
+		//BitBlt(janelaAux, 0, 0, 800, 800, hdcDasImg.Wallpaper, 0, 0, SRCCOPY);
+		BitBlt(janelaAux, 0, 0, 800, 800, hdcDasImg.Space, 0, 0, SRCCOPY);
+		TransparentBlt(janelaAux, 15, 30, 40, 40, hdcDasImg.Basica, 0, 0, 40, 40, RGB(255,255,255)); // estica e tira a cor de fundo
+		InvalidateRect(hwndPrincipal,NULL,TRUE);
 		
 		TrataPacote(PacoteRecebido);
 
@@ -253,6 +262,7 @@ void carregaBitMaps() {
 	bipMaps.Esquiva = (HBITMAP)LoadImage(NULL, L"../../Imagens/Esquiva.bmp", IMAGE_BITMAP, 40, 40, LR_LOADFROMFILE);
 	bipMaps.Tiro = (HBITMAP)LoadImage(NULL, L"../../Imagens/tiro.bmp", IMAGE_BITMAP, 20, 40, LR_LOADFROMFILE);
 	bipMaps.Boss = (HBITMAP)LoadImage(NULL, L"../../Imagens/boss.bmp", IMAGE_BITMAP, 40, 40, LR_LOADFROMFILE);
+	bipMaps.Space = (HBITMAP)LoadImage(NULL, L"../../Imagens/space.bmp", IMAGE_BITMAP, 800, 800, LR_LOADFROMFILE);
 
 }
 
@@ -352,9 +362,8 @@ LRESULT CALLBACK Configuracoes(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lPara
 
 LRESULT CALLBACK WindowProc(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
 {
-
+	
 	/////////////TESTE
-	HDC hDC, MemDCExercising;
 	PAINTSTRUCT Ps;
 	//HBITMAP bmpExercising;
 
@@ -370,33 +379,48 @@ LRESULT CALLBACK WindowProc(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
 		return 0;
 	}
 	case WM_PAINT:	{
-		hDC = BeginPaint(hwnd, &Ps);
 
-		// Load the bitmap from the resource
-		//ja carreguei antes
-		//bmpExercising = (HBITMAP)LoadImage(NULL, L"../../Imagens/imagemInicial.bmp", IMAGE_BITMAP, 800, 800, LR_LOADFROMFILE);
+
+		janelaImprime = BeginPaint(hwnd, &Ps);
+
+		BitBlt(janelaImprime, 0, 0, 800, 800, janelaAux, 0, 0, SRCCOPY);
 		
-		// Create a memory device compatible with the above DC variable
-		//MemDCExercising = CreateCompatibleDC(hDC);
-		
-		// Select the new bitmap
-		//SelectObject(MemDCExercising, bmpExercising);
-
-		// Copy the bits from the memory DC into the current dc
-		//BitBlt(hDC, 0, 0, 800, 800, MemDCExercising, 0, 0, SRCCOPY);
-
-		// Restore the old bitmap
-		//DeleteDC(MemDCExercising);
-		//DeleteObject(bmpExercising);
 		EndPaint(hwnd, &Ps);
+		
 		break;
 	}
 
 	case WM_CREATE: {
-		/*
-			associar aqui o hbitmap à janela correspondente	
-		*/
-		//MemDCExercising = CreateCompatibleDC(hDC);
+
+		//prepara janela aux 
+		janelaImprime = GetDC(hwndPrincipal);
+		janelaAux = CreateCompatibleDC(janelaImprime);
+		HBITMAP teste = CreateCompatibleBitmap(janelaImprime, 800, 800);
+		SelectObject(janelaAux, teste);
+		ReleaseDC(hwndPrincipal, janelaImprime);
+
+
+		// Create a memory device compatible with the above DC variable
+		hdcDasImg.Wallpaper = CreateCompatibleDC(janelaAux);
+		hdcDasImg.Space = CreateCompatibleDC(janelaAux);
+		hdcDasImg.Basica = CreateCompatibleDC(janelaAux);
+		hdcDasImg.Esquiva = CreateCompatibleDC(janelaAux);
+		hdcDasImg.Boss = CreateCompatibleDC(janelaAux);
+		hdcDasImg.Defensora1 = CreateCompatibleDC(janelaAux);
+		hdcDasImg.Tiro = CreateCompatibleDC(janelaAux);
+		hdcDasImg.Bomba = CreateCompatibleDC(janelaAux);
+
+		// Select the new bitmap //colocar o bipMap para dentro do Device Contexts
+		SelectObject(hdcDasImg.Wallpaper, bipMaps.Wallpaper);
+		SelectObject(hdcDasImg.Space, bipMaps.Space);
+		SelectObject(hdcDasImg.Basica, bipMaps.Basica); 
+		SelectObject(hdcDasImg.Esquiva, bipMaps.Esquiva);
+		SelectObject(hdcDasImg.Boss, bipMaps.Boss);
+		SelectObject(hdcDasImg.Defensora1, bipMaps.Defensora1); 
+		SelectObject(hdcDasImg.Tiro, bipMaps.Tiro); 
+		SelectObject(hdcDasImg.Bomba, bipMaps.Bomba); 
+
+
 				
 		break;
 	}
@@ -465,26 +489,7 @@ LRESULT CALLBACK WindowProc(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
 
 int WINAPI _tWinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPTSTR LpCmdLine, int ncmdshow)
 {
-
-	tabAux[0].tipo = NaveBasica;
-	tabAux[0].x = 0;
-	tabAux[0].y = 0;
-
-	tabAux[1].tipo = tiroJogador;
-	tabAux[1].x = 10;
-	tabAux[1].y = 4;
-
-	tabAux[4].tipo = NaveJogador;
-	tabAux[4].x = 4;
-	tabAux[4].y = 12;
-
-	tabAux[2].tipo = NavesEsquiva;
-	tabAux[2].x = 12;
-	tabAux[2].y = 23;
-
-	tabAux[3].tipo = NaveBasica;
-	tabAux[3].x = 2;
-	tabAux[3].y = 0;
+	
 
 	IniciaCliente(); // lança a thread que escuta no named pipe
 	
@@ -531,8 +536,34 @@ int WINAPI _tWinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPTSTR LpCmdL
 	{
 		return 0;
 	}
+	//Descomentar isto para aparecer o logo no inicio
+	//BitBlt(janelaAux, 0, 0, 800, 800, hdcDasImg.Wallpaper, 0, 0, SRCCOPY);
+	//InvalidateRect(hwndPrincipal, NULL, TRUE);
+
+	tabAux[0].tipo = NaveBasica;
+	tabAux[0].x = 0;
+	tabAux[0].y = 0;
 	
-	
+	tabAux[1].tipo = tiroJogador;
+	tabAux[1].x = 10;
+	tabAux[1].y = 4;
+
+	tabAux[4].tipo = NaveJogador;
+	tabAux[4].x = 4;
+	tabAux[4].y = 12;
+
+	tabAux[2].tipo = NavesEsquiva;
+	tabAux[2].x = 12;
+	tabAux[2].y = 23;
+
+	tabAux[3].tipo = NaveBasica;
+	tabAux[3].x = 2;
+	tabAux[3].y = 0;
+
+
+
+
+
 	while (GetMessage(&msg, NULL, 0, 0))
 	{
 		TranslateMessage(&msg);
