@@ -519,7 +519,7 @@ int WINAPI _tWinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPTSTR LpCmdL
 		WS_OVERLAPPEDWINDOW,            // Window style
 
 										// Size and position
-		0, 0, 800, 800,
+		0, 0, 850, 850,
 
 		NULL,       // Parent window    
 		NULL,       // Menu
