@@ -49,11 +49,15 @@ typedef struct img {
 	HBITMAP Bomba;
 	HBITMAP Defensora1;
 	HBITMAP Defensora2;
+	HBITMAP Defensora3;
+	HBITMAP Defensora4;
+	HBITMAP Defensora5;
 	HBITMAP Esquiva;
 	HBITMAP Tiro;
 	HBITMAP Boss;
 	HBITMAP Space;
 	HBITMAP Presente;
+	HBITMAP Explosao;
 
 }bipm;
 
@@ -64,12 +68,15 @@ typedef struct hcds {
 	HDC Bomba;
 	HDC Defensora1;
 	HDC Defensora2;
+	HDC Defensora3;
+	HDC Defensora4;
+	HDC Defensora5;
 	HDC Esquiva;
 	HDC Tiro;
 	HDC Boss;
 	HDC Space;
 	HDC Presente;
-
+	HDC Explosao;
 
 }hdcImg;
 
