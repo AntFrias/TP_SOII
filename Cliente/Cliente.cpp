@@ -49,37 +49,37 @@ void TrataPacote(packet pacoteTratar) {
 			}
 		
 			case AtualizacaoJogo: {
-				BitBlt(janelaAux, 0, 0, 800, 800, hdcDasImg.Space, 0, 0, SRCCOPY);
+				BitBlt(janelaAux, 0, 0, 845, 810, hdcDasImg.Space, 0, 0, SRCCOPY);
 				for (int i = 0; i < pacoteTratar.numObjetos; i++) {
 					
 					switch (pacoteTratar.dataPacket.arrayTab[i].tipo) {
 
 						case NaveBasica: {
-							TransparentBlt(janelaAux, (pacoteTratar.dataPacket.arrayTab[i].x * 20), (pacoteTratar.dataPacket.arrayTab[i].y * 20), 40, 40, hdcDasImg.Basica, 0, 0, 40, 40, RGB(255, 255, 255)); // estica e tira a cor de fundo
+							TransparentBlt(janelaAux, (pacoteTratar.dataPacket.arrayTab[i].x * escala), (pacoteTratar.dataPacket.arrayTab[i].y * escala), 40, 40, hdcDasImg.Basica, 0, 0, 40, 40, RGB(255, 255, 255)); // estica e tira a cor de fundo
 							break;
 						}
 						case NavesEsquiva: {
-							TransparentBlt(janelaAux, (pacoteTratar.dataPacket.arrayTab[i].x * 20), (pacoteTratar.dataPacket.arrayTab[i].y * 20), 40, 40, hdcDasImg.Esquiva, 0, 0, 40, 40, RGB(255, 255, 255)); // estica e tira a cor de fundo
+							TransparentBlt(janelaAux, (pacoteTratar.dataPacket.arrayTab[i].x * escala), (pacoteTratar.dataPacket.arrayTab[i].y * escala), 40, 40, hdcDasImg.Esquiva, 0, 0, 40, 40, RGB(255, 255, 255)); // estica e tira a cor de fundo
 							break;
 						}
 						case NaveBoss: {
-							TransparentBlt(janelaAux, (pacoteTratar.dataPacket.arrayTab[i].x * 20), (pacoteTratar.dataPacket.arrayTab[i].y * 20), 40, 40, hdcDasImg.Boss, 0, 0, 40, 40, RGB(255, 255, 255)); // estica e tira a cor de fundo
+							TransparentBlt(janelaAux, (pacoteTratar.dataPacket.arrayTab[i].x * escala), (pacoteTratar.dataPacket.arrayTab[i].y * escala), 40, 40, hdcDasImg.Boss, 0, 0, 40, 40, RGB(255, 255, 255)); // estica e tira a cor de fundo
 							break;
 						}
 						case NaveJogador: {
-							TransparentBlt(janelaAux, (pacoteTratar.dataPacket.arrayTab[i].x * 20), (pacoteTratar.dataPacket.arrayTab[i].y * 20), 40, 40, hdcDasImg.Defensora1, 0, 0, 40, 40, RGB(255, 255, 255)); // estica e tira a cor de fundo
+							TransparentBlt(janelaAux, (pacoteTratar.dataPacket.arrayTab[i].x * escala), (pacoteTratar.dataPacket.arrayTab[i].y * escala), 40, 40, hdcDasImg.Defensora1, 0, 0, 40, 40, RGB(255, 255, 255)); // estica e tira a cor de fundo
 							break;
 						}
 						case tiroJogador: {
-							TransparentBlt(janelaAux, (pacoteTratar.dataPacket.arrayTab[i].x * 20), (pacoteTratar.dataPacket.arrayTab[i].y * 20), 15, 40, hdcDasImg.Tiro, 0, 0, 20, 40, RGB(255, 255, 255)); // estica e tira a cor de fundo
+							TransparentBlt(janelaAux, (pacoteTratar.dataPacket.arrayTab[i].x * escala), (pacoteTratar.dataPacket.arrayTab[i].y * escala), 15, 40, hdcDasImg.Tiro, 0, 0, 20, 40, RGB(255, 255, 255)); // estica e tira a cor de fundo
 							break;
 						}
 						case bombaInimiga: {
-							TransparentBlt(janelaAux, (pacoteTratar.dataPacket.arrayTab[i].x * 20), (pacoteTratar.dataPacket.arrayTab[i].y * 20), 15, 40, hdcDasImg.Bomba, 0, 0, 20, 40, RGB(255, 255, 255)); // estica e tira a cor de fundo
+							TransparentBlt(janelaAux, (pacoteTratar.dataPacket.arrayTab[i].x * escala), (pacoteTratar.dataPacket.arrayTab[i].y * escala), 15, 40, hdcDasImg.Bomba, 0, 0, 20, 40, RGB(255, 255, 255)); // estica e tira a cor de fundo
 							break;
 						}
 						case PowerUpEscudo: {
-							TransparentBlt(janelaAux, (pacoteTratar.dataPacket.arrayTab[i].x * 20), (pacoteTratar.dataPacket.arrayTab[i].y * 20), 40, 40, hdcDasImg.Presente, 0, 0, 40, 40, RGB(255, 255, 255)); // estica e tira a cor de fundo
+							TransparentBlt(janelaAux, (pacoteTratar.dataPacket.arrayTab[i].x * escala), (pacoteTratar.dataPacket.arrayTab[i].y * escala), 40, 40, hdcDasImg.Presente, 0, 0, 40, 40, RGB(255, 255, 255)); // estica e tira a cor de fundo
 							break;
 						}
 						default:
@@ -226,7 +226,7 @@ void IniciaCliente() {
 void carregaBitMaps() {
 
 
-	bipMaps.Wallpaper = (HBITMAP)LoadImage(NULL, L"../../Imagens/imagemInicial.bmp", IMAGE_BITMAP, 800, 800, LR_LOADFROMFILE); 
+	bipMaps.Wallpaper = (HBITMAP)LoadImage(NULL, L"../../Imagens/imagemInicial.bmp", IMAGE_BITMAP, 845, 810, LR_LOADFROMFILE); 
 	bipMaps.Basica = (HBITMAP)LoadImage(NULL, L"../../Imagens/Basica.bmp", IMAGE_BITMAP, 40, 40, LR_LOADFROMFILE);
 	bipMaps.Bomba = (HBITMAP)LoadImage(NULL, L"../../Imagens/Bomba.bmp", IMAGE_BITMAP, 20, 40, LR_LOADFROMFILE);
 	bipMaps.Defensora1 = (HBITMAP)LoadImage(NULL, L"../../Imagens/Defensora1.bmp", IMAGE_BITMAP, 40, 40, LR_LOADFROMFILE);
@@ -234,7 +234,7 @@ void carregaBitMaps() {
 	bipMaps.Esquiva = (HBITMAP)LoadImage(NULL, L"../../Imagens/Esquiva.bmp", IMAGE_BITMAP, 40, 40, LR_LOADFROMFILE);
 	bipMaps.Tiro = (HBITMAP)LoadImage(NULL, L"../../Imagens/tiro.bmp", IMAGE_BITMAP, 20, 40, LR_LOADFROMFILE);
 	bipMaps.Boss = (HBITMAP)LoadImage(NULL, L"../../Imagens/boss.bmp", IMAGE_BITMAP, 80, 80, LR_LOADFROMFILE);
-	bipMaps.Space = (HBITMAP)LoadImage(NULL, L"../../Imagens/space.bmp", IMAGE_BITMAP, 800, 800, LR_LOADFROMFILE);
+	bipMaps.Space = (HBITMAP)LoadImage(NULL, L"../../Imagens/space.bmp", IMAGE_BITMAP, 845, 810, LR_LOADFROMFILE);
 	bipMaps.Presente = (HBITMAP)LoadImage(NULL, L"../../Imagens/presente.bmp", IMAGE_BITMAP, 40, 40, LR_LOADFROMFILE);
 
 }
@@ -365,7 +365,7 @@ LRESULT CALLBACK WindowProc(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
 
 		janelaImprime = BeginPaint(hwnd, &Ps);
 		//copia do janela auxiliar para a janela a imprimir
-		BitBlt(janelaImprime, 0, 0, 800, 800, janelaAux, 0, 0, SRCCOPY);
+		BitBlt(janelaImprime, 0, 0, 810, 850, janelaAux, 0, 0, SRCCOPY);
 		
 		EndPaint(hwnd, &Ps);
 		
@@ -519,7 +519,7 @@ int WINAPI _tWinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPTSTR LpCmdL
 		WS_OVERLAPPEDWINDOW,            // Window style
 
 										// Size and position
-		0, 0, 850, 850,
+		0, 0, 810, 840,
 
 		NULL,       // Parent window    
 		NULL,       // Menu
@@ -531,9 +531,7 @@ int WINAPI _tWinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPTSTR LpCmdL
 	{
 		return 0;
 	}
-	//Descomentar isto para aparecer o logo no inicio
-	//BitBlt(janelaAux, 0, 0, 800, 800, hdcDasImg.Wallpaper, 0, 0, SRCCOPY);
-	//InvalidateRect(hwndPrincipal, NULL, TRUE);
+	/*
 	
 
 	tabAux[0].tipo = NaveBasica;
@@ -571,10 +569,11 @@ int WINAPI _tWinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPTSTR LpCmdL
 	tabAux[7].tipo = NaveBoss;
 	tabAux[7].x = 10;
 	tabAux[7].y = 0;
-
+	*/
 	
 
-	BitBlt(janelaAux, 0, 0, 800, 800, hdcDasImg.Space, 0, 0, SRCCOPY);
+	BitBlt(janelaAux, 0, 0, 810, 845, hdcDasImg.Wallpaper, 0, 0, SRCCOPY);
+	/*
 	TransparentBlt(janelaAux, (tabAux[0].x * 20), (tabAux[0].y * 20), 40, 40, hdcDasImg.Basica, 0, 0, 40, 40, RGB(255, 255, 255)); // estica e tira a cor de fundo
 	TransparentBlt(janelaAux, (tabAux[1].x * 20), (tabAux[1].y * 20), 15, 40, hdcDasImg.Tiro, 0, 0, 20, 40, RGB(255, 255, 255)); // estica e tira a cor de fundo
 	TransparentBlt(janelaAux, (tabAux[2].x * 20), (tabAux[2].y * 20), 40, 40, hdcDasImg.Esquiva, 0, 0, 40, 40, RGB(255, 255, 255)); // estica e tira a cor de fundo
@@ -583,7 +582,7 @@ int WINAPI _tWinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPTSTR LpCmdL
 	TransparentBlt(janelaAux, (tabAux[5].x * 20), (tabAux[5].y * 20), 40, 40, hdcDasImg.Defensora2, 0, 0, 40, 40, RGB(255, 255, 255)); // estica e tira a cor de fundo
 	TransparentBlt(janelaAux, (tabAux[6].x * 20), (tabAux[6].y * 20), 15, 40, hdcDasImg.Bomba, 0, 0, 20, 40, RGB(255, 255, 255)); // estica e tira a cor de fundo
 	TransparentBlt(janelaAux, (tabAux[7].x * 20), (tabAux[7].y * 20), 120, 120, hdcDasImg.Boss, 0, 0, 80, 80, RGB(255, 255, 255)); // estica e tira a cor de fundo
-	
+	*/
 	InvalidateRect(hwndPrincipal, NULL, TRUE);
 
 
