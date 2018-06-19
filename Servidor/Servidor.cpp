@@ -9,93 +9,19 @@ TCHAR EventInitjogo[] = TEXT("EventoIniciaJogo");
 
 jogadorinfo *ArrayJogadores;
 
-DadosdoJogo objectosNoMapa;
+DadosdoJogo objectosTab;
 
 dataServer dadosServidor;
 
-
-// vai buscar a posicao do tiro
-int obtemPosicaoTiro() {
-
-	for (int i = 0; i < MaxTiros; i++) {
-
-		if (objectosNoMapa.ArrayTiros[i].tipo == Tirovazio);
-
-		dadosServidor.TotalTiros += 1;
-		
-		return i;
-	}
-
-}
-void trataMovimentacaoTiro(int *x, int *y, int tipo, int PosObjeto) {
-
-	int tipoObjeto, coord_x = *x, coord_y = *y;
-
-	WaitForSingleObject(dadosServidor.mutexTabuleiro, INFINITE);
-
-		switch (tipo) {
-
-		case tiroJogador:
-			tipoObjeto = VerificaPosicaoJogo(x, y, tipo, cima);
-
-			switch (tipoObjeto) {
-
-				case bloco_vazio:
-					LimpaPosTabuleiro(coord_x, coord_y, bloco_vazio, LarguraTiroDefault);
-					*y += 1;
-					preencheBlocosServidor(x, y, PosObjeto, tipoObjeto, LarguraTiroDefault);
-					break;
-			}
-			break;
-		}
-		
-	ReleaseMutex(dadosServidor.mutexTabuleiro);
-}
-void GestorTirosTab() {
-
-
-	do {
-		
-		WaitForSingleObject(dadosServidor.EventoLancaTiro, INFINITE);
-		
-		do {
-			WaitForSingleObject(dadosServidor.MutexTiroArray, INFINITE);
-
-				for (int i = 0; i < MaxTiros; i++) {
-
-					switch (objectosNoMapa.ArrayTiros[i].tipo) {
-					
-						case tiroJogador:
-							trataMovimentacaoTiro(&objectosNoMapa.ArrayTiros[i].x, &objectosNoMapa.ArrayTiros[i].y, objectosNoMapa.ArrayTiros[i].tipo, i);
-							break;
-						case tiroNaveEnemy:
-							trataMovimentacaoTiro(&objectosNoMapa.ArrayTiros[i].x, &objectosNoMapa.ArrayTiros[i].y, objectosNoMapa.ArrayTiros[i].tipo, i);
-							break;
-						case tiroBoss:
-							trataMovimentacaoTiro(&objectosNoMapa.ArrayTiros[i].x, &objectosNoMapa.ArrayTiros[i].y, objectosNoMapa.ArrayTiros[i].tipo, i);
-								break;
-						case tiroNuclear:
-							trataMovimentacaoTiro(&objectosNoMapa.ArrayTiros[i].x, &objectosNoMapa.ArrayTiros[i].y, objectosNoMapa.ArrayTiros[i].tipo, i);
-								break;
-						}
-				}
-			ReleaseMutex(dadosServidor.MutexTiroArray);
-			
-			Sleep(TempoDeEnvioTabuleiro);
-
-		} while (dadosServidor.TotalTiros > 0);
-		
-	} while (dadosServidor.ServidorUp == 1);
-
-}
 void mostraNaveBasica() {
 
 	for (int i = 0; i < dadosServidor.initJogo.MaxNavesBasicas; i++) {
 
-		_tprintf(TEXT("\npos da nave [%d][%d]"), objectosNoMapa.NaveEnemyTipo1[i].x, objectosNoMapa.NaveEnemyTipo1[i].y);
+		_tprintf(TEXT("\npos da nave [%d][%d]"), objectosTab.NaveEnemyTipo1[i].x, objectosTab.NaveEnemyTipo1[i].y);
 
 	}
 }
+// vai alterar as posiçoes do objeto no respetivo array
 void alteraPosicaoObjeto(int PosObjeto, int tipoObjeto, int *x, int *y) {
 	switch (tipoObjeto) {
 
@@ -104,20 +30,20 @@ void alteraPosicaoObjeto(int PosObjeto, int tipoObjeto, int *x, int *y) {
 		ArrayJogadores[PosObjeto].posicao[1] = *y;
 		break;
 	case NaveEsquiva:
-		objectosNoMapa.NaveEnemyTipo2[PosObjeto].x = *x;
-		objectosNoMapa.NaveEnemyTipo2[PosObjeto].y = *y;
+		objectosTab.NaveEnemyTipo2[PosObjeto].x = *x;
+		objectosTab.NaveEnemyTipo2[PosObjeto].y = *y;
 		break;
 	case NaveBasica:
-		objectosNoMapa.NaveEnemyTipo1[PosObjeto].x = *x;
-		objectosNoMapa.NaveEnemyTipo1[PosObjeto].y = *y;
+		objectosTab.NaveEnemyTipo1[PosObjeto].x = *x;
+		objectosTab.NaveEnemyTipo1[PosObjeto].y = *y;
 		break;
 	case NaveBoss:
-		objectosNoMapa.NaveEnemyTipo3[PosObjeto].x = *x;
-		objectosNoMapa.NaveEnemyTipo3[PosObjeto].y = *y;
+		objectosTab.NaveEnemyTipo3[PosObjeto].x = *x;
+		objectosTab.NaveEnemyTipo3[PosObjeto].y = *y;
 		break;
 	case tiroJogador:
-		objectosNoMapa.ArrayTiros[PosObjeto].x = *x;
-		objectosNoMapa.ArrayTiros[PosObjeto].x = *y;
+		AlteraPosicaoTiro(PosObjeto, x, y);
+		break;
 	}
 
 }
@@ -130,16 +56,16 @@ void CarregaPosObjeto(int PosObjeto, int tipoObjeto, int *x, int *y) {
 			*y = ArrayJogadores[PosObjeto].posicao[1];
 			break;
 		case NaveEsquiva:
-			*x = objectosNoMapa.NaveEnemyTipo2[PosObjeto].x;
-			*y = objectosNoMapa.NaveEnemyTipo2[PosObjeto].y;
+			*x = objectosTab.NaveEnemyTipo2[PosObjeto].x;
+			*y = objectosTab.NaveEnemyTipo2[PosObjeto].y;
 			break;
 		case NaveBasica:
-			*x = objectosNoMapa.NaveEnemyTipo1[PosObjeto].x;
-			*y = objectosNoMapa.NaveEnemyTipo1[PosObjeto].y;
+			*x = objectosTab.NaveEnemyTipo1[PosObjeto].x;
+			*y = objectosTab.NaveEnemyTipo1[PosObjeto].y;
 			break;
 		case NaveBoss:
-			*x = objectosNoMapa.NaveEnemyTipo3[PosObjeto].x;
-			*y = objectosNoMapa.NaveEnemyTipo3[PosObjeto].y;
+			*x = objectosTab.NaveEnemyTipo3[PosObjeto].x;
+			*y = objectosTab.NaveEnemyTipo3[PosObjeto].y;
 			break;
 		case LancaTiro:
 			break;
@@ -148,7 +74,7 @@ void CarregaPosObjeto(int PosObjeto, int tipoObjeto, int *x, int *y) {
 // Vai verificar os comandos digitados pelas naves todas do jogo
 void verificaComandosJogo(int comando, int PosObjeto, int tipoObjeto) {
 
-	int x, y, PosTiro = 0; 
+	int x, y;
 
 	CarregaPosObjeto(PosObjeto, tipoObjeto, &x, &y);
 	
@@ -228,32 +154,8 @@ void verificaComandosJogo(int comando, int PosObjeto, int tipoObjeto) {
 
 	case LancaTiro:
 
-		WaitForSingleObject(dadosServidor.MutexTiroArray, INFINITE);
-
-			y = y - 2;
-
-			PosTiro = obtemPosicaoTiro();
-
-			objectosNoMapa.ArrayTiros[PosTiro].tipo = tiroJogador;
-
-			objectosNoMapa.ArrayTiros[PosTiro].posJogador = PosObjeto;
-
-			objectosNoMapa.ArrayTiros[PosTiro].x = x;
-			
-			objectosNoMapa.ArrayTiros[PosTiro].y= y;
-
-			WaitForSingleObject(dadosServidor.mutexTabuleiro, INFINITE);
-
-				preencheBlocosServidor(&x, &y, PosTiro, objectosNoMapa.ArrayTiros[PosTiro].tipo, LarguraTiroDefault);
-			
-			ReleaseMutex(dadosServidor.mutexTabuleiro);
-
-			if (dadosServidor.TotalTiros == 1){
-
-				SetEvent(dadosServidor.EventoLancaTiro);
-			}
-
-		ReleaseMutex(dadosServidor.MutexTiroArray);
+		AdicionaTiroArray(PosObjeto, ArrayJogadores[PosObjeto].posicao[0], ArrayJogadores[PosObjeto].posicao[1], dadosServidor.mutexTabuleiro);
+		
 		break;
 
 	case PowerUp1:
@@ -266,7 +168,6 @@ void verificaComandosJogo(int comando, int PosObjeto, int tipoObjeto) {
 		break;
 
 	}
-	
 }
 int GestorNaveBoss(LPVOID aux) {
 
@@ -356,7 +257,6 @@ int CalculaPosRandEsquiva(int pos_max) {
 	return pos;
 
 }
-
 void colocaTirosTablueiro() {
 
 	do {
@@ -387,11 +287,11 @@ void colocaNavesEsquiva() {
 	
 			if (VerificaPosicaoPreencheTAb(&x, &y) == 1) {
 
-				objectosNoMapa.NaveEnemyTipo2->tipo = NaveEsquiva;
+				objectosTab.NaveEnemyTipo2->tipo = NaveEsquiva;
 
-				objectosNoMapa.NaveEnemyTipo2->x = x;
+				objectosTab.NaveEnemyTipo2->x = x;
 				
-				objectosNoMapa.NaveEnemyTipo2->y = y;
+				objectosTab.NaveEnemyTipo2->y = y;
 				
 				preencheBlocosServidor(&x, &y, contaEsquiva, NaveEsquiva,LarguraNaveDefault);
 	
@@ -420,11 +320,11 @@ void colocaNavesBasicas() {
 
 			if (contaBasica < totalNavesBasicas) {
 
-				objectosNoMapa.NaveEnemyTipo1[contaBasica].tipo = NaveBasica;
+				objectosTab.NaveEnemyTipo1[contaBasica].tipo = NaveBasica;
 
-				objectosNoMapa.NaveEnemyTipo1[contaBasica].x = x;
+				objectosTab.NaveEnemyTipo1[contaBasica].x = x;
 
-				objectosNoMapa.NaveEnemyTipo1[contaBasica].y = y;
+				objectosTab.NaveEnemyTipo1[contaBasica].y = y;
 				
 				preencheBlocosServidor(&x, &y, contaBasica, NaveBasica,LarguraNaveDefault);
 				
@@ -463,8 +363,6 @@ Nave *criaArrayNaves(int tam) {
 //funcao que vai iniciar as naves no sistema;
 int IniciaObjetosTabuleiro() {
 
-	Nave *navesInimigas;
-
 	HANDLE hNavesEnemy[2];
 	DWORD idNavesEnemy[2];
 
@@ -474,12 +372,9 @@ int IniciaObjetosTabuleiro() {
 	HANDLE hTirosTab;
 	DWORD idTirosTab;
 
-
-	//int coord_x = CoordWindow_x, coord_y = CoordWindow_y;
-
-	objectosNoMapa.NaveEnemyTipo1 = criaArrayNaves(dadosServidor.initJogo.MaxNavesBasicas);
-	objectosNoMapa.NaveEnemyTipo2 = criaArrayNaves(dadosServidor.initJogo.MaxNavesEsquivas);
-	objectosNoMapa.NaveEnemyTipo3 = criaArrayNaves(dadosServidor.initJogo.MaxNaveBoss);
+	objectosTab.NaveEnemyTipo1 = criaArrayNaves(dadosServidor.initJogo.MaxNavesBasicas);
+	objectosTab.NaveEnemyTipo2 = criaArrayNaves(dadosServidor.initJogo.MaxNavesEsquivas);
+	objectosTab.NaveEnemyTipo3 = criaArrayNaves(dadosServidor.initJogo.MaxNaveBoss);
 
 	_tprintf(TEXT("\nVou prencher o tabuleiro do servidor\n\n"));
 	
@@ -526,6 +421,7 @@ void IniciaAmbienteJogo(int pos) {
 	
 
 	if (dadosServidor.estadoJogo == 0) {
+
 		dadosServidor.estadoJogo = 1;
 		///POR AQUI O EVENTO PARA A MOVIMENTAÇÃO DAS NAVES
 		WaitForSingleObject(dadosServidor.mutexTabuleiro,INFINITE);
@@ -703,21 +599,7 @@ jogadorinfo * iniciaArrayCli(){ //Alocação do Array
 	return Aux;
 
 }
-void InicializaArrayTiros() {
 
-	for (int i = 0; i < MaxTiros; i++) {
-
-		objectosNoMapa.ArrayTiros[i].tipo = Tirovazio;
-
-		objectosNoMapa.ArrayTiros[i].idJogador = 0;
-
-		objectosNoMapa.ArrayTiros[i].posJogador = 0;
-
-		objectosNoMapa.ArrayTiros[i].x = 0;
-
-		objectosNoMapa.ArrayTiros[i].y = 0;
-	}
-}
 // inicializa sincronizaçao usada para executar funçoes no servidor
 void IniciaSincronizacaoServidor() {
 
@@ -743,22 +625,6 @@ void IniciaSincronizacaoServidor() {
 		exit(-1);
 
 	}
-
-	dadosServidor.EventoLancaTiro = CreateEvent(NULL, TRUE, FALSE, NULL);
-
-	if (dadosServidor.EventoLancaTiro == NULL) {
-	
-		exit(-1);
-	
-	}
-
-	dadosServidor.MutexTiroArray = CreateMutex(NULL, FALSE, NULL);
-
-	if (dadosServidor.MutexTiroArray == NULL) {
-	
-		exit(-1);
-	
-	}
 }
 // Funcao vai atualizar a informaçao inicial do jogo
 void AtualizaInformacaoInicialJogo() {
@@ -767,13 +633,11 @@ void AtualizaInformacaoInicialJogo() {
 	dadosServidor.NumMaxClientes = nMaxJogadores; //nMaxPlay
 	dadosServidor.ServidorUp = 1;
 	dadosServidor.estadoJogo = 0;
-	dadosServidor.TotalTiros = 0;
 	dadosServidor.NumCliNoArray = 0;
-	
 	dadosServidor.initJogo.MaxNavesBasicas = ninimigas1;
 	dadosServidor.initJogo.MaxNavesEsquivas = ninimigas2;
 	dadosServidor.initJogo.MaxNaveBoss = 1;
-	
+
 }
 // inicia os servi�os e a configura�ao do Servidor;
 int IniciarServidor() {
@@ -783,6 +647,10 @@ int IniciarServidor() {
 	CriaMemoriaPartilhada();															// cria os Buffers na memoria partilhada e sincronizacao
 
 	IniciaSincronizacaoServidor();
+
+	IniciaDadosTiros();
+
+	IniciaSincronizacaoTiros();
 
 	InicializaArrayTiros();
 
