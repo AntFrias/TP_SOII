@@ -12,7 +12,6 @@ void AlteraPosicaoTiro(int PosObjeto, int *x, int *y) {
 	ArrayTiros[PosObjeto].x = *x;
 	ArrayTiros[PosObjeto].x = *y;
 
-
 }
 
 int obtemPosicaoTiro() {
@@ -29,7 +28,7 @@ int obtemPosicaoTiro() {
 	}
 
 }
-void AdicionaTiroArray(int PosObjeto, int x, int y, HANDLE mutexTabuleiro) {
+void AdicionaTiroArray(int PosObjeto, int x, int y, HANDLE mutexTabuleiro, HANDLE EventoInformaGwInicioJogo) {
 
 	int PosTiro = 0;
 
@@ -37,27 +36,30 @@ void AdicionaTiroArray(int PosObjeto, int x, int y, HANDLE mutexTabuleiro) {
 
 	PosTiro = obtemPosicaoTiro();
 
-	ArrayTiros[PosTiro].tipo = tiroJogador;
+	if ( VerificaPosicaoJogo(&x, &y, tiroJogador, cima) == bloco_vazio) {
+		
+		y = y - 2;
 
-	ArrayTiros[PosTiro].posJogador = PosObjeto;
+		ArrayTiros[PosTiro].tipo = tiroJogador;
 
-	ArrayTiros[PosTiro].x = x;
+		ArrayTiros[PosTiro].posJogador = PosObjeto;
 
-	ArrayTiros[PosTiro].y = y + 2;
+		alteraPosicaoObjeto(PosObjeto, ArrayTiros[PosTiro].tipo, &x, &y);
 
-	WaitForSingleObject(mutexTabuleiro, INFINITE);
+		WaitForSingleObject(mutexTabuleiro, INFINITE);
 
-	preencheBlocosServidor(&x, &y, PosTiro, ArrayTiros[PosTiro].tipo, LarguraTiroDefault);
+		preencheBlocosServidorTiro(&x, &y, PosTiro, ArrayTiros[PosTiro].tipo, LarguraTiroDefault);
 
-	ReleaseMutex(mutexTabuleiro);
+		SetEvent(EventoInformaGwInicioJogo);
 
-	if (GestorTiros.TotalTiros == 1) {
+		ReleaseMutex(mutexTabuleiro);
 
-		SetEvent(GestorTiros.EventoLancaTiro);
+		if (GestorTiros.TotalTiros == 1) {
+
+			//SetEvent(GestorTiros.EventoLancaTiro);
+		}
 	}
-
 	ReleaseMutex(GestorTiros.MutexTiroArray);
-
 }
 
 void trataMovimentacaoTiro(int *x, int *y, int tipo, int PosObjeto) {
@@ -88,7 +90,7 @@ void trataMovimentacaoTiro(int *x, int *y, int tipo, int PosObjeto) {
 void GestorTirosTab() {
 
 	do {
-
+		_tprintf(TEXT("\n\n\nCheguei aqui á Tread Gertor de Tiros e vou esperar pelo evento\n\n\n\n"));
 		WaitForSingleObject(GestorTiros.EventoLancaTiro, INFINITE);
 
 		do {
@@ -147,7 +149,6 @@ void IniciaDadosTiros(){
 	GestorTiros.ServerUp = 1;
 
 	GestorTiros.TotalTiros = 0;
-
 
 }
 

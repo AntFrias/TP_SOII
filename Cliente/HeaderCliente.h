@@ -116,7 +116,7 @@ enum OjectosTabuleiro {
 	NavesEsquiva,
 	NaveBoss,
 	NaveJogador,
-	tiroJogador,
+	tiroJogador = 10,
 	bombaInimiga,
 
 	PowerUpEscudo,

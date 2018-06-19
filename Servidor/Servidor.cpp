@@ -154,7 +154,7 @@ void verificaComandosJogo(int comando, int PosObjeto, int tipoObjeto) {
 
 	case LancaTiro:
 
-		AdicionaTiroArray(PosObjeto, ArrayJogadores[PosObjeto].posicao[0], ArrayJogadores[PosObjeto].posicao[1], dadosServidor.mutexTabuleiro);
+		AdicionaTiroArray(PosObjeto, ArrayJogadores[PosObjeto].posicao[0], ArrayJogadores[PosObjeto].posicao[1], dadosServidor.mutexTabuleiro, dadosServidor.EventoInformaGwInicioJogo);
 		
 		break;
 
@@ -571,13 +571,7 @@ void TrataPacotesGwtoServ() {
 				
 				WaitForSingleObject(dadosServidor.mutexTabuleiro, INFINITE);
 
-				//mostraTabuleiro();
-
 				verificaComandosJogo(aux->dataPacket.comando, PosJogador, NaveJogador);
-
-				//_tprintf(TEXT("\n\n"));
-
-				mostraTabCom();
 
 				ReleaseMutex(dadosServidor.mutexTabuleiro);
 

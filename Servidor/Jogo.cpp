@@ -25,11 +25,9 @@ void mostraTabuleiro() {
 		for (int x = 0; x < dimMapa_y; x++) {
 
 			_tprintf(TEXT("%d"), blocoServ[y][x].tipo); //tirei o espaco
-
 		}
 		_tprintf(TEXT("\n"));
 	}
-
 }
 //vai verificar posiçoes vazias para preencher com naves Enimigas antes de começar o jogo
 int VerificaPosicaoPreencheTAb(int *x, int *y) {
@@ -49,14 +47,14 @@ int verificaPosicaoTiro(int *x, int *y, int orientacao) {
 
 		case cima:
 
-			if (blocoServ[*y + 1][*x].tipo == bloco_vazio) {
-
+			if (blocoServ[*y - 2][*x].tipo == bloco_vazio && blocoServ[*y - 1][*x].tipo == bloco_vazio) {
+				
 				Item = bloco_vazio;
 
 				return Item;
 			
 			}
-			else {
+			/*else {
 
 				switch (blocoServ[*y + 1][*x].tipo) {
 
@@ -83,7 +81,8 @@ int verificaPosicaoTiro(int *x, int *y, int orientacao) {
 
 					break;
 				}
-			}
+			}*/
+			break;
 		}
 	}
 // verifica posicao da nave Esquiva
@@ -222,9 +221,9 @@ int VerificaPosicaoJogo( int *x, int *y, int tipo, int orientacao) {
 // funcao vai limpar as posicoes do tabuleiro //
 void LimpaPosTabuleiroTiro(int x, int y, int tipo, int Largura) {
 
-	for (int i = y; i <= y + Largura; i++) {
+	for (int i = y; i < y + Largura; i++) {
 
-		for (int j = x; j < x + Largura; j++) {
+		for (int j = x; j < x + Largura - 1; j++) {
 
 			blocoServ[i][j].tipo = tipo;
 
@@ -236,25 +235,31 @@ void preencheBlocosServidorTiro(int *x, int *y, int pos, int tipo, int Largura) 
 
 	int flag = 0;
 
-	for (int i = *y; i <= *y + Largura; i++) {
+	for (int i = *y; i < *y + Largura; i++) {
 
-		for (int j = *x; j < *x + Largura; j++) {
-
+		for (int j = *x; j < *x + Largura - 1; j++) {
+	
 			blocoServ[i][j].tipo = tipo;
 
 			blocoServ[i][j].posArray = pos;
-
+		
 			if (i == *y  && j == *x) {
+
 				flag = 1;
+			
 				escreveBufferTabuleiro(j, i, blocoServ[i][j].tipo, flag);
+				
 				flag = 0;
 			}
 			else {
 				flag = 0;
+	
 				escreveBufferTabuleiro(j, i, blocoServ[i][j].tipo, flag);
 			}
 		}
 	}
+
+	
 }
 // funcao vai limpar as posicoes do tabuleiro //
 void LimpaPosTabuleiro(int x, int y, int tipo, int Largura) {
