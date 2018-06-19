@@ -109,7 +109,7 @@ void EnviaRespostaParaCliente(Packet *resposta) {
 	}
 
 	IOReady = CreateEvent(NULL, TRUE, FALSE, NULL);
-
+	//
 	if (IOReady == NULL) {
 
 		_tprintf(TEXT("Erro no IOReady\n"));
