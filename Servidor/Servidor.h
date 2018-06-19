@@ -153,7 +153,7 @@ void alteraPosicaoObjeto(int PosObjeto, int tipoObjeto, int *x, int *y);
 void limpaTabuleiro();
 void mostraTabuleiro();
 int VerificaPosicaoPreencheTAb(int *x, int *y);
-int VerificaPosicaoJogo(int *x, int *y, int tipo, int orientacao, int posObjetoBloco);
+int VerificaPosicaoJogo(int *x, int *y, int tipo, int orientacao);
 void LimpaPosTabuleiro(int x, int y, int tipo, int Largura);
 void preencheBlocosServidor(int *x, int *y, int pos, int tipo, int Largura);	 // esta funcao serve para preencher os blocos do tabuleiro
 void ColocaNavesTab();
@@ -163,7 +163,7 @@ void LimpaPosTabuleiroTiro(int x, int y, int tipo, int Largura);
 
 
 
-void AdicionaTiroArray(int PosObjeto, int tipoObjeto, int x, int y, HANDLE mutexTabuleiro, HANDLE EventoInformaGwInicioJogo);
+void AdicionaTiroArray(int PosObjeto, int x, int y, HANDLE mutexTabuleiro, HANDLE EventoInformaGwInicioJogo);
 void GestorTirosTab();
 void AlteraPosicaoTiro(int PosObjeto, int *x, int *y);
 void InicializaArrayTiros();
