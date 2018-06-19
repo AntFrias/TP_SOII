@@ -163,7 +163,7 @@ void LimpaPosTabuleiroTiro(int x, int y, int tipo, int Largura);
 
 
 
-void AdicionaTiroArray(int PosObjeto, int x, int y, HANDLE mutexTabuleiro);
+void AdicionaTiroArray(int PosObjeto, int x, int y, HANDLE mutexTabuleiro, HANDLE EventoInformaGwInicioJogo);
 void GestorTirosTab();
 void AlteraPosicaoTiro(int PosObjeto, int *x, int *y);
 void InicializaArrayTiros();
