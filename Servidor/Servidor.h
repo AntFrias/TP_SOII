@@ -33,6 +33,19 @@
 //Tiros
 
 
+
+typedef struct GestorTirosNaves {
+
+	HANDLE MutexTiroArray;
+	HANDLE EventoLancaTiro;
+	HANDLE hTirosTab;
+	DWORD idTirosTab;
+	int TotalTiros;
+	int ServerUp = 1;
+	
+
+}gestorTiros;
+
 // //Estrutura Tiro
 typedef struct tiroo {
 
@@ -65,7 +78,6 @@ typedef struct naves {
 typedef struct DadosJogo {
 
 	Nave *NaveEnemyTipo1, *NaveEnemyTipo2, *NaveEnemyTipo3;
-	tiro ArrayTiros[MaxTiros];
 
 }DadosdoJogo;
 
@@ -115,7 +127,6 @@ typedef struct Gestao_servidor {
 	int NumMaxClientes;
 	int estadoJogo;
 	int NumCliNoArray;
-	int TotalTiros;
 	BOOL inicioJogo;
 	BOOL ServidorUp;
 	confInitJogo initJogo;
@@ -125,8 +136,6 @@ typedef struct Gestao_servidor {
 	HANDLE mutexTabuleiro;
 	HANDLE EventoIniciaJogo;
 	HANDLE EventoInformaGwInicioJogo;
-	HANDLE EventoLancaTiro;
-	HANDLE MutexTiroArray;
 
 
 }dataServer;
@@ -136,6 +145,11 @@ void colocaNavesEsquiva();
 void colocaNavesBasicas();
 
 //prototipos de funçoes relativas ao Jogo no ficheiro jogo.cpp
+
+
+void alteraPosicaoObjeto(int PosObjeto, int tipoObjeto, int *x, int *y);
+
+
 void limpaTabuleiro();
 void mostraTabuleiro();
 int VerificaPosicaoPreencheTAb(int *x, int *y);
@@ -147,7 +161,15 @@ void IniciarJogo(int *x,int *y,int pos);	// funcao que vai inicar o jogo propria
 void preencheBlocosServidorTiro(int *x, int *y, int pos, int tipo, int Largura);
 void LimpaPosTabuleiroTiro(int x, int y, int tipo, int Largura);
 
-//
+
+
+void AdicionaTiroArray(int PosObjeto, int x, int y, HANDLE mutexTabuleiro);
+void GestorTirosTab();
+void AlteraPosicaoTiro(int PosObjeto, int *x, int *y);
+void InicializaArrayTiros();
+void IniciaDadosTiros();
+void IniciaSincronizacaoTiros();
+
 
 
 
