@@ -70,7 +70,7 @@ void CarregaPosObjeto(int PosObjeto, int tipoObjeto, int *x, int *y) {
 		case LancaTiro:
 			break;
 	}
-}
+}//
 // Vai verificar os comandos digitados pelas naves todas do jogo
 void verificaComandosJogo(int comando, int PosObjeto, int tipoObjeto) {
 
