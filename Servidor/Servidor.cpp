@@ -677,7 +677,7 @@ jogadorinfo * iniciaArrayCli(){ //Alocação do Array
 // inicializa sincronizaçao usada para executar funçoes no servidor
 void IniciaSincronizacaoServidor() {
 
-	dadosServidor.EventoIniciaJogo = CreateEvent(NULL, 0, 0, EventIniciajogo);
+	dadosServidor.EventoIniciaJogo = CreateEvent(NULL, TRUE, FALSE, EventIniciajogo);
 	
 	if (dadosServidor.EventoIniciaJogo == NULL) {
 		
