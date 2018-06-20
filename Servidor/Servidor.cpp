@@ -4,7 +4,7 @@
 
 
 //Nome para os mecanismos de sincronizaçao do servidor
-TCHAR EventInitjogo[] = TEXT("EventoIniciaJogo");
+TCHAR EventIniciajogo[] = TEXT("EventoIniciaJogo");
 
 
 jogadorinfo *ArrayJogadores;
@@ -92,7 +92,7 @@ void verificaComandosJogo(int comando, int PosObjeto, int tipoObjeto) {
 
 			preencheBlocosServidor(&x, &y, PosObjeto, tipoObjeto, LarguraNaveDefault);
 
-			SetEvent(dadosServidor.EventoInformaGwInicioJogo);
+			SetEvent(dadosServidor.EventoAtualizaJogo);
 		
 		}
 	
@@ -110,7 +110,7 @@ void verificaComandosJogo(int comando, int PosObjeto, int tipoObjeto) {
 
 			preencheBlocosServidor(&x, &y, PosObjeto, tipoObjeto, LarguraNaveDefault);
 
-			SetEvent(dadosServidor.EventoInformaGwInicioJogo);
+			SetEvent(dadosServidor.EventoAtualizaJogo);
 
 		}
 	
@@ -128,7 +128,7 @@ void verificaComandosJogo(int comando, int PosObjeto, int tipoObjeto) {
 
 			preencheBlocosServidor(&x, &y, PosObjeto, tipoObjeto, LarguraNaveDefault);
 
-			SetEvent(dadosServidor.EventoInformaGwInicioJogo);
+			SetEvent(dadosServidor.EventoAtualizaJogo);
 
 		}
 	
@@ -146,7 +146,7 @@ void verificaComandosJogo(int comando, int PosObjeto, int tipoObjeto) {
 
 			preencheBlocosServidor(&x, &y, PosObjeto, tipoObjeto, LarguraNaveDefault);
 
-			SetEvent(dadosServidor.EventoInformaGwInicioJogo);
+			SetEvent(dadosServidor.EventoAtualizaJogo);
 
 		}
 	
@@ -154,7 +154,7 @@ void verificaComandosJogo(int comando, int PosObjeto, int tipoObjeto) {
 
 	case LancaTiro:
 
-		AdicionaTiroArray(PosObjeto, ArrayJogadores[PosObjeto].posicao[0], ArrayJogadores[PosObjeto].posicao[1], dadosServidor.mutexTabuleiro, dadosServidor.EventoInformaGwInicioJogo);
+		AdicionaTiroArray(PosObjeto, ArrayJogadores[PosObjeto].posicao[0], ArrayJogadores[PosObjeto].posicao[1], dadosServidor.mutexTabuleiro, dadosServidor.EventoAtualizaJogo);
 		
 		break;
 
@@ -183,21 +183,19 @@ int GestorNaveBoss(LPVOID aux) {
 	return 0;
 }
 // vai fazer a gestao de todas as naves inimigas
-int GestorNaveEsquiva(LPVOID aux) {
-
-	Nave *naveEsquiva = (Nave*)aux;
+int GestorNaveEsquiva() {
 
 	int nNaves = dadosServidor.initJogo.MaxNavesEsquivas;
 
-	int opcao = 0, opcao_min = cima, opcao_max = direita;
+	int opcao = 0, opcao_min = cima, opcao_max = LancaTiro;
 
 	do {
 
 		WaitForSingleObject(dadosServidor.EventoIniciaJogo, INFINITE);
-		
+	
 		for (int i = 0; i < nNaves; i++) {
 
-			if (naveEsquiva[i].vida > 0) {
+			if (objectosTab.NaveEnemyTipo2[i].vida > 0) {
 				
 				opcao = rand() % (opcao_max + 1 - opcao_min) + opcao_min;
 
@@ -212,36 +210,38 @@ int GestorNaveEsquiva(LPVOID aux) {
 				
 				ReleaseMutex(dadosServidor.mutexTabuleiro);
 			}
+			Sleep(1000); // alterar 
 		}
 	} while (nNaves > 0);
 
 	return 0;
 }
 // vai fazer a gestao de todas as naves inimigas
-int GestorNaveBasica(LPVOID aux) {
-
-	Nave *naveInimigaBasica = (Nave*)aux;
+int GestorNaveBasica() {
 
 	int nNaves = dadosServidor.initJogo.MaxNavesBasicas;
 
 	int opcao = esquerda;
 
 	do {
+
 		WaitForSingleObject(dadosServidor.EventoIniciaJogo, INFINITE);
-		
+
 		for (int i = 0; i < nNaves; i++) {
 
-			if (naveInimigaBasica[i].vida > 0) {
+			if (objectosTab.NaveEnemyTipo1[i].vida > 0) {
 
 				_tprintf(TEXT("por Implementar"));
 			}
+			Sleep(1010); // alterar tempo
 		}
+		
 	} while (nNaves > 0);
 
 	return 0;
 }
 // funcao que calcula rand para posicionar as naves Esquivas
-int CalculaPosRandEsquiva(int pos_max) {
+int CalculaPosRand(int pos_max) {
 
 	int pos_min = 0;
 
@@ -257,13 +257,7 @@ int CalculaPosRandEsquiva(int pos_max) {
 	return pos;
 
 }
-void colocaTirosTablueiro() {
 
-	do {
-
-		
-	} while (dadosServidor.ServidorUp == 1);
-}
 //coloca naves Esquiva no tabuleiro 
 void colocaNavesEsquiva() {
 
@@ -281,17 +275,21 @@ void colocaNavesEsquiva() {
 
 	while (contaEsquiva < totalNavesEsquiva) {
 
-		x = CalculaPosRandEsquiva(x_max);
+		x = CalculaPosRand(x_max);
 
-		y = CalculaPosRandEsquiva(y_max);
+		y = CalculaPosRand(y_max);
 	
 			if (VerificaPosicaoPreencheTAb(&x, &y) == 1) {
 
-				objectosTab.NaveEnemyTipo2->tipo = NaveEsquiva;
+				objectosTab.NaveEnemyTipo2[contaEsquiva].tipo = NaveEsquiva;
 
-				objectosTab.NaveEnemyTipo2->x = x;
+				objectosTab.NaveEnemyTipo2[contaEsquiva].x = x;
 				
-				objectosTab.NaveEnemyTipo2->y = y;
+				objectosTab.NaveEnemyTipo2[contaEsquiva].y = y;
+
+				objectosTab.NaveEnemyTipo2[contaEsquiva].vida = VidaNaveDefault;
+
+				contaEsquiva += 1;
 				
 				preencheBlocosServidor(&x, &y, contaEsquiva, NaveEsquiva,LarguraNaveDefault);
 	
@@ -325,6 +323,8 @@ void colocaNavesBasicas() {
 				objectosTab.NaveEnemyTipo1[contaBasica].x = x;
 
 				objectosTab.NaveEnemyTipo1[contaBasica].y = y;
+
+				objectosTab.NaveEnemyTipo1[contaBasica].vida = VidaNaveDefault;
 				
 				preencheBlocosServidor(&x, &y, contaBasica, NaveBasica,LarguraNaveDefault);
 				
@@ -414,15 +414,25 @@ int IniciaObjetosTabuleiro() {
 
 	return 0;
 }
+int * CalculaPosJogador(int pos_min, int pos_max) {
+
+	int *pos = 0;
+
+	*pos = rand() % (pos_max + 1 - pos_min) + pos_min;
+
+	while (*pos < pos_min  && *pos > pos_max) {
+
+		*pos = rand() % (pos_max + 1 - pos_min) + pos_min;
+
+	}
+	return pos;
+
+}
 //funcao que irá iniciar o jogo apos um jogador seleccionar a opçao jogar
 void IniciaAmbienteJogo(int pos) {
 
-	int *x = &ArrayJogadores[pos].posicao[0], *y = &ArrayJogadores[pos].posicao[1];
-	
+	int *x = &ArrayJogadores[pos].posicao [0], *y = &ArrayJogadores[pos].posicao[1];
 
-	if (dadosServidor.estadoJogo == 0) {
-
-		dadosServidor.estadoJogo = 1;
 		///POR AQUI O EVENTO PARA A MOVIMENTAÇÃO DAS NAVES
 		WaitForSingleObject(dadosServidor.mutexTabuleiro,INFINITE);
 
@@ -430,7 +440,6 @@ void IniciaAmbienteJogo(int pos) {
 
 		ReleaseMutex(dadosServidor.mutexTabuleiro);
 
-	}
 }
 //func que lista os clientes
 void mostraClinoArray() {
@@ -556,12 +565,28 @@ void TrataPacotesGwtoServ() {
 				break;
 
 			case IniciaJogoMultiplayer:
+		// talvez necessite de um mutex para o array de clientes
+				if (dadosServidor.NumCliNoArray == 1 && dadosServidor.estadoJogo == 0) {
 
-				PosJogador = VerificaPosicaoJogador(aux);
+					dadosServidor.estadoJogo = 1;
 
-				IniciaAmbienteJogo(PosJogador);
+					PosJogador = VerificaPosicaoJogador(aux);
 
-				SetEvent(dadosServidor.EventoInformaGwInicioJogo);
+					IniciaAmbienteJogo(PosJogador);
+
+					SetEvent(dadosServidor.EventoIniciaJogo);
+
+					SetEvent(dadosServidor.EventoAtualizaJogo);
+				}
+				else {
+
+					PosJogador = VerificaPosicaoJogador(aux);
+
+					IniciaAmbienteJogo(PosJogador);
+
+					SetEvent(dadosServidor.EventoAtualizaJogo);
+
+				}
 					
 				break;
 
@@ -597,7 +622,7 @@ jogadorinfo * iniciaArrayCli(){ //Alocação do Array
 // inicializa sincronizaçao usada para executar funçoes no servidor
 void IniciaSincronizacaoServidor() {
 
-	dadosServidor.EventoIniciaJogo = CreateEvent(NULL, 0, 0, EventInitjogo);
+	dadosServidor.EventoIniciaJogo = CreateEvent(NULL, 0, 0, EventIniciajogo);
 	
 	if (dadosServidor.EventoIniciaJogo == NULL) {
 		
@@ -612,9 +637,9 @@ void IniciaSincronizacaoServidor() {
 		exit(-1);
 	}
 
-	dadosServidor.EventoInformaGwInicioJogo = CreateEvent(NULL, TRUE, FALSE, enviaTabClientes);
+	dadosServidor.EventoAtualizaJogo = CreateEvent(NULL, TRUE, FALSE, enviaTabClientes);
 
-	if (dadosServidor.EventoInformaGwInicioJogo == NULL) {
+	if (dadosServidor.EventoAtualizaJogo == NULL) {
 
 		exit(-1);
 

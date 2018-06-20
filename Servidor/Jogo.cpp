@@ -333,3 +333,4 @@ void IniciarJogo(int *x, int *y,int pos) {
 
 }
 
+
