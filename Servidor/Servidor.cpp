@@ -216,29 +216,70 @@ int GestorNaveEsquiva() {
 
 	return 0;
 }
-// vai fazer a gestao de todas as naves inimigas
-int GestorNaveBasica() {
+// vai fazer a gestao de todas as naves inimigas objectosTab.NaveEnemyTipo1[i]
+void GestorNaveBasica() {//estou aqui aiai
+
+	int flag = 0, ret = 0;
 
 	int nNaves = dadosServidor.initJogo.MaxNavesBasicas;
-
-	int opcao = esquerda;
-
+	
+	WaitForSingleObject(dadosServidor.EventoIniciaJogo,INFINITE);
+	
 	do {
-
-		WaitForSingleObject(dadosServidor.EventoIniciaJogo, INFINITE);
-
+	
+	
+	
 		for (int i = 0; i < nNaves; i++) {
 
 			if (objectosTab.NaveEnemyTipo1[i].vida > 0) {
+				
+				//verifica se pode andar para a direita
+					WaitForSingleObject(dadosServidor.mutexTabuleiro, INFINITE);
+					objectosTab.NaveEnemyTipo1[i].orientacao = VerificaPosicaoJogo(&objectosTab.NaveEnemyTipo1[i].x, &objectosTab.NaveEnemyTipo1[i].y, NaveBasica, objectosTab.NaveEnemyTipo1[i].orientacao);
+				
+					switch (objectosTab.NaveEnemyTipo1[i].orientacao) {
+						case direita: {
+							//limpa a pos do tabuleiro
+							LimpaPosTabuleiro(objectosTab.NaveEnemyTipo1[i].x, objectosTab.NaveEnemyTipo1[i].y, bloco_vazio, LarguraNaveDefault);
+							//altera pos do objeto
+							objectosTab.NaveEnemyTipo1[i].x += 1;
+							//anda para a direita (coloca a pos no tabuleiro(a nave no sitio))
+							preencheBlocosServidor(&objectosTab.NaveEnemyTipo1[i].x, &objectosTab.NaveEnemyTipo1[i].y, i, NaveBasica, LarguraNaveDefault);
 
-				_tprintf(TEXT("por Implementar"));
+							break;
+
+						}
+						case baixo: {
+							//limpa a pos do tabuleiro
+							LimpaPosTabuleiro(objectosTab.NaveEnemyTipo1[i].x, objectosTab.NaveEnemyTipo1[i].y, bloco_vazio, LarguraNaveDefault);
+							//altera pos do objeto
+							objectosTab.NaveEnemyTipo1[i].y += 2;
+							//anda para a direita (coloca a pos no tabuleiro(a nave no sitio))
+							preencheBlocosServidor(&objectosTab.NaveEnemyTipo1[i].x, &objectosTab.NaveEnemyTipo1[i].y, i, NaveBasica, LarguraNaveDefault);
+
+							break;
+
+						}
+						case esquerda: {
+							//limpa a pos do tabuleiro
+							LimpaPosTabuleiro(objectosTab.NaveEnemyTipo1[i].x, objectosTab.NaveEnemyTipo1[i].y, bloco_vazio, LarguraNaveDefault);
+							//altera pos do objeto
+							objectosTab.NaveEnemyTipo1[i].x -= 1;
+							//anda para a direita (coloca a pos no tabuleiro(a nave no sitio))
+							preencheBlocosServidor(&objectosTab.NaveEnemyTipo1[i].x, &objectosTab.NaveEnemyTipo1[i].y, i, NaveBasica, LarguraNaveDefault);
+
+							break;
+
+						}
+					}
+					ReleaseMutex(dadosServidor.mutexTabuleiro);
 			}
-			Sleep(1010); // alterar tempo
+			SetEvent(dadosServidor.EventoAtualizaJogo);
+			Sleep(1000);
 		}
 		
-	} while (nNaves > 0);
+	} while (nNaves > 0); _tprintf(TEXT("\nsai no do\n"));
 
-	return 0;
 }
 // funcao que calcula rand para posicionar as naves Esquivas
 int CalculaPosRand(int pos_max) {
@@ -323,6 +364,8 @@ void colocaNavesBasicas() {
 				objectosTab.NaveEnemyTipo1[contaBasica].x = x;
 
 				objectosTab.NaveEnemyTipo1[contaBasica].y = y;
+
+				objectosTab.NaveEnemyTipo1[contaBasica].orientacao = direita;
 
 				objectosTab.NaveEnemyTipo1[contaBasica].vida = VidaNaveDefault;
 				

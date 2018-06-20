@@ -71,6 +71,7 @@ typedef struct BlocoTabServidor {
 typedef struct naves {
 	int tipo;
 	int x, y;
+	int orientacao;
 	int vida;
 	int escudo;
 	int taxaDisparo;
