@@ -154,7 +154,7 @@ void verificaComandosJogo(int comando, int PosObjeto, int tipoObjeto) {
 
 	case LancaTiro:
 
-		AdicionaTiroArray(PosObjeto, ArrayJogadores[PosObjeto].posicao[0], ArrayJogadores[PosObjeto].posicao[1], dadosServidor.mutexTabuleiro, dadosServidor.EventoAtualizaJogo);
+		//AdicionaTiroArray(PosObjeto, ArrayJogadores[PosObjeto].posicao[0], ArrayJogadores[PosObjeto].posicao[1], dadosServidor.mutexTabuleiro, dadosServidor.EventoAtualizaJogo);
 		
 		break;
 
@@ -190,6 +190,7 @@ int GestorNaveEsquiva() {
 	int opcao = 0, opcao_min = cima, opcao_max = LancaTiro;
 	WaitForSingleObject(dadosServidor.EventoIniciaJogo, INFINITE);
 	
+
 	do {
 	
 		for (int i = 0; i < nNaves; i++) {
@@ -224,6 +225,7 @@ void GestorNaveBasica() {//estou aqui aiai
 	int nNaves = dadosServidor.initJogo.MaxNavesBasicas;
 	
 	WaitForSingleObject(dadosServidor.EventoIniciaJogo,INFINITE);
+
 	
 	do {
 	
