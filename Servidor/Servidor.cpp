@@ -17,7 +17,7 @@ void mostraNaveBasica() {
 
 	for (int i = 0; i < dadosServidor.initJogo.MaxNavesBasicas; i++) {
 
-		_tprintf(TEXT("\npos da nave [%d][%d]"), objectosTab.NaveEnemyTipo1[i].x, objectosTab.NaveEnemyTipo1[i].y);
+		_tprintf(TEXT("\npos da nave [%d][%d]"), objectosTab.NaveEnemyTipo1[i].x, objectosTab.NaveEnemyTipo1[i].y);  
 
 	}
 }
