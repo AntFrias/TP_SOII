@@ -440,7 +440,7 @@ void IniciaAmbienteJogo(int pos) {
 
 		ReleaseMutex(dadosServidor.mutexTabuleiro);
 
-}
+}//
 //func que lista os clientes
 void mostraClinoArray() {
 

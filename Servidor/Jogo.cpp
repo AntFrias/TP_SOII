@@ -307,6 +307,7 @@ void ColocaNavesTab() {
 	colocaNavesEsquiva();
 	
 }
+//
 //Funcao que irá iniciar o jogo e as respetivas movimentacoes quando o jogador decidir jogar
 void IniciarJogo(int *x, int *y,int pos) {
 

@@ -2,7 +2,7 @@
 #include "Servidor.h"
 #pragma comment(lib, "../x64/Debug/AcessoMemDLL.lib")
 
-
+//
 tiro *ArrayTiros = NULL;
 
 gestorTiros GestorTiros;

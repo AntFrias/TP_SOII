@@ -13,7 +13,7 @@
 #include <shellapi.h>
 #include <winbase.h>
 
-
+//
 
 //max powerUp
 #define maxClientePowerUp 3
