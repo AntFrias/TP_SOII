@@ -18,6 +18,7 @@ void limpaTabuleiro() {
 		}
 	}
 }
+
 // mostra tabuleiro do Servidor
 void mostraTabuleiro() {
 
