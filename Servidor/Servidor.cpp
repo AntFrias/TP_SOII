@@ -188,10 +188,9 @@ int GestorNaveEsquiva() {
 	int nNaves = dadosServidor.initJogo.MaxNavesEsquivas;
 
 	int opcao = 0, opcao_min = cima, opcao_max = LancaTiro;
-
+	WaitForSingleObject(dadosServidor.EventoIniciaJogo, INFINITE);
+	
 	do {
-
-		WaitForSingleObject(dadosServidor.EventoIniciaJogo, INFINITE);
 	
 		for (int i = 0; i < nNaves; i++) {
 
@@ -210,8 +209,9 @@ int GestorNaveEsquiva() {
 				
 				ReleaseMutex(dadosServidor.mutexTabuleiro);
 			}
-			Sleep(1000); // alterar 
+			Sleep(100); // alterar 
 		}
+		
 	} while (nNaves > 0);
 
 	return 0;
@@ -226,8 +226,6 @@ void GestorNaveBasica() {//estou aqui aiai
 	WaitForSingleObject(dadosServidor.EventoIniciaJogo,INFINITE);
 	
 	do {
-	
-	
 	
 		for (int i = 0; i < nNaves; i++) {
 			WaitForSingleObject(dadosServidor.mutexTabuleiro, INFINITE);
@@ -252,23 +250,11 @@ void GestorNaveBasica() {//estou aqui aiai
 							//se posicao da nave for == 38 a proxima fez anda para baixo
 							SetEvent(dadosServidor.EventoAtualizaJogo);
 						}
-
 					}
 					if (objectosTab.NaveEnemyTipo1[i].x == 38 && objectosTab.NaveEnemyTipo1[i].y < 36) {
 						//verifica se pode andar para baixo 
 						ret = VerificaPosicaoJogo(&objectosTab.NaveEnemyTipo1[i].x, &objectosTab.NaveEnemyTipo1[i].y, NaveBasica, baixo);
 
-						if (ret) {
-							//limpa a pos do tabuleiro
-							LimpaPosTabuleiro(objectosTab.NaveEnemyTipo1[i].x, objectosTab.NaveEnemyTipo1[i].y, bloco_vazio, LarguraNaveDefault);
-
-							//altera pos do objeto
-							objectosTab.NaveEnemyTipo1[i].y += 2; //naveInimigaBasica[i].x;
-
-														 //anda para a baixo (coloca a pos no tabuleiro (a nave no sitio))
-							preencheBlocosServidor(&objectosTab.NaveEnemyTipo1[i].x, &objectosTab.NaveEnemyTipo1[i].y, i, NaveBasica, LarguraNaveDefault);
-							SetEvent(dadosServidor.EventoAtualizaJogo);
-						}
 						flag = 1;//coloca a flag a 1
 					}
 					if (objectosTab.NaveEnemyTipo1[i].x > 0 && objectosTab.NaveEnemyTipo1[i].y < 36 && flag == 1) {
@@ -287,26 +273,13 @@ void GestorNaveBasica() {//estou aqui aiai
 							SetEvent(dadosServidor.EventoAtualizaJogo);
 							//se posicao da nave for == 0 a proxima fez anda para baixo
 						}
-
 					}
 					if (objectosTab.NaveEnemyTipo1[i].x == 0 && objectosTab.NaveEnemyTipo1[i].y < 36) {
 						//verifica se pode andar para baixo 
 						ret = VerificaPosicaoJogo(&objectosTab.NaveEnemyTipo1[i].x, &objectosTab.NaveEnemyTipo1[i].y, NaveBasica, baixo);
-
 						if (ret) {
-							// limpa a pos do tabuleiro
-							LimpaPosTabuleiro(objectosTab.NaveEnemyTipo1[i].x, objectosTab.NaveEnemyTipo1[i].y, bloco_vazio, LarguraNaveDefault);
-
-							//altera pos do objeto
-							objectosTab.NaveEnemyTipo1[i].y += 2; //naveInimigaBasica[i].x;
-
-														 //anda para a baixo (coloca a pos no tabuleiro (a nave no sitio))
-							preencheBlocosServidor(&objectosTab.NaveEnemyTipo1[i].x, &objectosTab.NaveEnemyTipo1[i].y, i, NaveBasica, LarguraNaveDefault);
-							SetEvent(dadosServidor.EventoAtualizaJogo);
 							flag = 0;//coloca a flag a 0
 						}
-
-
 					}
 					
 					
