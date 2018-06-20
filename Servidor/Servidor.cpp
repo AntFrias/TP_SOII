@@ -341,12 +341,11 @@ void colocaNavesEsquiva() {
 				objectosTab.NaveEnemyTipo2[contaEsquiva].y = y;
 
 				objectosTab.NaveEnemyTipo2[contaEsquiva].vida = VidaNaveDefault;
-
-				contaEsquiva += 1;
 				
 				preencheBlocosServidor(&x, &y, contaEsquiva, NaveEsquiva,LarguraNaveDefault);
-	
-				contaEsquiva++;
+				
+				contaEsquiva += 1;
+				
 			}
 	}
 	ReleaseMutex(dadosServidor.mutexTabuleiro);
