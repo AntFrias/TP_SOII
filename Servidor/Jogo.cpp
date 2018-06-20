@@ -18,9 +18,9 @@ void limpaTabuleiro() {
 		}
 	}
 }
+
 // mostra tabuleiro do Servidor
 void mostraTabuleiro() {
-
 	for (int y = 0; y < dimMapa_y; y++) {
 		for (int x = 0; x < dimMapa_y; x++) {
 
@@ -191,6 +191,29 @@ int VerificaPosNaveJogador(int *x, int *y, int orientacao) {
 	}
 	return 0;
 }
+int VerificaPosNavebasica(int *x, int *y, int orientacao) {
+
+	int xAux = *x, yAux = *y;
+	if (orientacao == direita) {
+		if (blocoServ[yAux][xAux + 2].tipo == bloco_vazio && blocoServ[yAux + 1][xAux + 2].tipo == bloco_vazio && *x + 2 < 38) {
+			return direita;//posso andar
+		}
+	}
+		/*else {
+			if (blocoServ[yAux + 2][xAux].tipo == bloco_vazio && blocoServ[yAux + 2][xAux + 1].tipo == bloco_vazio && *y <= 34) {
+				return baixo;
+			}
+		}
+	}
+	if (orientacao == baixo) {
+		if (blocoServ[yAux][xAux - 1].tipo == bloco_vazio && blocoServ[yAux + 1][xAux - 1].tipo == bloco_vazio && *x - 1 >= 0) {
+			return esquerda;//posso andar
+		}
+	}
+	*/
+	//return 0;
+
+}
 // funcao que verifica a posicacao para onde o jogador quer-se movimentar
 int VerificaPosicaoJogo( int *x, int *y, int tipo, int orientacao) {
 	int Flag;
@@ -205,6 +228,8 @@ int VerificaPosicaoJogo( int *x, int *y, int tipo, int orientacao) {
 			return Flag;
 			break;
 		case NaveBasica:
+			Flag = VerificaPosNavebasica(x,y,orientacao);
+			return Flag;
 			break;
 		case NaveBoss:
 			break;
