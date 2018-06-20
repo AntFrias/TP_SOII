@@ -196,9 +196,19 @@ int VerificaPosNavebasica(int *x, int *y, int orientacao) {
 	int xAux = *x, yAux = *y;
 	if (orientacao == direita) {
 		if (blocoServ[yAux][xAux + 2].tipo == bloco_vazio && blocoServ[yAux + 1][xAux + 2].tipo == bloco_vazio && *x + 2 < 38) {
-			return direita;//posso andar
+			return 1;//posso andar
 		}
 	}
+	if (orientacao == esquerda) {
+		if (blocoServ[yAux][xAux - 1].tipo == bloco_vazio && blocoServ[yAux + 1][xAux - 1].tipo == bloco_vazio && *x - 1 >= 0) {
+			return 1;//posso andar
+		}
+	}
+
+
+
+
+
 		/*else {
 			if (blocoServ[yAux + 2][xAux].tipo == bloco_vazio && blocoServ[yAux + 2][xAux + 1].tipo == bloco_vazio && *y <= 34) {
 				return baixo;

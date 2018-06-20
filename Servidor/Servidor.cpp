@@ -154,7 +154,7 @@ void verificaComandosJogo(int comando, int PosObjeto, int tipoObjeto) {
 
 	case LancaTiro:
 
-		AdicionaTiroArray(PosObjeto, ArrayJogadores[PosObjeto].posicao[0], ArrayJogadores[PosObjeto].posicao[1], dadosServidor.mutexTabuleiro, dadosServidor.EventoAtualizaJogo);
+		//AdicionaTiroArray(PosObjeto, ArrayJogadores[PosObjeto].posicao[0], ArrayJogadores[PosObjeto].posicao[1], dadosServidor.mutexTabuleiro, dadosServidor.EventoAtualizaJogo);
 		
 		break;
 
@@ -188,10 +188,10 @@ int GestorNaveEsquiva() {
 	int nNaves = dadosServidor.initJogo.MaxNavesEsquivas;
 
 	int opcao = 0, opcao_min = cima, opcao_max = LancaTiro;
+	WaitForSingleObject(dadosServidor.EventoIniciaJogo, INFINITE);
+	
 
 	do {
-
-		WaitForSingleObject(dadosServidor.EventoIniciaJogo, INFINITE);
 	
 		for (int i = 0; i < nNaves; i++) {
 
@@ -210,8 +210,9 @@ int GestorNaveEsquiva() {
 				
 				ReleaseMutex(dadosServidor.mutexTabuleiro);
 			}
-			Sleep(1000); // alterar 
+			Sleep(100); // alterar 
 		}
+		
 	} while (nNaves > 0);
 
 	return 0;
@@ -224,58 +225,69 @@ void GestorNaveBasica() {//estou aqui aiai
 	int nNaves = dadosServidor.initJogo.MaxNavesBasicas;
 	
 	WaitForSingleObject(dadosServidor.EventoIniciaJogo,INFINITE);
+
 	
 	do {
 	
-	
-	
 		for (int i = 0; i < nNaves; i++) {
-
+			WaitForSingleObject(dadosServidor.mutexTabuleiro, INFINITE);
 			if (objectosTab.NaveEnemyTipo1[i].vida > 0) {
 				
 				//verifica se pode andar para a direita
-					WaitForSingleObject(dadosServidor.mutexTabuleiro, INFINITE);
-					objectosTab.NaveEnemyTipo1[i].orientacao = VerificaPosicaoJogo(&objectosTab.NaveEnemyTipo1[i].x, &objectosTab.NaveEnemyTipo1[i].y, NaveBasica, objectosTab.NaveEnemyTipo1[i].orientacao);
-				
-					switch (objectosTab.NaveEnemyTipo1[i].orientacao) {
-						case direita: {
+					
+					if (objectosTab.NaveEnemyTipo1[i].x < 38 && objectosTab.NaveEnemyTipo1[i].y < 36 && flag == 0) {// pode andar para a direita se estiver antes x=38 e y a cima de 36
+																								  //verifica se pode andar para a direita
+						ret = VerificaPosicaoJogo(&objectosTab.NaveEnemyTipo1[i].x, &objectosTab.NaveEnemyTipo1[i].y, NaveBasica, direita);
+
+						if (ret) {
 							//limpa a pos do tabuleiro
 							LimpaPosTabuleiro(objectosTab.NaveEnemyTipo1[i].x, objectosTab.NaveEnemyTipo1[i].y, bloco_vazio, LarguraNaveDefault);
+
 							//altera pos do objeto
-							objectosTab.NaveEnemyTipo1[i].x += 1;
-							//anda para a direita (coloca a pos no tabuleiro(a nave no sitio))
+							objectosTab.NaveEnemyTipo1[i].x += 1; //naveInimigaBasica[i].y;
+
+														 //anda para a direita (coloca a pos no tabuleiro(a nave no sitio))
 							preencheBlocosServidor(&objectosTab.NaveEnemyTipo1[i].x, &objectosTab.NaveEnemyTipo1[i].y, i, NaveBasica, LarguraNaveDefault);
 
-							break;
-
-						}
-						case baixo: {
-							//limpa a pos do tabuleiro
-							LimpaPosTabuleiro(objectosTab.NaveEnemyTipo1[i].x, objectosTab.NaveEnemyTipo1[i].y, bloco_vazio, LarguraNaveDefault);
-							//altera pos do objeto
-							objectosTab.NaveEnemyTipo1[i].y += 2;
-							//anda para a direita (coloca a pos no tabuleiro(a nave no sitio))
-							preencheBlocosServidor(&objectosTab.NaveEnemyTipo1[i].x, &objectosTab.NaveEnemyTipo1[i].y, i, NaveBasica, LarguraNaveDefault);
-
-							break;
-
-						}
-						case esquerda: {
-							//limpa a pos do tabuleiro
-							LimpaPosTabuleiro(objectosTab.NaveEnemyTipo1[i].x, objectosTab.NaveEnemyTipo1[i].y, bloco_vazio, LarguraNaveDefault);
-							//altera pos do objeto
-							objectosTab.NaveEnemyTipo1[i].x -= 1;
-							//anda para a direita (coloca a pos no tabuleiro(a nave no sitio))
-							preencheBlocosServidor(&objectosTab.NaveEnemyTipo1[i].x, &objectosTab.NaveEnemyTipo1[i].y, i, NaveBasica, LarguraNaveDefault);
-
-							break;
-
+							//se posicao da nave for == 38 a proxima fez anda para baixo
+							SetEvent(dadosServidor.EventoAtualizaJogo);
 						}
 					}
-					ReleaseMutex(dadosServidor.mutexTabuleiro);
+					if (objectosTab.NaveEnemyTipo1[i].x == 38 && objectosTab.NaveEnemyTipo1[i].y < 36) {
+						//verifica se pode andar para baixo 
+						ret = VerificaPosicaoJogo(&objectosTab.NaveEnemyTipo1[i].x, &objectosTab.NaveEnemyTipo1[i].y, NaveBasica, baixo);
+
+						flag = 1;//coloca a flag a 1
+					}
+					if (objectosTab.NaveEnemyTipo1[i].x > 0 && objectosTab.NaveEnemyTipo1[i].y < 36 && flag == 1) {
+						//verifica se pode andar para a esquerda
+						ret = VerificaPosicaoJogo(&objectosTab.NaveEnemyTipo1[i].x, &objectosTab.NaveEnemyTipo1[i].y, NaveBasica, esquerda);
+
+						if (ret) {
+							//limpa a pos do tabuleiro
+							LimpaPosTabuleiro(objectosTab.NaveEnemyTipo1[i].x, objectosTab.NaveEnemyTipo1[i].y, bloco_vazio, LarguraNaveDefault);
+
+							//altera pos do objeto
+							objectosTab.NaveEnemyTipo1[i].x -= 1;//naveInimigaBasica[i].y;
+
+														//anda para a esquerda (coloca a pos no tabuleiro(a nave no sitio))
+							preencheBlocosServidor(&objectosTab.NaveEnemyTipo1[i].x, &objectosTab.NaveEnemyTipo1[i].y, i, NaveBasica, LarguraNaveDefault);
+							SetEvent(dadosServidor.EventoAtualizaJogo);
+							//se posicao da nave for == 0 a proxima fez anda para baixo
+						}
+					}
+					if (objectosTab.NaveEnemyTipo1[i].x == 0 && objectosTab.NaveEnemyTipo1[i].y < 36) {
+						//verifica se pode andar para baixo 
+						ret = VerificaPosicaoJogo(&objectosTab.NaveEnemyTipo1[i].x, &objectosTab.NaveEnemyTipo1[i].y, NaveBasica, baixo);
+						if (ret) {
+							flag = 0;//coloca a flag a 0
+						}
+					}
+					
+					
 			}
-			SetEvent(dadosServidor.EventoAtualizaJogo);
-			Sleep(1000);
+			ReleaseMutex(dadosServidor.mutexTabuleiro);
+			Sleep(10);
 		}
 		
 	} while (nNaves > 0); _tprintf(TEXT("\nsai no do\n"));
@@ -329,12 +341,11 @@ void colocaNavesEsquiva() {
 				objectosTab.NaveEnemyTipo2[contaEsquiva].y = y;
 
 				objectosTab.NaveEnemyTipo2[contaEsquiva].vida = VidaNaveDefault;
-
-				contaEsquiva += 1;
 				
 				preencheBlocosServidor(&x, &y, contaEsquiva, NaveEsquiva,LarguraNaveDefault);
-	
-				contaEsquiva++;
+				
+				contaEsquiva += 1;
+				
 			}
 	}
 	ReleaseMutex(dadosServidor.mutexTabuleiro);
@@ -665,7 +676,7 @@ jogadorinfo * iniciaArrayCli(){ //Alocação do Array
 // inicializa sincronizaçao usada para executar funçoes no servidor
 void IniciaSincronizacaoServidor() {
 
-	dadosServidor.EventoIniciaJogo = CreateEvent(NULL, 0, 0, EventIniciajogo);
+	dadosServidor.EventoIniciaJogo = CreateEvent(NULL, TRUE, FALSE, EventIniciajogo);
 	
 	if (dadosServidor.EventoIniciaJogo == NULL) {
 		
