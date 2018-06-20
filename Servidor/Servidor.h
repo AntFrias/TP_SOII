@@ -28,6 +28,8 @@
 #define ninimigas1 38
 #define ninimigas2 6
 
+#define VidaNaveDefault 3
+
 #define NavesPorLinha 20
 
 //Tiros
@@ -135,7 +137,7 @@ typedef struct Gestao_servidor {
 	DWORD IdThreadSertoGw;
 	HANDLE mutexTabuleiro;
 	HANDLE EventoIniciaJogo;
-	HANDLE EventoInformaGwInicioJogo;
+	HANDLE EventoAtualizaJogo;
 
 
 }dataServer;
