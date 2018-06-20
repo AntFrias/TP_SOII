@@ -26,7 +26,7 @@
 
 //numero de naves inimigas apenas para testes
 #define ninimigas1 38
-#define ninimigas2 6
+#define ninimigas2 10
 
 #define VidaNaveDefault 3
 
