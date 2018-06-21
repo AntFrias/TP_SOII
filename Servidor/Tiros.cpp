@@ -34,8 +34,6 @@ void trataMovimentacaoTiroInimigas(int PosTiro, int tipo, int ProprietarioMissil
 
 	int tipoObjeto, x = ArrayTiros[PosTiro].x, y = ArrayTiros[PosTiro].y;
 
-	WaitForSingleObject(GestorTiros.MutexTabuleiro, INFINITE);
-
 		tipoObjeto = VerificaPosicaoJogo(&x, &y, tipo, baixo);
 
 		switch (tipoObjeto) {
@@ -72,11 +70,6 @@ void trataMovimentacaoTiroInimigas(int PosTiro, int tipo, int ProprietarioMissil
 
 		}
 
-
-
-
-	ReleaseMutex(GestorTiros.MutexTabuleiro);
-
 }
 int ObtemPosTiroInimigo(int x, int y) {
 
@@ -89,44 +82,41 @@ int ObtemPosTiroInimigo(int x, int y) {
 	}
 }
 
-
 void trataMovimentacaoTiroJogador(int PosTiro, int tipo, int ProprietarioMissil) {
 
 	int tipoObjeto, x = ArrayTiros[PosTiro].x, y = ArrayTiros[PosTiro].y, y_aux = ArrayTiros[PosTiro].y, PosTiroInimigo;
-
-	WaitForSingleObject(GestorTiros.MutexTabuleiro, INFINITE);
 
 		tipoObjeto = VerificaPosicaoJogo(&x, &y, tipo, cima);
 		
 			switch (tipoObjeto) {
 
 				case bloco_vazio:
+					
+						LimpaPosTabuleiroTiro(x, y, bloco_vazio, LarguraTiroDefault);
 
-					LimpaPosTabuleiroTiro(x, y, bloco_vazio, LarguraTiroDefault);
-
-					y -= 1;
+						y -= 1;
 	
-					ArrayTiros[PosTiro].x = x;
+						ArrayTiros[PosTiro].x = x;
 
-					ArrayTiros[PosTiro].y = y;
+						ArrayTiros[PosTiro].y = y;
 
-					preencheBlocosServidorTiro(&x, &y, PosTiro, tiroJogador, LarguraTiroDefault);
+						preencheBlocosServidorTiro(&x, &y, PosTiro, tiroJogador, LarguraTiroDefault);
 
-					SetEvent(GestorTiros.AtualizaTabuleiro);
+						SetEvent(GestorTiros.AtualizaTabuleiro);
 
 				break;
 
 				case Limite_Tabuleiro:
 
-					LimpaPosTabuleiroTiro(x, y, bloco_vazio, LarguraTiroDefault);
+						LimpaPosTabuleiroTiro(x, y, bloco_vazio, LarguraTiroDefault);
 
-					preencheBlocosServidorTiro(&x, &y, PosTiro, TiroExplosao, LarguraTiroDefault);
+						//preencheBlocosServidorTiro(&x, &y, PosTiro, TiroExplosao, LarguraTiroDefault);
 					
-					SetEvent(GestorTiros.AtualizaTabuleiro);
+						SetEvent(GestorTiros.AtualizaTabuleiro);
 
-					ArrayTiros[PosTiro].tipo = Tirovazio;
+						ArrayTiros[PosTiro].tipo = Tirovazio;
 					
-					GestorTiros.TotalTiros -= 1;
+						GestorTiros.TotalTiros -= 1;
 					
 				break;
 
@@ -147,7 +137,8 @@ void trataMovimentacaoTiroJogador(int PosTiro, int tipo, int ProprietarioMissil)
 							ArrayTiros[PosTiro].tipo = Tirovazio;
 
 							GestorTiros.TotalTiros -= 1;
-						
+
+							break;
 
 						}
 						else {
@@ -156,10 +147,12 @@ void trataMovimentacaoTiroJogador(int PosTiro, int tipo, int ProprietarioMissil)
 
 							SetEvent(GestorTiros.AtualizaTabuleiro);
 
-						}
+							ArrayTiros[PosTiro].tipo = Tirovazio;
 
-					
-						
+							GestorTiros.TotalTiros -= 1;
+
+							break;
+						}
 					}
 					if (tipoObjeto == tiroNaveEnemy) {
 
@@ -171,24 +164,21 @@ void trataMovimentacaoTiroJogador(int PosTiro, int tipo, int ProprietarioMissil)
 
 							ArrayTiros[PosTiro].tipo = Tirovazio;
 
+							GestorTiros.TotalTiros -= 2;
+
 							LimpaPosTabuleiroTiro(x, y_aux, bloco_vazio, LarguraTiroDefault);
 
 							LimpaPosTabuleiroTiro(x, y, bloco_vazio, LarguraTiroDefault);
 
-							y += 1;
+							y -= 1;
 
 							preencheBlocosServidorTiro(&x, &y, PosTiro, TiroExplosao, LarguraTiroDefault);
 
 							SetEvent(GestorTiros.AtualizaTabuleiro);
 
-							GestorTiros.TotalTiros -= 2;
-
 					} 
 				break;
 			}
-	
-	ReleaseMutex(GestorTiros.MutexTabuleiro);
-
 }
 
 void GestorTirosTab() {
@@ -201,19 +191,32 @@ void GestorTirosTab() {
 	
 		do {
 			
+
 			for (int i = 0; i < MaxTiros; i++) {
 
 				WaitForSingleObject(GestorTiros.MutexTiroArray, INFINITE);
-				  
+
 					if (ArrayTiros[i].tipo != Tirovazio) {
 					
 						switch (ArrayTiros[i].tipo) {
 
 						case tiroJogador:
+
+							WaitForSingleObject(GestorTiros.MutexTabuleiro, INFINITE);
+
 							trataMovimentacaoTiroJogador(i, ArrayTiros[i].tipo, ArrayTiros[i].posProprietario);
+
+							ReleaseMutex(GestorTiros.MutexTabuleiro);
+
 							break;
 						case tiroNaveEnemy:
+
+							WaitForSingleObject(GestorTiros.MutexTabuleiro, INFINITE);
+
 							trataMovimentacaoTiroInimigas(i, ArrayTiros[i].tipo, ArrayTiros[i].posProprietario);
+
+							ReleaseMutex(GestorTiros.MutexTabuleiro);
+
 							break;
 						case tiroBoss:
 							//trataMovimentacaoTiro(&ArrayTiros[i].x, &ArrayTiros[i].y, ArrayTiros[i].tipo, i);
@@ -223,10 +226,10 @@ void GestorTirosTab() {
 							break;
 						}
 					}
-				ReleaseMutex(GestorTiros.MutexTiroArray);
 
-		
+				ReleaseMutex(GestorTiros.MutexTiroArray);
 			}
+	
 		Sleep(TempoDeEnvioTabuleiro);
 
 		} while (GestorTiros.TotalTiros > 0);

@@ -541,7 +541,7 @@ LRESULT CALLBACK WindowProc(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
 int WINAPI _tWinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPTSTR LpCmdLine, int ncmdshow)
 {	
 	
-	wcscpy_s(configuracoes.ip, TEXT("10.65.133.255"));
+	wcscpy_s(configuracoes.ip, TEXT("127.0.0.1"));
 	//wcscpy_s(configuracoes.ip, TEXT("127.0.0.1"));
 	// lança a thread que escuta no named pipe
 		IniciaCliente();
