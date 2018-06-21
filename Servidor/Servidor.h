@@ -80,7 +80,7 @@ typedef struct naves {
 
 typedef struct DadosJogo {
 
-	Nave *NaveEnemyTipo1, *NaveEnemyTipo2, *NaveEnemyTipo3;
+	Nave *NaveEnemyTipo1, *NaveEnemyTipo2, NaveEnemyTipo3;
 
 }DadosdoJogo;
 
@@ -157,6 +157,7 @@ void alteraPosicaoObjeto(int PosObjeto, int tipoObjeto, int *x, int *y);
 //ficheiro Jogo
 void limpaTabuleiro();
 void mostraTabuleiro();
+int VerificaVidaNave(int tipoObjeto, int PosObjeto);
 int VerificaPosicaoPreencheTAb(int *x, int *y);
 int VerificaPosicaoJogo(int *x, int *y, int tipo, int orientacao);
 void LimpaPosTabuleiro(int x, int y, int tipo, int Largura);
@@ -168,6 +169,8 @@ void LimpaPosTabuleiroTiro(int x, int y, int tipo, int Largura);
 
 
 //ficheiro Tiros
+
+int AlteraVidaObjeto(int x, int y, int tipoObjeto, HANDLE atualizaTab);
 void AdicionaTiroArray(int x, int y, int tipo, int PosObjeto);
 void GestorTirosTab();
 void AlteraPosicaoTiro(int PosObjeto, int *x, int *y);

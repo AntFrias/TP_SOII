@@ -40,7 +40,7 @@ enum EnumDados {
 #define escala 20
 
 //Tamanho do array de blocos ocupados
-#define Blocoscupados 1000
+#define Blocoscupados 2000
 
 typedef struct img {
 

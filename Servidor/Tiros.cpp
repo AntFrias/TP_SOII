@@ -69,14 +69,30 @@ void trataMovimentacaoTiroInimigas(int PosTiro, int tipo, int ProprietarioMissil
 			GestorTiros.TotalTiros -= 1;
 
 			break;
+
 		}
+
+
+
 
 	ReleaseMutex(GestorTiros.MutexTabuleiro);
 
 }
+int ObtemPosTiroInimigo(int x, int y) {
+
+	for (int i = 0; i < MaxTiros; i++) {
+
+		if (ArrayTiros[i].tipo != Tirovazio && ArrayTiros[i].x == x && ArrayTiros[i].y == y) {
+
+			return i;
+		}
+	}
+}
+
+
 void trataMovimentacaoTiroJogador(int PosTiro, int tipo, int ProprietarioMissil) {
 
-	int tipoObjeto, x = ArrayTiros[PosTiro].x, y = ArrayTiros[PosTiro].y;
+	int tipoObjeto, x = ArrayTiros[PosTiro].x, y = ArrayTiros[PosTiro].y, y_aux = ArrayTiros[PosTiro].y, PosTiroInimigo;
 
 	WaitForSingleObject(GestorTiros.MutexTabuleiro, INFINITE);
 
@@ -107,11 +123,67 @@ void trataMovimentacaoTiroJogador(int PosTiro, int tipo, int ProprietarioMissil)
 					preencheBlocosServidorTiro(&x, &y, PosTiro, TiroExplosao, LarguraTiroDefault);
 					
 					SetEvent(GestorTiros.AtualizaTabuleiro);
-					
+
 					ArrayTiros[PosTiro].tipo = Tirovazio;
 					
 					GestorTiros.TotalTiros -= 1;
 					
+				break;
+
+				default:
+
+					y_aux -= 1;
+
+					if (tipoObjeto > bloco_vazio && tipoObjeto < NaveJogador) {
+	
+						if (AlteraVidaObjeto(x, y_aux, tipoObjeto, GestorTiros.AtualizaTabuleiro) == 0) {
+
+							LimpaPosTabuleiroTiro(x, y, bloco_vazio, LarguraTiroDefault);
+
+							//preencheBlocosServidorTiro(&x, &y_aux, PosTiro, TiroExplosao, LarguraTiroDefault);
+
+							SetEvent(GestorTiros.AtualizaTabuleiro);
+
+							ArrayTiros[PosTiro].tipo = Tirovazio;
+
+							GestorTiros.TotalTiros -= 1;
+						
+
+						}
+						else {
+
+							LimpaPosTabuleiroTiro(x, y, bloco_vazio, LarguraTiroDefault);
+
+							SetEvent(GestorTiros.AtualizaTabuleiro);
+
+						}
+
+					
+						
+					}
+					if (tipoObjeto == tiroNaveEnemy) {
+
+							y_aux -= 1;
+
+							PosTiroInimigo = ObtemPosTiroInimigo(x, y_aux);
+
+							ArrayTiros[PosTiroInimigo].tipo = Tirovazio;
+
+							ArrayTiros[PosTiro].tipo = Tirovazio;
+
+							LimpaPosTabuleiroTiro(x, y_aux, bloco_vazio, LarguraTiroDefault);
+
+							LimpaPosTabuleiroTiro(x, y, bloco_vazio, LarguraTiroDefault);
+
+							y += 1;
+
+							preencheBlocosServidorTiro(&x, &y, PosTiro, TiroExplosao, LarguraTiroDefault);
+
+							SetEvent(GestorTiros.AtualizaTabuleiro);
+
+							GestorTiros.TotalTiros -= 2;
+
+					} 
 				break;
 			}
 	
