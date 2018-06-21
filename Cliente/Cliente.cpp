@@ -150,6 +150,14 @@ void escuta() {
 	HANDLE IOReady; //handle para o evento
 	OVERLAPPED Ov; // Extrutura para o so interpretar
 	
+	HANDLE hUserToken = NULL;
+
+
+	BOOL log = LogonUser(configuracoes.name, configuracoes.ip, configuracoes.pw, LOGON32_LOGON_NEW_CREDENTIALS, LOGON32_PROVIDER_DEFAULT, &hUserToken);
+
+	log = ImpersonateLoggedOnUser(hUserToken);
+
+
 	IOReady = CreateEvent(NULL, TRUE, FALSE, NULL); // retorno do evento handle
 
 	if (IOReady == NULL) {
@@ -157,9 +165,11 @@ void escuta() {
 		exit(-1);
 	}
 
+	TCHAR aux[100];
+	_stprintf_s(aux, 100, TEXT("\\\\%s\\pipe\\teste"), configuracoes.ip);
 
 	//ler do pipe
-	if (!WaitNamedPipe(PIPE_NAME, NMPWAIT_WAIT_FOREVER)) {
+	if (!WaitNamedPipe(aux, NMPWAIT_WAIT_FOREVER)) {
 		//_tprintf(TEXT(" N?o consegui ligar ao pipe '%s'!\n"), PIPE_NAME);
 		MessageBox(NULL, TEXT("Provavelmente o Gateway não está ligado"), TEXT("ERRO"), MB_OK | MB_ICONERROR);
 		exit(-1);
@@ -167,7 +177,7 @@ void escuta() {
 	}
 
 	Cliente.alive = 1;
-	Cliente.pipe = CreateFile(PIPE_NAME, GENERIC_READ | GENERIC_WRITE, 0, NULL, OPEN_EXISTING, 0 | FILE_FLAG_OVERLAPPED, NULL);
+	Cliente.pipe = CreateFile(aux, GENERIC_READ | GENERIC_WRITE, 0, NULL, OPEN_EXISTING, 0 | FILE_FLAG_OVERLAPPED, NULL);
 
 	if (Cliente.pipe == NULL) {
 		MessageBox(NULL, TEXT("O Pipe do Cliente é invalido"), TEXT("ERRO"), MB_OK | MB_ICONERROR);
@@ -261,7 +271,11 @@ LRESULT CALLBACK Configuracoes(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lPara
 		SetWindowText(GetDlgItem(hwnd, IDC_tiro), TEXT("v"));	
 		SetWindowText(GetDlgItem(hwnd, IDC_POWERUP1), TEXT("z"));	
 		SetWindowText(GetDlgItem(hwnd, IDC_POWERUP2), TEXT("x"));	
-		SetWindowText(GetDlgItem(hwnd, IDC_POWERUP3), TEXT("c"));	
+		SetWindowText(GetDlgItem(hwnd, IDC_POWERUP3), TEXT("c"));
+
+
+		SetWindowText(GetDlgItem(hwnd, IDC_name), TEXT("so2"));
+		SetWindowText(GetDlgItem(hwnd, IDC_pw), TEXT("so2"));
 		break;
 
 	case WM_COMMAND:
@@ -269,9 +283,18 @@ LRESULT CALLBACK Configuracoes(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lPara
 		{
 		case IDOK:
 		{  
-			TCHAR buff[9];
+			TCHAR buff[20];
 			GetWindowText(GetDlgItem(hwnd, IDC_Nome), buff, 9);
 			wcscpy_s(configuracoes.nome, buff);
+
+			GetWindowText(GetDlgItem(hwnd, IDC_name), buff, 9);
+			wcscpy_s(configuracoes.name, buff);
+
+			GetWindowText(GetDlgItem(hwnd, IDC_pw), buff, 9);
+			wcscpy_s(configuracoes.pw, buff);
+
+			//GetWindowText(GetDlgItem(hwnd, IDC_IPADDRESS), buff, 19);
+			//wcscpy_s(configuracoes.ip, buff);
 			
 			//Teclas
 			TCHAR aux[2];
@@ -315,7 +338,6 @@ LRESULT CALLBACK Configuracoes(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lPara
 			wcscpy_s(PacoteEnvio.dataPacket.nome, configuracoes.nome);
 			SetEvent(Cliente.EventEnvia);
 
-
 			EndDialog(hwnd, 0); //isto é para fechar a janela 
 			//PostQuitMessage(0); //isto é para fechar a janxxxx -> o ciclo de mensagens
 			ShowWindow(hwndPrincipal, SW_SHOWDEFAULT);
@@ -352,6 +374,16 @@ LRESULT CALLBACK WindowProc(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
 	switch (uMsg)	{
 
 	case WM_DESTROY: {
+
+
+
+		//aqui aiai
+		//prenche pacote
+		LimpaPacotedEnvio();
+		PacoteEnvio.tipo = user_logout;
+		SetEvent(Cliente.EventEnvia);
+
+
 		PostQuitMessage(0);
 
 		//eliminar as janelas feitas para cada um bipmap ... (por mais aqui ... um delete para cada um)
@@ -508,9 +540,11 @@ LRESULT CALLBACK WindowProc(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
 
 int WINAPI _tWinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPTSTR LpCmdLine, int ncmdshow)
 {	
-	// lança a thread que escuta no named pipe
-	IniciaCliente(); 
 	
+	wcscpy_s(configuracoes.ip, TEXT("10.65.133.255"));
+	//wcscpy_s(configuracoes.ip, TEXT("127.0.0.1"));
+	// lança a thread que escuta no named pipe
+		IniciaCliente();
 	//Registar a class da janela
 	const wchar_t CLASS_NAME[] = L"Janela Principal";
 

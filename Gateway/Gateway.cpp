@@ -1,8 +1,25 @@
 #include "HeaderGateway.h"
 #include "../AcessoMemDLL/stdafx.h"
+#define _WIN32_WINNT 0x0500
+#include <windows.h>
+#include <sddl.h>
+#include <tchar.h>
+#include <io.h>
+#include <fcntl.h>
+#include <stdio.h>
+#include <time.h>
+
 #pragma comment(lib, "../x64/Debug/AcessoMemDLL.lib")
 
 dataGw dadosGw;
+
+SECURITY_ATTRIBUTES sa;
+TCHAR szSD[] = TEXT("D:")
+			TEXT("(A;OICI;GA;;;BG)")
+			TEXT("(A;OICI;GA;;;AN)")
+			TEXT("(A;OICI;GA;;;AU)")
+			TEXT("(A;OICI;GA;;;BA)");
+
 
 clientes Clientes[nMaxJogadores];
 
@@ -44,6 +61,22 @@ void RecebePipeCliente(LPVOID *Cli) {
 		Pacote.Cliente_id = cli->id;
 		
 		escrevebuffer(&Pacote, nomeGwtoServ);
+
+		if (Pacote.tipo == user_logout) {
+			
+			for (int i = 0; i < dadosGw.nClientes; i++) {
+
+				if (Clientes[i].id == Pacote.Cliente_id) {
+					Clientes[i].hPipe = INVALID_HANDLE_VALUE;
+				}
+			}// mandar mensagem ao servidor para ele o retirar do mapa
+			
+		}
+		///
+		//Clientes[i].hPipe = INVALID_HANDLE_VALUE;
+		//////ReleaseMutex(hMutex);
+
+
 		
 	}
 
@@ -56,8 +89,13 @@ void RecebePipeCliente(LPVOID *Cli) {
 // cria namedPipe/instancias para comunicaçao com os Clientes
 HANDLE criaNamedPipe() {
 
+	sa.nLength = sizeof(SECURITY_ATTRIBUTES);
+	sa.bInheritHandle = FALSE;
 
-	HANDLE hPipe = CreateNamedPipe(PIPE_NAME, PIPE_ACCESS_DUPLEX | FILE_FLAG_OVERLAPPED, PIPE_WAIT | PIPE_TYPE_MESSAGE | PIPE_READMODE_MESSAGE, nMaxJogadores, sizeof(packet), sizeof(packet), 1000, NULL);
+	ConvertStringSecurityDescriptorToSecurityDescriptor(szSD, SDDL_REVISION_1, &(sa.lpSecurityDescriptor), NULL);
+
+
+	HANDLE hPipe = CreateNamedPipe(PIPE_NAME, PIPE_ACCESS_DUPLEX | FILE_FLAG_OVERLAPPED, PIPE_WAIT | PIPE_TYPE_MESSAGE | PIPE_READMODE_MESSAGE, nMaxJogadores, sizeof(packet), sizeof(packet), 1000, &sa);
 
 	if (hPipe == INVALID_HANDLE_VALUE) {
 
@@ -168,7 +206,7 @@ void EnviaBroadcastPacote(Packet *resposta) {
 				DisconnectNamedPipe(Clientes[i].hPipe);	//fechar os recursos associados ao cliente que se desligou
 				CloseHandle(Clientes[i].hPipe);
 				CloseHandle(IOReady);
-				//WaitForSingleObject(hMutex, INFINITE);
+				///mutexWaitForSingleObject(hMutex, INFINITE);
 				Clientes[i].hPipe = INVALID_HANDLE_VALUE;
 				//////ReleaseMutex(hMutex);
 			}*/
