@@ -118,8 +118,11 @@ enum OjectosTabuleiro {
 	NaveJogador,
 	tiroJogador = 10,
 	bombaInimiga,
+	tiroNuclear,  // missil divide-se em 2
+	tiroBoss,    // lança 2 misseis de cada vez nos extremos da nave
+	TiroExplosao,
 
-	PowerUpEscudo,
+	PowerUpEscudo = 30,
 	PowerUpGelo,
 	PowerUpBateria,
 	PowerUpMais,

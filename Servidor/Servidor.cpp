@@ -745,8 +745,6 @@ int IniciarServidor() {
 
 	IniciaSincronizacaoTiros();
 
-	InicializaArrayTiros();
-
 	ArrayJogadores = iniciaArrayCli();
 																				
 	dadosServidor.hThreadSerToGw = CreateThread( NULL,0,(LPTHREAD_START_ROUTINE)TrataPacotesGwtoServ,(LPVOID) NULL,0,&dadosServidor.IdThreadSertoGw); // fica a espera de pacotes no buffer
