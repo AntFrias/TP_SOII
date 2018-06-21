@@ -31,6 +31,67 @@ void mostraNaveBasica() {
 
 	}
 }
+
+int VerificaVidaNave(int tipoObjeto, int PosObjeto) {
+
+	int nVidas = 0;
+
+	switch (tipoObjeto) {
+
+	case NaveBasica:
+
+		if (objectosTab.NaveEnemyTipo1[PosObjeto].vida > 0) {
+
+			objectosTab.NaveEnemyTipo1[PosObjeto].vida -= 1;
+
+			nVidas = objectosTab.NaveEnemyTipo1[PosObjeto].vida;
+
+			return nVidas;
+		}
+		if (objectosTab.NaveEnemyTipo1[PosObjeto].vida == 0) {
+
+			nVidas = objectosTab.NaveEnemyTipo1[PosObjeto].vida;
+
+			LimpaPosTabuleiroTiro(objectosTab.NaveEnemyTipo1[PosObjeto].x, objectosTab.NaveEnemyTipo1[PosObjeto].y, bloco_vazio, LarguraNaveDefault);
+
+			preencheBlocosServidor(&objectosTab.NaveEnemyTipo1[PosObjeto].x, &objectosTab.NaveEnemyTipo1[PosObjeto].y, PosObjeto, bloco_vazio, LarguraNaveDefault);
+
+			SetEvent(dadosServidor.EventoAtualizaJogo);
+
+			return nVidas;
+		}
+
+		break;
+	case NaveEsquiva:
+
+		if (objectosTab.NaveEnemyTipo2[PosObjeto].vida > 0){
+		
+			objectosTab.NaveEnemyTipo2[PosObjeto].vida -= 1;
+	
+			nVidas = objectosTab.NaveEnemyTipo2[PosObjeto].vida;
+
+			return nVidas;
+		}
+		if (objectosTab.NaveEnemyTipo2[PosObjeto].vida == 0) {
+			
+			nVidas = objectosTab.NaveEnemyTipo2[PosObjeto].vida;
+
+			LimpaPosTabuleiroTiro(objectosTab.NaveEnemyTipo2[PosObjeto].x, objectosTab.NaveEnemyTipo2[PosObjeto].y, bloco_vazio, LarguraNaveDefault);
+
+			preencheBlocosServidor(&objectosTab.NaveEnemyTipo2[PosObjeto].x, &objectosTab.NaveEnemyTipo2[PosObjeto].y, PosObjeto, bloco_vazio, LarguraNaveDefault);
+
+			SetEvent(dadosServidor.EventoAtualizaJogo);
+			
+			return nVidas;
+		}
+		break;
+	case NaveBoss:
+		break;
+	case NaveJogador:
+		break;
+
+	}
+}
 // vai alterar as posiçoes do objeto no respetivo array
 void alteraPosicaoObjeto(int PosObjeto, int tipoObjeto, int *x, int *y) {
 	switch (tipoObjeto) {
@@ -48,8 +109,8 @@ void alteraPosicaoObjeto(int PosObjeto, int tipoObjeto, int *x, int *y) {
 		objectosTab.NaveEnemyTipo1[PosObjeto].y = *y;
 		break;
 	case NaveBoss:
-		objectosTab.NaveEnemyTipo3[PosObjeto].x = *x;
-		objectosTab.NaveEnemyTipo3[PosObjeto].y = *y;
+		objectosTab.NaveEnemyTipo3.x = *x;
+		objectosTab.NaveEnemyTipo3.y = *y;
 		break;
 	case LancaTiro:
 		AlteraPosicaoTiro(PosObjeto, x, y);
@@ -74,8 +135,8 @@ void CarregaPosObjeto(int PosObjeto, int tipoObjeto, int *x, int *y) {
 			*y = objectosTab.NaveEnemyTipo1[PosObjeto].y;
 			break;
 		case NaveBoss:
-			*x = objectosTab.NaveEnemyTipo3[PosObjeto].x;
-			*y = objectosTab.NaveEnemyTipo3[PosObjeto].y;
+			*x = objectosTab.NaveEnemyTipo3.x;
+			*y = objectosTab.NaveEnemyTipo3.y;
 			break;
 		case LancaTiro:
 			break;
@@ -459,7 +520,7 @@ int IniciaObjetosTabuleiro() {
 
 	objectosTab.NaveEnemyTipo1 = criaArrayNaves(dadosServidor.initJogo.MaxNavesBasicas);
 	objectosTab.NaveEnemyTipo2 = criaArrayNaves(dadosServidor.initJogo.MaxNavesEsquivas);
-	objectosTab.NaveEnemyTipo3 = criaArrayNaves(dadosServidor.initJogo.MaxNaveBoss);
+	
 
 	_tprintf(TEXT("\nVou prencher o tabuleiro do servidor\n\n"));
 	

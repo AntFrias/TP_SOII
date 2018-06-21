@@ -4,6 +4,27 @@
 
 BlocoServ blocoServ[dimMapa_x][dimMapa_y];
 
+
+
+
+int AlteraVidaObjeto(int x, int y, int tipoObjeto, HANDLE atualizaTab) {
+
+	int nVidas = 3;
+
+	int posObjeto;
+	
+	if (blocoServ[y][x].tipo == tipoObjeto) {
+
+		posObjeto = blocoServ[y][x].posArray;
+
+		nVidas = VerificaVidaNave(tipoObjeto, posObjeto);
+
+		return nVidas;
+	}
+
+}
+
+
 // funcao que vai limpar os tabuleiros do servidor e da memoria partilhada
 void limpaTabuleiro() {
 
@@ -47,9 +68,9 @@ int verificaPosicaoTiro(int *x, int *y, int orientacao) {
 
 	case cima:
 
-		if (blocoServ[*y - 1][*x].tipo == bloco_vazio && *y > 0) {
+		if (*y > 0) {
 
-			Item = bloco_vazio;
+			Item = blocoServ[*y - 1][*x].tipo;
 
 			return Item;
 
