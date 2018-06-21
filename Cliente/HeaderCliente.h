@@ -83,6 +83,9 @@ typedef struct hcds {
 typedef struct configs {
 
 	TCHAR nome[10];
+	TCHAR name[10];
+	TCHAR pw[10];
+	TCHAR ip[20];
 	TCHAR TIRO;
 	TCHAR CIMA, BAIXO, ESQUERDA, DIREITA;
 	TCHAR POWERUP1, POWERUP2, POWERUP3;
