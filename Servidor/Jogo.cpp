@@ -79,6 +79,7 @@ int verificaPosicaoTiro(int *x, int *y, int orientacao) {
 		break;
 	}
 }
+//
 // verifica posicao da nave Esquiva
 int VerificaPosicaoNaveEsquiva(int *x, int *y, int orientacao) {  // rever todo este codigo
 
