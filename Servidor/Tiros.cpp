@@ -58,7 +58,7 @@ void trataMovimentacaoTiroInimigas(int PosTiro, int tipo, int ProprietarioMissil
 		
 			LimpaPosTabuleiroTiro(x, y, bloco_vazio, LarguraTiroDefault);
 
-			preencheBlocosServidorTiro(&x, &y, PosTiro, TiroExplosao, LarguraTiroDefault);
+			//preencheBlocosServidorTiro(&x, &y, PosTiro, TiroExplosao, LarguraTiroDefault);
 
 			SetEvent(GestorTiros.AtualizaTabuleiro);
 
