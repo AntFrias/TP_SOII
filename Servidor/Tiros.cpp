@@ -57,7 +57,7 @@ void trataMovimentacaoTiroInimigas(int PosTiro, int tipo, int ProprietarioMissil
 			break;
 
 		case Limite_Tabuleiro:
-
+		
 			LimpaPosTabuleiroTiro(x, y, bloco_vazio, LarguraTiroDefault);
 
 			preencheBlocosServidorTiro(&x, &y, PosTiro, TiroExplosao, LarguraTiroDefault);
@@ -65,19 +65,13 @@ void trataMovimentacaoTiroInimigas(int PosTiro, int tipo, int ProprietarioMissil
 			SetEvent(GestorTiros.AtualizaTabuleiro);
 
 			ArrayTiros[PosTiro].tipo = Tirovazio;
-			
+
 			GestorTiros.TotalTiros -= 1;
-			
+
 			break;
 		}
 
 	ReleaseMutex(GestorTiros.MutexTabuleiro);
-
-
-
-
-
-
 
 }
 void trataMovimentacaoTiroJogador(int PosTiro, int tipo, int ProprietarioMissil) {
@@ -138,7 +132,7 @@ void GestorTirosTab() {
 			for (int i = 0; i < MaxTiros; i++) {
 
 				WaitForSingleObject(GestorTiros.MutexTiroArray, INFINITE);
-
+				  
 					if (ArrayTiros[i].tipo != Tirovazio) {
 					
 						switch (ArrayTiros[i].tipo) {
@@ -147,7 +141,7 @@ void GestorTirosTab() {
 							trataMovimentacaoTiroJogador(i, ArrayTiros[i].tipo, ArrayTiros[i].posProprietario);
 							break;
 						case tiroNaveEnemy:
-							//trataMovimentacaoTiroInimigas(i, ArrayTiros[i].tipo, ArrayTiros[i].posProprietario);
+							trataMovimentacaoTiroInimigas(i, ArrayTiros[i].tipo, ArrayTiros[i].posProprietario);
 							break;
 						case tiroBoss:
 							//trataMovimentacaoTiro(&ArrayTiros[i].x, &ArrayTiros[i].y, ArrayTiros[i].tipo, i);
@@ -166,7 +160,7 @@ void GestorTirosTab() {
 		} while (GestorTiros.TotalTiros > 0);
 
 		ResetEvent(GestorTiros.EventoLancaTiro);
-
+		
 	} while (GestorTiros.ServerUp == 1);
 
 }
