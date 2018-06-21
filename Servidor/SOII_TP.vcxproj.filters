@@ -29,8 +29,16 @@
     <ClInclude Include="Servidor.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="resource.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <Text Include="top10.txt" />
+  </ItemGroup>
+  <ItemGroup>
+    <ResourceCompile Include="Servidor.rc">
+      <Filter>Resource Files</Filter>
+    </ResourceCompile>
   </ItemGroup>
 </Project>
