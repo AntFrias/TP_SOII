@@ -191,10 +191,10 @@ void GestorTirosTab() {
 	
 		do {
 			
-
+			WaitForSingleObject(GestorTiros.MutexTiroArray, INFINITE);
 			for (int i = 0; i < MaxTiros; i++) {
 
-				WaitForSingleObject(GestorTiros.MutexTiroArray, INFINITE);
+				
 
 					if (ArrayTiros[i].tipo != Tirovazio) {
 					
@@ -227,9 +227,9 @@ void GestorTirosTab() {
 						}
 					}
 
-				ReleaseMutex(GestorTiros.MutexTiroArray);
+				
 			}
-	
+			ReleaseMutex(GestorTiros.MutexTiroArray);
 		Sleep(TempoDeEnvioTabuleiro);
 
 		} while (GestorTiros.TotalTiros > 0);
@@ -244,9 +244,9 @@ void AdicionaTiroArray(int x, int y, int tipo, int PosObjeto) {
 
 	int PosTiro;
 
-	WaitForSingleObject(GestorTiros.MutexTiroArray, INFINITE);
-
 	if (GestorTiros.TotalTiros < MaxTiros){
+
+		WaitForSingleObject(GestorTiros.MutexTiroArray, INFINITE);
 
 			PosTiro = obtemPosicaoTiro();
 
@@ -308,8 +308,9 @@ void AdicionaTiroArray(int x, int y, int tipo, int PosObjeto) {
 
 			SetEvent(GestorTiros.EventoLancaTiro);
 		}
+		ReleaseMutex(GestorTiros.MutexTiroArray);
 	}
-	ReleaseMutex(GestorTiros.MutexTiroArray);
+	
 }
 // vai iniciar o array de tiros
 void InicializaArrayTiros() {
