@@ -46,45 +46,34 @@ int verificaPosicaoTiro(int *x, int *y, int orientacao) {
 	switch (orientacao) {
 
 		case cima:
-
-			if (blocoServ[*y - 2][*x].tipo == bloco_vazio && blocoServ[*y - 1][*x].tipo == bloco_vazio) {
+			
+			if (blocoServ[*y - 1][*x].tipo == bloco_vazio && *y > 0) {
 				
 				Item = bloco_vazio;
-
+	
 				return Item;
 			
 			}
-			/*else {
+			else if (*y == 0) {
 
-				switch (blocoServ[*y + 1][*x].tipo) {
+				Item = fim_Tabuleiro;
 
-				case NaveBasica:
+				return Item;
+			}
+			
+			break;
 
-					Item = NaveBasica;
+		case baixo:
+			if (blocoServ[*y + 2][*x].tipo == bloco_vazio && blocoServ[*y - 1][*x].tipo == bloco_vazio && *y + 2 < dimMapa_y - ( RegiaoNaveJogador + 2 )) {
 
-					return Item;
+				Item = bloco_vazio;
 
-					break;
-				case NaveEsquiva:
+				return Item;
 
-					Item = NaveEsquiva;
-
-					return Item;
-
-					break;
-
-				case NaveBoss:
-
-					Item = NaveBoss;
-
-					return Item;
-
-					break;
-				}
-			}*/
+			}
 			break;
 		}
-	}
+}
 // verifica posicao da nave Esquiva
 int VerificaPosicaoNaveEsquiva(int *x, int *y, int orientacao) {  // rever todo este codigo
 
@@ -228,6 +217,8 @@ int VerificaPosicaoJogo( int *x, int *y, int tipo, int orientacao) {
 			Flag = verificaPosicaoTiro(x, y, orientacao);
 			return Flag;
 			break;
+		case tiroNaveEnemy:
+			verificaPosicaoTiro(x, y, orientacao);
 		case PowerUp1:
 			break;
 	}
@@ -248,7 +239,7 @@ void LimpaPosTabuleiroTiro(int x, int y, int tipo, int Largura) {
 	}
 }
 void preencheBlocosServidorTiro(int *x, int *y, int pos, int tipo, int Largura) {
-
+	
 	int flag = 0;
 
 	for (int i = *y; i < *y + Largura; i++) {

@@ -52,10 +52,9 @@ typedef struct GestorTirosNaves {
 typedef struct tiroo {
 
 	int tipo;
-	int idJogador;
 	int x, y;
 	int vida;
-	int posJogador; // no array para identificar de quem é o tiro
+	int posProprietario; // no array para identificar de quem é o tiro
 
 }tiro;
 
