@@ -374,6 +374,16 @@ LRESULT CALLBACK WindowProc(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
 	switch (uMsg)	{
 
 	case WM_DESTROY: {
+
+
+
+		//aqui aiai
+		//prenche pacote
+		LimpaPacotedEnvio();
+		PacoteEnvio.tipo = user_logout;
+		SetEvent(Cliente.EventEnvia);
+
+
 		PostQuitMessage(0);
 
 		//eliminar as janelas feitas para cada um bipmap ... (por mais aqui ... um delete para cada um)
@@ -531,8 +541,8 @@ LRESULT CALLBACK WindowProc(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
 int WINAPI _tWinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPTSTR LpCmdLine, int ncmdshow)
 {	
 	
-	//wcscpy_s(configuracoes.ip, TEXT("10.65.133.255"));
-	wcscpy_s(configuracoes.ip, TEXT("127.0.0.1"));
+	wcscpy_s(configuracoes.ip, TEXT("10.65.133.255"));
+	//wcscpy_s(configuracoes.ip, TEXT("127.0.0.1"));
 	// lança a thread que escuta no named pipe
 		IniciaCliente();
 	//Registar a class da janela

@@ -61,6 +61,22 @@ void RecebePipeCliente(LPVOID *Cli) {
 		Pacote.Cliente_id = cli->id;
 		
 		escrevebuffer(&Pacote, nomeGwtoServ);
+
+		if (Pacote.tipo == user_logout) {
+			
+			for (int i = 0; i < dadosGw.nClientes; i++) {
+
+				if (Clientes[i].id == Pacote.Cliente_id) {
+					Clientes[i].hPipe = INVALID_HANDLE_VALUE;
+				}
+			}// mandar mensagem ao servidor para ele o retirar do mapa
+			
+		}
+		///
+		//Clientes[i].hPipe = INVALID_HANDLE_VALUE;
+		//////ReleaseMutex(hMutex);
+
+
 		
 	}
 
@@ -190,7 +206,7 @@ void EnviaBroadcastPacote(Packet *resposta) {
 				DisconnectNamedPipe(Clientes[i].hPipe);	//fechar os recursos associados ao cliente que se desligou
 				CloseHandle(Clientes[i].hPipe);
 				CloseHandle(IOReady);
-				//WaitForSingleObject(hMutex, INFINITE);
+				///mutexWaitForSingleObject(hMutex, INFINITE);
 				Clientes[i].hPipe = INVALID_HANDLE_VALUE;
 				//////ReleaseMutex(hMutex);
 			}*/
