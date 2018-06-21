@@ -52,7 +52,11 @@ int VerificaVidaNave(int tipoObjeto, int PosObjeto) {
 
 			nVidas = objectosTab.NaveEnemyTipo1[PosObjeto].vida;
 
-			LimpaPosTabuleiroTiro(objectosTab.NaveEnemyTipo2[PosObjeto].x, objectosTab.NaveEnemyTipo2[PosObjeto].y, bloco_vazio, LarguraNaveDefault);
+			LimpaPosTabuleiroTiro(objectosTab.NaveEnemyTipo1[PosObjeto].x, objectosTab.NaveEnemyTipo1[PosObjeto].y, bloco_vazio, LarguraNaveDefault);
+
+			preencheBlocosServidor(&objectosTab.NaveEnemyTipo1[PosObjeto].x, &objectosTab.NaveEnemyTipo1[PosObjeto].y, PosObjeto, bloco_vazio, LarguraNaveDefault);
+
+			SetEvent(dadosServidor.EventoAtualizaJogo);
 
 			return nVidas;
 		}
@@ -73,22 +77,18 @@ int VerificaVidaNave(int tipoObjeto, int PosObjeto) {
 			nVidas = objectosTab.NaveEnemyTipo2[PosObjeto].vida;
 
 			LimpaPosTabuleiroTiro(objectosTab.NaveEnemyTipo2[PosObjeto].x, objectosTab.NaveEnemyTipo2[PosObjeto].y, bloco_vazio, LarguraNaveDefault);
+
+			preencheBlocosServidor(&objectosTab.NaveEnemyTipo2[PosObjeto].x, &objectosTab.NaveEnemyTipo2[PosObjeto].y, PosObjeto, bloco_vazio, LarguraNaveDefault);
+
+			SetEvent(dadosServidor.EventoAtualizaJogo);
 			
 			return nVidas;
 		}
-		
 		break;
 	case NaveBoss:
-		objectosTab.NaveEnemyTipo3.vida -= 1;
-		nVidas = objectosTab.NaveEnemyTipo3.vida;
-		return nVidas;
 		break;
 	case NaveJogador:
-		ArrayJogadores[PosObjeto].vidas -= 1;
-		nVidas = ArrayJogadores[PosObjeto].vidas;
-		return nVidas;
 		break;
-
 
 	}
 }

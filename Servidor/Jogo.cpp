@@ -19,10 +19,6 @@ int AlteraVidaObjeto(int x, int y, int tipoObjeto, HANDLE atualizaTab) {
 
 		nVidas = VerificaVidaNave(tipoObjeto, posObjeto);
 
-		if (nVidas == 0) {
-
-			preencheBlocosServidorTiro(&x, &y,posObjeto, bloco_vazio, LarguraNaveDefault);
-		}
 		return nVidas;
 	}
 

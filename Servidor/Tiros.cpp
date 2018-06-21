@@ -134,11 +134,9 @@ void trataMovimentacaoTiroJogador(int PosTiro, int tipo, int ProprietarioMissil)
 
 					y_aux -= 1;
 
-					if (tipoObjeto > bloco_vazio || tipoObjeto < NaveJogador) {
+					if (tipoObjeto > bloco_vazio && tipoObjeto < NaveJogador) {
 	
 						if (AlteraVidaObjeto(x, y_aux, tipoObjeto, GestorTiros.AtualizaTabuleiro) == 0) {
-
-							_tprintf(TEXT("entrei aqui e a nave na do tipo %d tem 0 vidas"));
 
 							LimpaPosTabuleiroTiro(x, y, bloco_vazio, LarguraTiroDefault);
 
@@ -149,6 +147,7 @@ void trataMovimentacaoTiroJogador(int PosTiro, int tipo, int ProprietarioMissil)
 							ArrayTiros[PosTiro].tipo = Tirovazio;
 
 							GestorTiros.TotalTiros -= 1;
+						
 
 						}
 						else {
@@ -158,6 +157,9 @@ void trataMovimentacaoTiroJogador(int PosTiro, int tipo, int ProprietarioMissil)
 							SetEvent(GestorTiros.AtualizaTabuleiro);
 
 						}
+
+					
+						
 					}
 					if (tipoObjeto == tiroNaveEnemy) {
 
