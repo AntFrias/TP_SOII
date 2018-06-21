@@ -271,7 +271,7 @@ int criaComunicacaoClienteGateway() {
 	}
 	return 0;
 }
-
+//
 void criaSincronizacaoGateway() {
 
 	dadosGw.EventoIniciaJogo = CreateEvent(NULL, TRUE, FALSE, enviaTabClientes);

@@ -204,25 +204,6 @@ int VerificaPosNavebasica(int *x, int *y, int orientacao) {
 			return 1;//posso andar
 		}
 	}
-
-
-
-
-
-		/*else {
-			if (blocoServ[yAux + 2][xAux].tipo == bloco_vazio && blocoServ[yAux + 2][xAux + 1].tipo == bloco_vazio && *y <= 34) {
-				return baixo;
-			}
-		}
-	}
-	if (orientacao == baixo) {
-		if (blocoServ[yAux][xAux - 1].tipo == bloco_vazio && blocoServ[yAux + 1][xAux - 1].tipo == bloco_vazio && *x - 1 >= 0) {
-			return esquerda;//posso andar
-		}
-	}
-	*/
-	//return 0;
-
 }
 // funcao que verifica a posicacao para onde o jogador quer-se movimentar
 int VerificaPosicaoJogo( int *x, int *y, int tipo, int orientacao) {
@@ -342,6 +323,7 @@ void ColocaNavesTab() {
 	colocaNavesEsquiva();
 	
 }
+//
 //Funcao que irá iniciar o jogo e as respetivas movimentacoes quando o jogador decidir jogar
 void IniciarJogo(int *x, int *y,int pos) {
 

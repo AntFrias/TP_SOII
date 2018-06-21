@@ -41,7 +41,7 @@ void alteraPosicaoObjeto(int PosObjeto, int tipoObjeto, int *x, int *y) {
 		objectosTab.NaveEnemyTipo3[PosObjeto].x = *x;
 		objectosTab.NaveEnemyTipo3[PosObjeto].y = *y;
 		break;
-	case tiroJogador:
+	case LancaTiro:
 		AlteraPosicaoTiro(PosObjeto, x, y);
 		break;
 	}
@@ -153,8 +153,8 @@ void verificaComandosJogo(int comando, int PosObjeto, int tipoObjeto) {
 		break;
 
 	case LancaTiro:
-
-		//AdicionaTiroArray(PosObjeto, ArrayJogadores[PosObjeto].posicao[0], ArrayJogadores[PosObjeto].posicao[1], dadosServidor.mutexTabuleiro, dadosServidor.EventoAtualizaJogo);
+	
+		AdicionaTiroArray(x, y, tipoObjeto, PosObjeto);
 		
 		break;
 
@@ -494,7 +494,7 @@ void IniciaAmbienteJogo(int pos) {
 
 		ReleaseMutex(dadosServidor.mutexTabuleiro);
 
-}
+}//
 //func que lista os clientes
 void mostraClinoArray() {
 
@@ -721,7 +721,7 @@ int IniciarServidor() {
 
 	IniciaSincronizacaoServidor();
 
-	IniciaDadosTiros();
+	IniciaDadosTiros(dadosServidor.mutexTabuleiro, dadosServidor.EventoAtualizaJogo);
 
 	IniciaSincronizacaoTiros();
 
