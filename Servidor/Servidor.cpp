@@ -738,8 +738,8 @@ void AtualizaInformacaoInicialJogo() {
 	dadosServidor.ServidorUp = 1;
 	dadosServidor.estadoJogo = 0;
 	dadosServidor.NumCliNoArray = 0;
-	//dadosServidor.initJogo.MaxNavesBasicas = ninimigas1;
-	//dadosServidor.initJogo.MaxNavesEsquivas = ninimigas2;
+	dadosServidor.initJogo.MaxNavesBasicas = ninimigas1;//comentar aqui grafica
+	dadosServidor.initJogo.MaxNavesEsquivas = ninimigas2;//comentar aqui grafica
 	dadosServidor.initJogo.MaxNaveBoss = 1;
 
 }
@@ -766,8 +766,22 @@ int IniciarServidor() {
 	return 1;
 }
 
+int _tmain(int argc, LPTSTR argv[]) {
+
+
+#ifdef UNICODE  //UNICODE
+	_setmode(_fileno(stdin), _O_WTEXT);
+	_setmode(_fileno(stdout), _O_WTEXT);
+#endif	
+
+	IniciarServidor();
+
+	Sleep(190000);
+	return 0;
+}
+
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-void carregaBitMaps() {
+/*void carregaBitMaps() {
 
 	Wallpaper = (HBITMAP)LoadImage(NULL, L"../../Imagens/imagemInicialServidor.bmp", IMAGE_BITMAP, 810, 845, LR_LOADFROMFILE);
 
@@ -941,28 +955,16 @@ int WINAPI _tWinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPTSTR LpCmdL
 	}
 
 	return 0;
-}
+}*/
 
 
 
 
 
 
-/*
-int _tmain(int argc, LPTSTR argv[]) {
 
 
-#ifdef UNICODE  //UNICODE
-	_setmode(_fileno(stdin), _O_WTEXT);
-	_setmode(_fileno(stdout), _O_WTEXT);
-#endif	
 
-	IniciarServidor();
-
-	Sleep(190000);
-	return 0;
-}
-*/
 
 
 
