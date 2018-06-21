@@ -2,8 +2,8 @@
 #include "Servidor.h"
 #pragma comment(lib, "../x64/Debug/AcessoMemDLL.lib")
 
-
-tiro *ArrayTiros = NULL;
+//
+tiro ArrayTiros[MaxTiros];
 
 gestorTiros GestorTiros;
 
@@ -22,139 +22,254 @@ int obtemPosicaoTiro() {
 
 			GestorTiros.TotalTiros += 1;
 
+			return i;
+
 		}
 
-		return i;
-	}
-
-}
-void AdicionaTiroArray(int PosObjeto, int x, int y, HANDLE mutexTabuleiro, HANDLE EventoInformaGwInicioJogo) {
-
-	int PosTiro = 0;
-
-	WaitForSingleObject(GestorTiros.MutexTiroArray, INFINITE);
-
-	PosTiro = obtemPosicaoTiro();
-
-	if ( VerificaPosicaoJogo(&x, &y, tiroJogador, cima) == bloco_vazio) {
 		
-		y = y - 2;
-
-		ArrayTiros[PosTiro].tipo = tiroJogador;
-
-		ArrayTiros[PosTiro].posJogador = PosObjeto;
-
-		alteraPosicaoObjeto(PosObjeto, ArrayTiros[PosTiro].tipo, &x, &y);
-
-		WaitForSingleObject(mutexTabuleiro, INFINITE);
-
-		preencheBlocosServidorTiro(&x, &y, PosTiro, ArrayTiros[PosTiro].tipo, LarguraTiroDefault);
-
-		SetEvent(EventoInformaGwInicioJogo);
-
-		ReleaseMutex(mutexTabuleiro);
-
-		if (GestorTiros.TotalTiros == 1) {
-
-			//SetEvent(GestorTiros.EventoLancaTiro);
-		}
 	}
-	ReleaseMutex(GestorTiros.MutexTiroArray);
+
 }
+void trataMovimentacaoTiroInimigas(int PosTiro, int tipo, int ProprietarioMissil) {
 
-void trataMovimentacaoTiro(int *x, int *y, int tipo, int PosObjeto) {
+	int tipoObjeto, x = ArrayTiros[PosTiro].x, y = ArrayTiros[PosTiro].y;
 
-	int tipoObjeto, coord_x = *x, coord_y = *y;
+	WaitForSingleObject(GestorTiros.MutexTabuleiro, INFINITE);
 
-	WaitForSingleObject(GestorTiros.MutexTiroArray, INFINITE);
-
-	switch (tipo) {
-
-	case tiroJogador:
-		tipoObjeto = VerificaPosicaoJogo(x, y, tipo, cima);
+		tipoObjeto = VerificaPosicaoJogo(&x, &y, tipo, baixo);
 
 		switch (tipoObjeto) {
 
 		case bloco_vazio:
-			LimpaPosTabuleiroTiro(coord_x, coord_y, bloco_vazio, LarguraTiroDefault);
-			*y += 1;
-			preencheBlocosServidorTiro(x, y, PosObjeto, tiroJogador, LarguraTiroDefault);
+
+			LimpaPosTabuleiroTiro(x, y, bloco_vazio, LarguraTiroDefault);
+
+			y += 1;
+
+			ArrayTiros[PosTiro].x = x;
+
+			ArrayTiros[PosTiro].y = y;
+
+			preencheBlocosServidorTiro(&x, &y, PosTiro, tiroNaveEnemy, LarguraTiroDefault);
+
+			SetEvent(GestorTiros.AtualizaTabuleiro);
+
+			break;
+
+		case Limite_Tabuleiro:
+		
+			LimpaPosTabuleiroTiro(x, y, bloco_vazio, LarguraTiroDefault);
+
+			preencheBlocosServidorTiro(&x, &y, PosTiro, TiroExplosao, LarguraTiroDefault);
+
+			SetEvent(GestorTiros.AtualizaTabuleiro);
+
+			ArrayTiros[PosTiro].tipo = Tirovazio;
+
+			GestorTiros.TotalTiros -= 1;
+
 			break;
 		}
-		break;
-	}
 
-	ReleaseMutex(GestorTiros.MutexTiroArray);
+	ReleaseMutex(GestorTiros.MutexTabuleiro);
+
+}
+void trataMovimentacaoTiroJogador(int PosTiro, int tipo, int ProprietarioMissil) {
+
+	int tipoObjeto, x = ArrayTiros[PosTiro].x, y = ArrayTiros[PosTiro].y;
+
+	WaitForSingleObject(GestorTiros.MutexTabuleiro, INFINITE);
+
+		tipoObjeto = VerificaPosicaoJogo(&x, &y, tipo, cima);
+		
+			switch (tipoObjeto) {
+
+				case bloco_vazio:
+
+					LimpaPosTabuleiroTiro(x, y, bloco_vazio, LarguraTiroDefault);
+
+					y -= 1;
+	
+					ArrayTiros[PosTiro].x = x;
+
+					ArrayTiros[PosTiro].y = y;
+
+					preencheBlocosServidorTiro(&x, &y, PosTiro, tiroJogador, LarguraTiroDefault);
+
+					SetEvent(GestorTiros.AtualizaTabuleiro);
+
+				break;
+
+				case Limite_Tabuleiro:
+
+					LimpaPosTabuleiroTiro(x, y, bloco_vazio, LarguraTiroDefault);
+
+					preencheBlocosServidorTiro(&x, &y, PosTiro, TiroExplosao, LarguraTiroDefault);
+					
+					SetEvent(GestorTiros.AtualizaTabuleiro);
+					
+					ArrayTiros[PosTiro].tipo = Tirovazio;
+					
+					GestorTiros.TotalTiros -= 1;
+					
+				break;
+			}
+	
+	ReleaseMutex(GestorTiros.MutexTabuleiro);
+
 }
 
 void GestorTirosTab() {
 
+	InicializaArrayTiros();
+
 	do {
-		_tprintf(TEXT("\n\n\nCheguei aqui á Tread Gertor de Tiros e vou esperar pelo evento\n\n\n\n"));
+		
 		WaitForSingleObject(GestorTiros.EventoLancaTiro, INFINITE);
-
+	
 		do {
-			WaitForSingleObject(GestorTiros.MutexTiroArray, INFINITE);
-
+			
 			for (int i = 0; i < MaxTiros; i++) {
 
-				switch (ArrayTiros[i].tipo) {
+				WaitForSingleObject(GestorTiros.MutexTiroArray, INFINITE);
+				  
+					if (ArrayTiros[i].tipo != Tirovazio) {
+					
+						switch (ArrayTiros[i].tipo) {
 
-					case tiroJogador:
-						trataMovimentacaoTiro(&ArrayTiros[i].x, &ArrayTiros[i].y, ArrayTiros[i].tipo, i);
-						break;
-					case tiroNaveEnemy:
-						trataMovimentacaoTiro(&ArrayTiros[i].x, &ArrayTiros[i].y, ArrayTiros[i].tipo, i);
-						break;
-					case tiroBoss:
-						trataMovimentacaoTiro(&ArrayTiros[i].x, &ArrayTiros[i].y, ArrayTiros[i].tipo, i);
-						break;
-					case tiroNuclear:
-						trataMovimentacaoTiro(&ArrayTiros[i].x, &ArrayTiros[i].y, ArrayTiros[i].tipo, i);
-						break;
-				}
+						case tiroJogador:
+							trataMovimentacaoTiroJogador(i, ArrayTiros[i].tipo, ArrayTiros[i].posProprietario);
+							break;
+						case tiroNaveEnemy:
+							trataMovimentacaoTiroInimigas(i, ArrayTiros[i].tipo, ArrayTiros[i].posProprietario);
+							break;
+						case tiroBoss:
+							//trataMovimentacaoTiro(&ArrayTiros[i].x, &ArrayTiros[i].y, ArrayTiros[i].tipo, i);
+							break;
+						case tiroNuclear:
+							//trataMovimentacaoTiro(&ArrayTiros[i].x, &ArrayTiros[i].y, ArrayTiros[i].tipo, i);
+							break;
+						}
+					}
+				ReleaseMutex(GestorTiros.MutexTiroArray);
+
+		
 			}
-			ReleaseMutex(GestorTiros.MutexTiroArray);
-
-			Sleep(TempoDeEnvioTabuleiro);
+		Sleep(TempoDeEnvioTabuleiro);
 
 		} while (GestorTiros.TotalTiros > 0);
 
+		ResetEvent(GestorTiros.EventoLancaTiro);
+		
 	} while (GestorTiros.ServerUp == 1);
 
 }
+//vai adicionar um tiro ao array de tiros
+void AdicionaTiroArray(int x, int y, int tipo, int PosObjeto) {
 
-// vai buscar a posicao do tiro
+	int PosTiro;
 
+	WaitForSingleObject(GestorTiros.MutexTiroArray, INFINITE);
+
+	if (GestorTiros.TotalTiros < MaxTiros){
+
+			PosTiro = obtemPosicaoTiro();
+
+			switch (tipo) {
+
+				case NaveJogador:
+		
+					if (VerificaPosicaoJogo(&x, &y, tiroJogador, cima) == bloco_vazio) {
+
+						y = y - 2;
+
+						ArrayTiros[PosTiro].tipo = tiroJogador;
+
+						ArrayTiros[PosTiro].posProprietario = PosObjeto;
+
+						ArrayTiros[PosTiro].x = x;
+
+						ArrayTiros[PosTiro].y = y;
+
+						WaitForSingleObject(GestorTiros.MutexTabuleiro, INFINITE);
+
+						preencheBlocosServidorTiro(&x, &y, PosTiro, ArrayTiros[PosTiro].tipo, LarguraTiroDefault);
+
+						SetEvent(GestorTiros.AtualizaTabuleiro);
+
+						ReleaseMutex(GestorTiros.MutexTabuleiro);
+
+					}
+			
+					break;
+
+				case NaveEsquiva:
+
+					if (VerificaPosicaoJogo(&x, &y, tiroNaveEnemy, baixo) == bloco_vazio) {
+
+						y = y + 2;
+
+						ArrayTiros[PosTiro].tipo = tiroNaveEnemy;
+
+						ArrayTiros[PosTiro].posProprietario = PosObjeto;
+
+						ArrayTiros[PosTiro].x = x;
+
+						ArrayTiros[PosTiro].y = y;
+
+						WaitForSingleObject(GestorTiros.MutexTabuleiro, INFINITE);
+
+							preencheBlocosServidorTiro(&x, &y, PosTiro, ArrayTiros[PosTiro].tipo, LarguraTiroDefault);
+
+							SetEvent(GestorTiros.AtualizaTabuleiro);
+
+						ReleaseMutex(GestorTiros.MutexTabuleiro);
+
+					}
+					break;
+			}
+
+		if (GestorTiros.TotalTiros == 1) {
+
+			SetEvent(GestorTiros.EventoLancaTiro);
+		}
+	}
+	ReleaseMutex(GestorTiros.MutexTiroArray);
+}
+// vai iniciar o array de tiros
 void InicializaArrayTiros() {
 
-	ArrayTiros = (tiro *)malloc(sizeof(tiro)*MaxTiros);
+	//ArrayTiros = (tiro *)malloc(sizeof(tiro)*MaxTiros);
 
 	for (int i = 0; i < MaxTiros; i++) {
 
 		ArrayTiros[i].tipo = Tirovazio;
 
-		ArrayTiros[i].idJogador = 0;
+		ArrayTiros[i].posProprietario = 0;
 
-		ArrayTiros[i].posJogador = 0;
+		ArrayTiros[i].vida = 0;
 
 		ArrayTiros[i].x = 0;
 
 		ArrayTiros[i].y = 0;
 	}
 }
-
-void IniciaDadosTiros(){
+// inicia dados na estrutura dos tiros
+void IniciaDadosTiros(HANDLE mutexTabuleiro, HANDLE AtualizaTabuleiro){
 
 	GestorTiros.ServerUp = 1;
 
 	GestorTiros.TotalTiros = 0;
 
-}
+	GestorTiros.MutexTabuleiro = mutexTabuleiro;
 
+	GestorTiros.AtualizaTabuleiro = AtualizaTabuleiro;
+
+}
+// inicio sincronizaçao dos tiros
 void IniciaSincronizacaoTiros(){
 
-	GestorTiros.EventoLancaTiro = CreateEvent(NULL, TRUE, FALSE, NULL);
+	GestorTiros.EventoLancaTiro = CreateEvent(NULL, 0, 0, NULL);
 
 	if (GestorTiros.EventoLancaTiro == NULL) {
 

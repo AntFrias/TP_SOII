@@ -82,6 +82,10 @@ void TrataPacote(packet pacoteTratar) {
 							TransparentBlt(janelaAux, (pacoteTratar.dataPacket.arrayTab[i].x * escala), (pacoteTratar.dataPacket.arrayTab[i].y * escala), 40, 40, hdcDasImg.Presente, 0, 0, 40, 40, RGB(255, 255, 255)); // estica e tira a cor de fundo
 							break;
 						}
+						case TiroExplosao: {
+							TransparentBlt(janelaAux, (pacoteTratar.dataPacket.arrayTab[i].x * escala), (pacoteTratar.dataPacket.arrayTab[i].y * escala), 40, 40, hdcDasImg.Explosao, 0, 0, 40, 40, RGB(255, 255, 255)); // estica e tira a cor de fundo
+							break;
+						}
 						default:
 							break;
 							

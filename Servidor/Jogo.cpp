@@ -45,46 +45,41 @@ int verificaPosicaoTiro(int *x, int *y, int orientacao) {
 
 	switch (orientacao) {
 
-		case cima:
+	case cima:
 
-			if (blocoServ[*y - 2][*x].tipo == bloco_vazio && blocoServ[*y - 1][*x].tipo == bloco_vazio) {
-				
-				Item = bloco_vazio;
+		if (blocoServ[*y - 1][*x].tipo == bloco_vazio && *y > 0) {
 
-				return Item;
-			
-			}
-			/*else {
+			Item = bloco_vazio;
 
-				switch (blocoServ[*y + 1][*x].tipo) {
+			return Item;
 
-				case NaveBasica:
-
-					Item = NaveBasica;
-
-					return Item;
-
-					break;
-				case NaveEsquiva:
-
-					Item = NaveEsquiva;
-
-					return Item;
-
-					break;
-
-				case NaveBoss:
-
-					Item = NaveBoss;
-
-					return Item;
-
-					break;
-				}
-			}*/
-			break;
 		}
+		else if (*y == 0) {
+
+			Item = Limite_Tabuleiro;
+
+			return Item;
+		}
+
+		break;
+
+	case baixo:
+
+		if (blocoServ[*y + 2][*x].tipo == bloco_vazio && *y + 2 < dimMapa_y) {
+
+			Item = bloco_vazio;
+			
+			return Item;
+
+		}
+		else {
+			if (*y == dimMapa_y - 2)
+				return Limite_Tabuleiro;
+		}
+		break;
 	}
+}
+//
 // verifica posicao da nave Esquiva
 int VerificaPosicaoNaveEsquiva(int *x, int *y, int orientacao) {  // rever todo este codigo
 
@@ -204,29 +199,12 @@ int VerificaPosNavebasica(int *x, int *y, int orientacao) {
 			return 1;//posso andar
 		}
 	}
-
-
-
-
-
-		/*else {
-			if (blocoServ[yAux + 2][xAux].tipo == bloco_vazio && blocoServ[yAux + 2][xAux + 1].tipo == bloco_vazio && *y <= 34) {
-				return baixo;
-			}
-		}
-	}
-	if (orientacao == baixo) {
-		if (blocoServ[yAux][xAux - 1].tipo == bloco_vazio && blocoServ[yAux + 1][xAux - 1].tipo == bloco_vazio && *x - 1 >= 0) {
-			return esquerda;//posso andar
-		}
-	}
-	*/
-	//return 0;
-
 }
 // funcao que verifica a posicacao para onde o jogador quer-se movimentar
 int VerificaPosicaoJogo( int *x, int *y, int tipo, int orientacao) {
-	int Flag;
+
+	int Flag = 0;
+
 	switch (tipo)
 	{
 		case NaveEsquiva:
@@ -247,10 +225,15 @@ int VerificaPosicaoJogo( int *x, int *y, int tipo, int orientacao) {
 			Flag = verificaPosicaoTiro(x, y, orientacao);
 			return Flag;
 			break;
+		case tiroNaveEnemy:
+			Flag = verificaPosicaoTiro(x, y, orientacao);
+			return Flag;
+			break;
 		case PowerUp1:
+			return Flag;
 			break;
 	}
-	return 0;
+	return Flag;
 }
 
 // funcao vai limpar as posicoes do tabuleiro //
@@ -267,7 +250,7 @@ void LimpaPosTabuleiroTiro(int x, int y, int tipo, int Largura) {
 	}
 }
 void preencheBlocosServidorTiro(int *x, int *y, int pos, int tipo, int Largura) {
-
+	
 	int flag = 0;
 
 	for (int i = *y; i < *y + Largura; i++) {
@@ -342,6 +325,7 @@ void ColocaNavesTab() {
 	colocaNavesEsquiva();
 	
 }
+//
 //Funcao que irá iniciar o jogo e as respetivas movimentacoes quando o jogador decidir jogar
 void IniciarJogo(int *x, int *y,int pos) {
 

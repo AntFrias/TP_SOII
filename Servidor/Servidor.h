@@ -13,7 +13,7 @@
 #include <shellapi.h>
 #include <winbase.h>
 
-
+//
 
 //max powerUp
 #define maxClientePowerUp 3
@@ -40,8 +40,8 @@ typedef struct GestorTirosNaves {
 
 	HANDLE MutexTiroArray;
 	HANDLE EventoLancaTiro;
-	HANDLE hTirosTab;
-	DWORD idTirosTab;
+	HANDLE MutexTabuleiro;
+	HANDLE AtualizaTabuleiro;
 	int TotalTiros;
 	int ServerUp = 1;
 	
@@ -52,9 +52,9 @@ typedef struct GestorTirosNaves {
 typedef struct tiroo {
 
 	int tipo;
-	int idJogador;
 	int x, y;
-	int posJogador; // no array para identificar de quem é o tiro
+	int vida;
+	int posProprietario; // no array para identificar de quem é o tiro
 
 }tiro;
 
@@ -149,10 +149,12 @@ void colocaNavesBasicas();
 
 //prototipos de funçoes relativas ao Jogo no ficheiro jogo.cpp
 
-
+//ficheiro Servidor
 void alteraPosicaoObjeto(int PosObjeto, int tipoObjeto, int *x, int *y);
 
 
+
+//ficheiro Jogo
 void limpaTabuleiro();
 void mostraTabuleiro();
 int VerificaPosicaoPreencheTAb(int *x, int *y);
@@ -165,12 +167,12 @@ void preencheBlocosServidorTiro(int *x, int *y, int pos, int tipo, int Largura);
 void LimpaPosTabuleiroTiro(int x, int y, int tipo, int Largura);
 
 
-
-void AdicionaTiroArray(int PosObjeto, int x, int y, HANDLE mutexTabuleiro, HANDLE EventoInformaGwInicioJogo);
+//ficheiro Tiros
+void AdicionaTiroArray(int x, int y, int tipo, int PosObjeto);
 void GestorTirosTab();
 void AlteraPosicaoTiro(int PosObjeto, int *x, int *y);
 void InicializaArrayTiros();
-void IniciaDadosTiros();
+void IniciaDadosTiros(HANDLE mutexTabuleiro, HANDLE AtualizaTabuleiro);
 void IniciaSincronizacaoTiros();
 
 
