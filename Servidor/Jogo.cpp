@@ -45,40 +45,39 @@ int verificaPosicaoTiro(int *x, int *y, int orientacao) {
 
 	switch (orientacao) {
 
-		case cima:
-			
-			if (blocoServ[*y - 1][*x].tipo == bloco_vazio && *y > 0) {
-				
-				Item = bloco_vazio;
-	
-				return Item;
-			
-			}
-			else if (*y == 0) {
+	case cima:
 
-				Item = Limite_Tabuleiro;
+		if (blocoServ[*y - 1][*x].tipo == bloco_vazio && *y > 0) {
 
-				return Item;
-			}
-			
-			break;
+			Item = bloco_vazio;
 
-		case baixo:
-			if (blocoServ[*y + 2][*x].tipo == bloco_vazio && *y + 2 < dimMapa_y - 3) {
+			return Item;
 
-				Item = bloco_vazio;
-
-				return Item;
-
-			}
-			else if (*y == dimMapa_y - 3) {
-
-				Item = Limite_Tabuleiro;
-
-				return Item;
-			}
-			break;
 		}
+		else if (*y == 0) {
+
+			Item = Limite_Tabuleiro;
+
+			return Item;
+		}
+
+		break;
+
+	case baixo:
+
+		if (blocoServ[*y + 2][*x].tipo == bloco_vazio && *y + 2 < dimMapa_y) {
+
+			Item = bloco_vazio;
+			
+			return Item;
+
+		}
+		else {
+			if (*y == dimMapa_y - 2)
+				return Limite_Tabuleiro;
+		}
+		break;
+	}
 }
 // verifica posicao da nave Esquiva
 int VerificaPosicaoNaveEsquiva(int *x, int *y, int orientacao) {  // rever todo este codigo
@@ -202,7 +201,9 @@ int VerificaPosNavebasica(int *x, int *y, int orientacao) {
 }
 // funcao que verifica a posicacao para onde o jogador quer-se movimentar
 int VerificaPosicaoJogo( int *x, int *y, int tipo, int orientacao) {
-	int Flag;
+
+	int Flag = 0;
+
 	switch (tipo)
 	{
 		case NaveEsquiva:
@@ -224,11 +225,14 @@ int VerificaPosicaoJogo( int *x, int *y, int tipo, int orientacao) {
 			return Flag;
 			break;
 		case tiroNaveEnemy:
-			verificaPosicaoTiro(x, y, orientacao);
+			Flag = verificaPosicaoTiro(x, y, orientacao);
+			return Flag;
+			break;
 		case PowerUp1:
+			return Flag;
 			break;
 	}
-	return 0;
+	return Flag;
 }
 
 // funcao vai limpar as posicoes do tabuleiro //
