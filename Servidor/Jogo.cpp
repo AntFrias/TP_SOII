@@ -56,7 +56,7 @@ int verificaPosicaoTiro(int *x, int *y, int orientacao) {
 			}
 			else if (*y == 0) {
 
-				Item = fim_Tabuleiro;
+				Item = Limite_Tabuleiro;
 
 				return Item;
 			}
@@ -64,12 +64,18 @@ int verificaPosicaoTiro(int *x, int *y, int orientacao) {
 			break;
 
 		case baixo:
-			if (blocoServ[*y + 2][*x].tipo == bloco_vazio && blocoServ[*y - 1][*x].tipo == bloco_vazio && *y + 2 < dimMapa_y - ( RegiaoNaveJogador + 2 )) {
+			if (blocoServ[*y + 2][*x].tipo == bloco_vazio && *y + 2 < dimMapa_y - 3) {
 
 				Item = bloco_vazio;
 
 				return Item;
 
+			}
+			else if (*y == dimMapa_y - 3) {
+
+				Item = Limite_Tabuleiro;
+
+				return Item;
 			}
 			break;
 		}
