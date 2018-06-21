@@ -182,12 +182,26 @@ int GestorNaveBoss(LPVOID aux) {
 
 	return 0;
 }
+
+int CalculaOpcaoNaveInimiga(int opcao_min, int opcao_max) {
+
+	int opcao = 0;
+
+	opcao = rand() % (opcao_max + 1 - opcao_min) + opcao_min;
+
+	while (opcao < opcao_min  && opcao > opcao_max) {
+
+		opcao = rand() % (opcao_max + 1 - opcao_min) + opcao_min;
+
+	}
+	return opcao;
+}
 // vai fazer a gestao de todas as naves inimigas
 int GestorNaveEsquiva() {
 
 	int nNaves = dadosServidor.initJogo.MaxNavesEsquivas;
 
-	int opcao = 0, opcao_min = cima, opcao_max = LancaTiro;
+	int opcao = 0; // opcao_min = cima, opcao_max = LancaTiro;
 
 	WaitForSingleObject(dadosServidor.EventoIniciaJogo, INFINITE);
 	
@@ -196,21 +210,27 @@ int GestorNaveEsquiva() {
 			for (int i = 0; i < nNaves; i++) {
 
 				if (objectosTab.NaveEnemyTipo2[i].vida > 0) {
+
+					opcao = CalculaOpcaoNaveInimiga(cima, direita);
 				
-					opcao = rand() % (opcao_max + 1 - opcao_min) + opcao_min;
-
-					while (opcao < opcao_min  && opcao > opcao_max) {
-
-						opcao = rand() % (opcao_max + 1 - opcao_min) + opcao_min;
-
-					}
 					WaitForSingleObject(dadosServidor.mutexTabuleiro, INFINITE);
 					
 					verificaComandosJogo(opcao, i, NaveEsquiva);
 				
 					ReleaseMutex(dadosServidor.mutexTabuleiro);
+
+					opcao = CalculaOpcaoNaveInimiga(LancaTiro, 150);
+					
+					if (opcao == LancaTiro) {
+
+						WaitForSingleObject(dadosServidor.mutexTabuleiro, INFINITE);
+
+						verificaComandosJogo(opcao, i, NaveEsquiva);
+
+						ReleaseMutex(dadosServidor.mutexTabuleiro);
+					}
 				}
-				Sleep(100); // alterar 
+				Sleep(40); // alterar 
 			}
 		
 		} while (nNaves > 0);

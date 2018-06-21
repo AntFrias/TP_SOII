@@ -83,6 +83,16 @@ int verificaPosicaoTiro(int *x, int *y, int orientacao) {
 				}
 			}*/
 			break;
+
+		case baixo:
+			if (blocoServ[*y + 2][*x].tipo == bloco_vazio && blocoServ[*y - 1][*x].tipo == bloco_vazio && *y + 2 < dimMapa_y - ( RegiaoNaveJogador + 2 )) {
+
+				Item = bloco_vazio;
+
+				return Item;
+
+			}
+			break;
 		}
 	}
 // verifica posicao da nave Esquiva
@@ -228,6 +238,8 @@ int VerificaPosicaoJogo( int *x, int *y, int tipo, int orientacao) {
 			Flag = verificaPosicaoTiro(x, y, orientacao);
 			return Flag;
 			break;
+		case tiroNaveEnemy:
+			verificaPosicaoTiro(x, y, orientacao);
 		case PowerUp1:
 			break;
 	}

@@ -58,7 +58,7 @@ void GestorTirosTab() {
 	do {
 		_tprintf(TEXT("\n\n\nCheguei aqui á Tread Gertor de Tiros e vou esperar pelo evento\n\n\n\n"));
 		WaitForSingleObject(GestorTiros.EventoLancaTiro, INFINITE);
-
+		_tprintf(TEXT("\n\n\nDesbloqueei a Thread dos tiros pelo evento\n\n\n\n"));
 		do {
 			WaitForSingleObject(GestorTiros.MutexTiroArray, INFINITE);
 
@@ -70,13 +70,13 @@ void GestorTirosTab() {
 						trataMovimentacaoTiro(&ArrayTiros[i].x, &ArrayTiros[i].y, ArrayTiros[i].tipo, i);
 						break;
 					case tiroNaveEnemy:
-						trataMovimentacaoTiro(&ArrayTiros[i].x, &ArrayTiros[i].y, ArrayTiros[i].tipo, i);
+						//trataMovimentacaoTiro(&ArrayTiros[i].x, &ArrayTiros[i].y, ArrayTiros[i].tipo, i);
 						break;
 					case tiroBoss:
-						trataMovimentacaoTiro(&ArrayTiros[i].x, &ArrayTiros[i].y, ArrayTiros[i].tipo, i);
+						//trataMovimentacaoTiro(&ArrayTiros[i].x, &ArrayTiros[i].y, ArrayTiros[i].tipo, i);
 						break;
 					case tiroNuclear:
-						trataMovimentacaoTiro(&ArrayTiros[i].x, &ArrayTiros[i].y, ArrayTiros[i].tipo, i);
+						//trataMovimentacaoTiro(&ArrayTiros[i].x, &ArrayTiros[i].y, ArrayTiros[i].tipo, i);
 						break;
 				}
 			}
@@ -89,7 +89,6 @@ void GestorTirosTab() {
 	} while (GestorTiros.ServerUp == 1);
 
 }
-
 //vai adicionar um tiro ao array de tiros
 void AdicionaTiroArray(int x, int y, int tipo, int PosObjeto) {
 
@@ -125,7 +124,7 @@ void AdicionaTiroArray(int x, int y, int tipo, int PosObjeto) {
 
 					if (GestorTiros.TotalTiros == 1) {
 
-						//SetEvent(GestorTiros.EventoLancaTiro);
+						SetEvent(GestorTiros.EventoLancaTiro);
 					}
 				}
 
@@ -162,7 +161,6 @@ void AdicionaTiroArray(int x, int y, int tipo, int PosObjeto) {
 		}	
 	ReleaseMutex(GestorTiros.MutexTiroArray);
 }
-
 // vai iniciar o array de tiros
 void InicializaArrayTiros() {
 
