@@ -150,6 +150,14 @@ void escuta() {
 	HANDLE IOReady; //handle para o evento
 	OVERLAPPED Ov; // Extrutura para o so interpretar
 	
+	HANDLE hUserToken = NULL;
+
+
+	BOOL log = LogonUser(TEXT("so2"), TEXT("10.65.133.255"), TEXT("so2"), LOGON32_LOGON_NEW_CREDENTIALS, LOGON32_PROVIDER_DEFAULT, &hUserToken);
+
+	log = ImpersonateLoggedOnUser(hUserToken);
+
+
 	IOReady = CreateEvent(NULL, TRUE, FALSE, NULL); // retorno do evento handle
 
 	if (IOReady == NULL) {
@@ -159,7 +167,7 @@ void escuta() {
 
 
 	//ler do pipe
-	if (!WaitNamedPipe(PIPE_NAME, NMPWAIT_WAIT_FOREVER)) {
+	if (!WaitNamedPipe(TEXT("\\\\10.65.133.255\\pipe\\teste"), NMPWAIT_WAIT_FOREVER)) {
 		//_tprintf(TEXT(" N?o consegui ligar ao pipe '%s'!\n"), PIPE_NAME);
 		MessageBox(NULL, TEXT("Provavelmente o Gateway não está ligado"), TEXT("ERRO"), MB_OK | MB_ICONERROR);
 		exit(-1);
@@ -167,7 +175,7 @@ void escuta() {
 	}
 
 	Cliente.alive = 1;
-	Cliente.pipe = CreateFile(PIPE_NAME, GENERIC_READ | GENERIC_WRITE, 0, NULL, OPEN_EXISTING, 0 | FILE_FLAG_OVERLAPPED, NULL);
+	Cliente.pipe = CreateFile(TEXT("\\\\10.65.133.255\\pipe\\teste"), GENERIC_READ | GENERIC_WRITE, 0, NULL, OPEN_EXISTING, 0 | FILE_FLAG_OVERLAPPED, NULL);
 
 	if (Cliente.pipe == NULL) {
 		MessageBox(NULL, TEXT("O Pipe do Cliente é invalido"), TEXT("ERRO"), MB_OK | MB_ICONERROR);
