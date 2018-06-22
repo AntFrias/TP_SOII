@@ -246,6 +246,17 @@ void LePacotesBufferServtoGw() {
 	
 		switch (Resposta->tipo) {
 
+		case user_exit:
+
+			EnviaRespostaParaCliente(Resposta);
+
+			for (int i = 0; i < dadosGw.nClientes; i++) {
+
+				if (Clientes[i].id == Resposta->Cliente_id)
+					Clientes[i].hPipe = INVALID_HANDLE_VALUE;
+			}
+			break;
+
 		default:
 
 			EnviaRespostaParaCliente(Resposta);

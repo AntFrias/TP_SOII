@@ -718,7 +718,8 @@ packet trataPacoteLogin(packet *aux) {
 		//se não for vai ver se já existem algum cliente no o mesmo nome
 		if (verificaPlayerNoArray(aux->dataPacket.nome)) {
 
-			resposta.tipo = user_Login_falhou;
+			resposta.tipo = user_exit;
+			resposta.dataPacket.comando = user_Login_falhou;
 
 		}
 		else {
@@ -731,7 +732,8 @@ packet trataPacoteLogin(packet *aux) {
 			}
 			else {
 
-				resposta.tipo = user_login_Limite_clientes;
+				resposta.tipo = user_exit;
+				resposta.dataPacket.comando = user_login_Limite_clientes;
 
 			}
 		}
@@ -809,7 +811,7 @@ void TrataPacotesGwtoServ() {
 
 			break;
 
-		case user_logout:
+		case user_exit:
 
 			PosJogador = VerificaPosicaoJogador(aux);
 
@@ -822,6 +824,12 @@ void TrataPacotesGwtoServ() {
 			ReleaseMutex(dadosServidor.mutexTabuleiro);
 
 			ArrayJogadores = apagaClienteArrayJogadores(PosJogador);
+
+			resposta.tipo = user_exit;
+
+			resposta.dataPacket.comando = user_logout;
+
+			escrevebuffer(&resposta, nomeServtoGw);
 	
 			break;
 		}
