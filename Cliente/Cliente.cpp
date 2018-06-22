@@ -3,7 +3,6 @@
 
 EstruturaCli Cliente;
 configur configuracoes;
-alteracaoTab tabAux[12];
 bipm bipMaps;
 packet PacoteEnvio;
 hdcImg hdcDasImg;
@@ -25,7 +24,7 @@ void TrataPacote(packet pacoteTratar) {
 
 	switch (pacoteTratar.tipo) {
 			
-			case user_login_sucesso: { // Se for bem logado recebe a mensagem que vai começar pelo jogo meter depois no servidor -> user_login_sucesso e aqui tb
+			case user_login_sucesso: { // Se for bem logado recebe a mensagem que vai começar pelo jogo 
 
 				MessageBox(NULL, TEXT("Login efetuado com sucesso!\nEspere que o Jogo comece "), TEXT("AGUARDE"), MB_OK | MB_ICONINFORMATION);
 				MessageBox(NULL, TEXT("Deseja iniciar o Jogo?"), TEXT("AGUARDE"), MB_OK | MB_ICONINFORMATION);
@@ -36,15 +35,20 @@ void TrataPacote(packet pacoteTratar) {
 			
 			case user_Login_falhou: {
 
-				//MessageBox(NULL, TEXT("Ja se encontra um jogador com o mesmo nome"), TEXT("ERRO"), MB_OK | MB_ICONERROR);
-				//exit(0);
+				LimpaPacotedEnvio();
+				PacoteEnvio.tipo = user_logout;
+				SetEvent(Cliente.EventEnvia);
+				MessageBox(NULL, TEXT("Ja se encontra um jogador com o mesmo nome"), TEXT("ERRO"), MB_OK | MB_ICONERROR);
+				exit(0);
 				break;
 			}
 
 			case user_login_Limite_clientes: {
-
+				LimpaPacotedEnvio();
+				PacoteEnvio.tipo = user_logout;
+				SetEvent(Cliente.EventEnvia);
 				MessageBox(NULL, TEXT("O servidor está cheio.\nTente mais tarde"), TEXT("ERRO"), MB_OK | MB_ICONERROR);
-				//exit(0);
+				exit(0);
 				break;
 			}
 		
@@ -93,7 +97,6 @@ void TrataPacote(packet pacoteTratar) {
 						
 				}
 				InvalidateRect(hwndPrincipal, NULL, TRUE);
-
 			}
 		
 		default:
@@ -106,8 +109,8 @@ void Envia() {
 
 	DWORD  nBytesLidos;
 	BOOL ret;
-	HANDLE IOReady; //handle para o evento
-	OVERLAPPED Ov = { 0 }; // Extrutura para o so interpretar
+	HANDLE IOReady; 
+	OVERLAPPED Ov = { 0 }; 
 
 	
 		IOReady = CreateEvent(NULL, TRUE, FALSE, NULL);
@@ -118,7 +121,7 @@ void Envia() {
 		while (1) {
 			WaitForSingleObject(Cliente.EventEnvia,INFINITE);
 
-			//inicializa coisas para o named pipe
+			//inicializa
 			ZeroMemory(&Ov, sizeof(Ov));
 			ResetEvent(IOReady);
 			Ov.hEvent = IOReady;
@@ -136,7 +139,6 @@ void Envia() {
 				//return -1;
 				OutputDebugString(TEXT("ret ou nbyres = 0!!!\n"));
 			}
-			//_tprintf(TEXT("[CLIENTE] Enviei %d bytes ao GATEWAY ...(WriteFile)\n"), nBytesLidos);
 			OutputDebugString(TEXT("Passei o enviei1!!!\n"));
 			ResetEvent(Cliente.EventEnvia);
 		}
@@ -147,8 +149,8 @@ void escuta() {
 	packet PacoteRecebido;
 	DWORD  nBytesLidos;
 	BOOL ret;
-	HANDLE IOReady; //handle para o evento
-	OVERLAPPED Ov; // Extrutura para o so interpretar
+	HANDLE IOReady; 
+	OVERLAPPED Ov;
 	
 	HANDLE hUserToken = NULL;
 
@@ -170,7 +172,6 @@ void escuta() {
 
 	//ler do pipe
 	if (!WaitNamedPipe(aux, NMPWAIT_WAIT_FOREVER)) {
-		//_tprintf(TEXT(" N?o consegui ligar ao pipe '%s'!\n"), PIPE_NAME);
 		MessageBox(NULL, TEXT("Provavelmente o Gateway não está ligado"), TEXT("ERRO"), MB_OK | MB_ICONERROR);
 		exit(-1);
 		
@@ -193,11 +194,11 @@ void escuta() {
 
 	while (1) {
 
-		ZeroMemory(&Ov, sizeof(Ov)); //limpar a estrutura Ov
-		ResetEvent(IOReady); // para ter que o evento esta desligado 
-		Ov.hEvent = IOReady; // associar handle do evento para o overlap saber
+		ZeroMemory(&Ov, sizeof(Ov)); 
+		ResetEvent(IOReady);
+		Ov.hEvent = IOReady; 
 
-		ReadFile(Cliente.pipe, &PacoteRecebido, sizeof(packet), &nBytesLidos, &Ov); //le o pacote do named pipe
+		ReadFile(Cliente.pipe, &PacoteRecebido, sizeof(packet), &nBytesLidos, &Ov); 
 		
 		WaitForSingleObject(IOReady, INFINITE); // espera pelo evento
 
@@ -208,16 +209,14 @@ void escuta() {
 			//_tprintf(TEXT("Nao li nada\n"), ret, nBytesLidos);
 			break;
 		}
-		//_tprintf(TEXT("\n\nRecebi este nome %s\n"), PacoteRecebido.dataPacket.nome);
-	
 	
 		
 		TrataPacote(PacoteRecebido);
 
 	}
 
-	CloseHandle(Cliente.pipe);	// fecha pipe do cliente
-	CloseHandle(IOReady);		// fecha handle dop cliente 
+	CloseHandle(Cliente.pipe);	
+	CloseHandle(IOReady);		
 
 }
 
@@ -338,8 +337,8 @@ LRESULT CALLBACK Configuracoes(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lPara
 			wcscpy_s(PacoteEnvio.dataPacket.nome, configuracoes.nome);
 			SetEvent(Cliente.EventEnvia);
 
-			EndDialog(hwnd, 0); //isto é para fechar a janela 
-			//PostQuitMessage(0); //isto é para fechar a janxxxx -> o ciclo de mensagens
+			EndDialog(hwnd, 0);//fechar a janela 
+			//PostQuitMessage(0); 
 			ShowWindow(hwndPrincipal, SW_SHOWDEFAULT);
 			UpdateWindow(hwndPrincipal);
 
@@ -377,14 +376,11 @@ LRESULT CALLBACK WindowProc(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
 
 
 
-		//aqui aiai
+		
 		//prenche pacote
 		LimpaPacotedEnvio();
 		PacoteEnvio.tipo = user_logout;
 		SetEvent(Cliente.EventEnvia);
-
-
-		PostQuitMessage(0);
 
 		//eliminar as janelas feitas para cada um bipmap ... (por mais aqui ... um delete para cada um)
 		DeleteObject(hdcDasImg.Wallpaper);
@@ -404,6 +400,7 @@ LRESULT CALLBACK WindowProc(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
 		//eliminar o  ecra aux -> este é o que imprime 
 		DeleteDC(janelaImprime); 
 		DeleteDC(janelaAux);
+		PostQuitMessage(0);
 		return 0;
 	}
 	case WM_PAINT:	{
@@ -422,8 +419,8 @@ LRESULT CALLBACK WindowProc(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
 		//prepara janela aux 
 		janelaImprime = GetDC(hwndPrincipal);
 		janelaAux = CreateCompatibleDC(janelaImprime);
-		HBITMAP teste = CreateCompatibleBitmap(janelaImprime, 800, 800);
-		SelectObject(janelaAux, teste);
+		HBITMAP auxBipmap = CreateCompatibleBitmap(janelaImprime, 800, 800);
+		SelectObject(janelaAux, auxBipmap);
 		ReleaseDC(hwndPrincipal, janelaImprime);
 
 		// Cria uma "janela"( memory device compatible ) para cada bipmap
@@ -541,23 +538,23 @@ LRESULT CALLBACK WindowProc(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
 int WINAPI _tWinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPTSTR LpCmdLine, int ncmdshow)
 {	
 	
-	wcscpy_s(configuracoes.ip, TEXT("127.0.0.1"));
-	//wcscpy_s(configuracoes.ip, TEXT("127.0.0.1"));
+	wcscpy_s(configuracoes.ip, TEXT("127.0.0.1"));//alterar o ip
+	
 	// lança a thread que escuta no named pipe
-		IniciaCliente();
+	IniciaCliente();
 	//Registar a class da janela
 	const wchar_t CLASS_NAME[] = L"Janela Principal";
 
 	WNDCLASS wc = {};
 
-	///////////////////////////////////////Configuraçoes//////////////////////////////////////////////////////////////
+	///////////////////////////////////////DIALOG//////////////////////////////////////////////////////////////
 	HWND hDlg = CreateDialog(hInstance, MAKEINTRESOURCE(IDD_DIALOG1), 0, Configuracoes);
 	ShowWindow(hDlg, ncmdshow);
 	MSG msg = {};
-	////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+	///////////////////////////////////////////FIM DIALOG//////////////////////////////////////////////////////
 	//carregabitmaps para a esturuta
 	carregaBitMaps();
-	///////////////////////////////////////////////////////////////////////////////////////////////////////////////
+	//////////////////////////////////////////////////////////////////////////////////////////////////////////
 	wc.lpfnWndProc = WindowProc;
 	wc.hInstance = hInstance;
 	wc.lpszClassName = CLASS_NAME;
@@ -586,80 +583,10 @@ int WINAPI _tWinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPTSTR LpCmdL
 	{
 		return 0;
 	}
-	
-	
 
-	tabAux[0].tipo = NaveBasica;
-	tabAux[0].x = 0;
-	tabAux[0].y = 0;
-	
-	tabAux[1].tipo = tiroJogador;
-	tabAux[1].x = 10;
-	tabAux[1].y = 4;
-
-	tabAux[2].tipo = NavesEsquiva;
-	tabAux[2].x = 12;
-	tabAux[2].y = 23;
-
-	tabAux[3].tipo = NaveBasica;
-	tabAux[3].x = 2;
-	tabAux[3].y = 0;
-
-	tabAux[4].tipo = NaveJogador;
-	tabAux[4].x = 4;
-	tabAux[4].y = 30;
-
-	tabAux[5].tipo = PowerUpVida;
-	tabAux[5].x = 20;
-	tabAux[5].y = 12;
-
-	tabAux[6].tipo = NaveJogador;
-	tabAux[6].x = 30;
-	tabAux[6].y = 15;
-
-	tabAux[7].tipo = NaveBoss;
-	tabAux[7].x = 24;
-	tabAux[7].y = 0;
-
-	tabAux[8].tipo = NaveJogador;
-	tabAux[8].x = 37;
-	tabAux[8].y = 0;
-
-	tabAux[8].tipo = NaveJogador;
-	tabAux[8].x = 5;
-	tabAux[8].y = 14;
-
-	tabAux[9].tipo = NaveJogador;
-	tabAux[9].x = 5;
-	tabAux[9].y = 23;
-
-	tabAux[10].tipo = NaveJogador;
-	tabAux[10].x = 10;
-	tabAux[10].y = 30;
-
-	tabAux[11].tipo = NaveJogador;
-	tabAux[11].x = 5;
-	tabAux[11].y = 36;
-
-	//BitBlt(janelaAux, 0, 0, 810, 845, hdcDasImg.Wallpaper, 0, 0, SRCCOPY);
-	
-	TransparentBlt(janelaAux, (tabAux[0].x * 20), (tabAux[0].y * 20), 40, 40, hdcDasImg.Basica, 0, 0, 40, 40, RGB(255, 255, 255)); // estica e tira a cor de fundo
-	TransparentBlt(janelaAux, (tabAux[1].x * 20), (tabAux[1].y * 20), 15, 40, hdcDasImg.Tiro, 0, 0, 20, 40, RGB(255, 255, 255)); // estica e tira a cor de fundo
-	TransparentBlt(janelaAux, (tabAux[2].x * 20), (tabAux[2].y * 20), 40, 40, hdcDasImg.Esquiva, 0, 0, 40, 40, RGB(255, 255, 255)); // estica e tira a cor de fundo
-	TransparentBlt(janelaAux, (tabAux[3].x * 20), (tabAux[3].y * 20), 40, 40, hdcDasImg.Basica, 0, 0, 40, 40, RGB(255, 255, 255)); // estica e tira a cor de fundo
-	TransparentBlt(janelaAux, (tabAux[4].x * 20), (tabAux[4].y * 20), 40, 40, hdcDasImg.Defensora1, 0, 0, 40, 40, RGB(255, 255, 255)); // estica e tira a cor de fundo
-	TransparentBlt(janelaAux, (tabAux[5].x * 20), (tabAux[5].y * 20), 40, 40, hdcDasImg.Defensora2, 0, 0, 40, 40, RGB(255, 255, 255)); // estica e tira a cor de fundo
-	TransparentBlt(janelaAux, (tabAux[6].x * 20), (tabAux[6].y * 20), 15, 40, hdcDasImg.Bomba, 0, 0, 20, 40, RGB(255, 255, 255)); // estica e tira a cor de fundo
-	TransparentBlt(janelaAux, (tabAux[7].x * 20), (tabAux[7].y * 20), 120, 120, hdcDasImg.Boss, 0, 0, 80, 80, RGB(255, 255, 255)); // estica e tira a cor de fundo
-	TransparentBlt(janelaAux, (tabAux[8].x * 20), (tabAux[8].y * 20), 40, 40, hdcDasImg.Defensora3, 0, 0, 40, 40, RGB(255, 255, 255)); // estica e tira a cor de fundo
-	TransparentBlt(janelaAux, (tabAux[9].x * 20), (tabAux[9].y * 20), 40, 40, hdcDasImg.Defensora4, 0, 0, 40, 40, RGB(255, 255, 255)); // estica e tira a cor de fundo
-	TransparentBlt(janelaAux, (tabAux[10].x * 20), (tabAux[10].y * 20), 40, 40, hdcDasImg.Defensora5, 0, 0, 40, 40, RGB(255, 255, 255)); // estica e tira a cor de fundo
-	TransparentBlt(janelaAux, (tabAux[11].x * 20), (tabAux[11].y * 20), 40, 40, hdcDasImg.Explosao, 0, 0, 40, 40, RGB(255, 255, 255)); // estica e tira a cor de fundo
-
+	BitBlt(janelaAux, 0, 0, 810, 845, hdcDasImg.Wallpaper, 0, 0, SRCCOPY);
 	
 	InvalidateRect(hwndPrincipal, NULL, TRUE);
-
-
 
 	while (GetMessage(&msg, NULL, 0, 0))
 	{
@@ -670,11 +597,3 @@ int WINAPI _tWinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPTSTR LpCmdL
 
 	return 0;
 }
-
-
-/*
-TCHAR yo[512];
-
-_stprintf_s(yo, 512, TEXT("Could not open pipe. GLE=%d\n"), GetLastError());
-OutputDebugString(yo);
-*/

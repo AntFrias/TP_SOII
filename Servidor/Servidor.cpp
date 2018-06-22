@@ -21,6 +21,28 @@ DWORD idIniciaJogo;
 HBITMAP Wallpaper;
 HDC HdcWallpaper;
 HDC janelaAux;
+
+
+//////////////////////////////////////////////////////
+int criaStatusServerRegistry(int n) {
+
+	registryServer StatServer;
+
+	//Criar/abrir uma chave em HKEY_CURRENT_USER\Software\TP_SOII
+	if (RegCreateKeyEx(HKEY_CURRENT_USER, TEXT("Software\\TP_SOII"), 0, NULL, REG_OPTION_NON_VOLATILE, KEY_ALL_ACCESS, NULL, &StatServer.Chave, &StatServer.statServer) != ERROR_SUCCESS) {
+		return -1;
+	}
+	else {
+		if (n == 1) {
+			StatServer.ServerUp = 1;
+			RegSetValueEx(StatServer.Chave, TEXT("Servidor"), 0, REG_DWORD, (LPBYTE)&StatServer.ServerUp, sizeof(DWORD));
+		}
+		else {
+			RegSetValueEx(StatServer.Chave, TEXT("Servidor"), 0, REG_DWORD, (LPBYTE)&StatServer.ServerUp, sizeof(DWORD));
+		}
+	}
+	return 0;
+}
 //////////////////////////////////////////////////////
 
 void mostraNaveBasica() {
@@ -799,8 +821,8 @@ void AtualizaInformacaoInicialJogo() {
 	dadosServidor.ServidorUp = 1;
 	dadosServidor.estadoJogo = 0;
 	dadosServidor.NumCliNoArray = 0;
-	dadosServidor.initJogo.MaxNavesBasicas = ninimigas1;//comentar aqui grafica
-	dadosServidor.initJogo.MaxNavesEsquivas = ninimigas2;//comentar aqui grafica
+	//dadosServidor.initJogo.MaxNavesBasicas = ninimigas1;//comentar aqui grafica
+	//dadosServidor.initJogo.MaxNavesEsquivas = ninimigas2;//comentar aqui grafica
 	dadosServidor.initJogo.MaxNaveBoss = 1;
 
 }
@@ -826,7 +848,7 @@ int IniciarServidor() {
 	//criaStatusServerRegistry (0 );
 	return 1;
 }
-
+/*
 int _tmain(int argc, LPTSTR argv[]) {
 
 
@@ -840,9 +862,9 @@ int _tmain(int argc, LPTSTR argv[]) {
 	Sleep(190000);
 	return 0;
 }
-
+*/
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-/*void carregaBitMaps() {
+void carregaBitMaps() {
 
 	Wallpaper = (HBITMAP)LoadImage(NULL, L"../../Imagens/imagemInicialServidor.bmp", IMAGE_BITMAP, 810, 845, LR_LOADFROMFILE);
 
@@ -857,6 +879,8 @@ LRESULT CALLBACK WindowProc(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
 	case WM_DESTROY: {
 
 		DeleteObject(Wallpaper);
+		criaStatusServerRegistry(0);
+
 		exit(0);
 	}
 	case WM_PAINT: {
@@ -893,10 +917,12 @@ LRESULT CALLBACK WindowProc(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
 
 		
 		if ((TCHAR)wParam == 's') {
+			criaStatusServerRegistry(1);
 			hIniciaJogo = CreateThread(NULL, 0, (LPTHREAD_START_ROUTINE)IniciarServidor, (LPVOID)NULL, 0, &idIniciaJogo);	//thread para tiros no tabuleiro
 			break;
 		}
 		if ((TCHAR)wParam == 't') {
+			criaStatusServerRegistry(0);
 			exit(0);
 			break;
 		}
@@ -1016,80 +1042,4 @@ int WINAPI _tWinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPTSTR LpCmdL
 	}
 
 	return 0;
-}*/
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-// inicia os servi�os e a configura�ao do Servidor no registry;
-/*int criaStatusServerRegistry(int n) {
-
-registryServer StatServer;
-
-//Criar/abrir uma chave em HKEY_CURRENT_USER\Software\TP_SOII
-if (RegCreateKeyEx(HKEY_CURRENT_USER, TEXT("Software\\TP_SOII"), 0, NULL, REG_OPTION_NON_VOLATILE, KEY_ALL_ACCESS, NULL, &StatServer.Chave, &StatServer.statServer) != ERROR_SUCCESS) {
-return -1;
 }
-else {
-if (n == 1) {
-StatServer.ServerUp = 1;
-RegSetValueEx(StatServer.Chave, TEXT("Servidor"), 0, REG_DWORD, (LPBYTE)&StatServer.ServerUp, sizeof(DWORD));
-}
-else {
-RegSetValueEx(StatServer.Chave, TEXT("Servidor"), 0, REG_DWORD, (LPBYTE)&StatServer.ServerUp, sizeof(DWORD));
-}
-}
-return 0;
-}
-
-
-
-//naves enimigas cod algoritmo
-gotoxy(naveInimiga->x, naveInimiga->y);
-
-//if (navePodeMexer(naveInimiga)==1) {
-
-if (coord_x < CoordWindow_x + dimMapa_x) {
-	gotoxy(coord_x, coord_y);
-	_tprintf(TEXT("I"));
-	naveInimiga->x = coord_x;
-	naveInimiga->x = coord_y;
-	coord_x++;
-
-}
-else {
-	coord_x = CoordWindow_x;
-	naveInimiga->x = coord_x;
-	coord_y++;
-	naveInimiga->x = coord_y;
-
-	gotoxy(coord_x, coord_y);
-	_tprintf(TEXT("I"));
-}
-naveInimiga->vida--;
-
-
-
-*/
-
-
-//verifica se o cliente é repetido 
