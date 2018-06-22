@@ -94,7 +94,6 @@ HANDLE criaNamedPipe() {
 
 	ConvertStringSecurityDescriptorToSecurityDescriptor(szSD, SDDL_REVISION_1, &(sa.lpSecurityDescriptor), NULL);
 
-
 	HANDLE hPipe = CreateNamedPipe(PIPE_NAME, PIPE_ACCESS_DUPLEX | FILE_FLAG_OVERLAPPED, PIPE_WAIT | PIPE_TYPE_MESSAGE | PIPE_READMODE_MESSAGE, nMaxJogadores, sizeof(packet), sizeof(packet), 1000, &sa);
 
 	if (hPipe == INVALID_HANDLE_VALUE) {
@@ -246,6 +245,17 @@ void LePacotesBufferServtoGw() {
 		Resposta = LerBufferServtoGw();
 	
 		switch (Resposta->tipo) {
+
+		case user_exit:
+
+			EnviaRespostaParaCliente(Resposta);
+
+			for (int i = 0; i < dadosGw.nClientes; i++) {
+
+				if (Clientes[i].id == Resposta->Cliente_id)
+					Clientes[i].hPipe = INVALID_HANDLE_VALUE;
+			}
+			break;
 
 		default:
 
