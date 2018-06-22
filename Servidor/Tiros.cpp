@@ -32,7 +32,7 @@ int obtemPosicaoTiro() {
 }
 void trataMovimentacaoTiroInimigas(int PosTiro, int tipo, int ProprietarioMissil) {
 
-	int tipoObjeto, x = ArrayTiros[PosTiro].x, y = ArrayTiros[PosTiro].y;
+	int tipoObjeto, x = ArrayTiros[PosTiro].x, y = ArrayTiros[PosTiro].y, y_aux = ArrayTiros[PosTiro].y;
 
 		tipoObjeto = VerificaPosicaoJogo(&x, &y, tipo, baixo);
 
@@ -68,8 +68,26 @@ void trataMovimentacaoTiroInimigas(int PosTiro, int tipo, int ProprietarioMissil
 
 			break;
 
-		}
+		case NaveJogador:
 
+			y_aux += 1;
+
+			if (AlteraVidaObjeto(x, y_aux, tipoObjeto, GestorTiros.AtualizaTabuleiro) == 0) {
+
+				LimpaPosTabuleiroTiro(x, y, bloco_vazio, LarguraTiroDefault);
+
+				//preencheBlocosServidorTiro(&x, &y_aux, PosTiro, TiroExplosao, LarguraTiroDefault);
+
+				SetEvent(GestorTiros.AtualizaTabuleiro);
+
+				ArrayTiros[PosTiro].tipo = Tirovazio;
+
+				GestorTiros.TotalTiros -= 1;
+
+			}
+			break;
+
+		}
 }
 int ObtemPosTiroInimigo(int x, int y) {
 

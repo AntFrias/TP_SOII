@@ -86,9 +86,9 @@ int verificaPosicaoTiro(int *x, int *y, int orientacao) {
 
 	case baixo:
 
-		if (blocoServ[*y + 2][*x].tipo == bloco_vazio && *y + 2 < dimMapa_y) {
+		if (*y + 2 < dimMapa_y) {
 
-			Item = bloco_vazio;
+			Item = blocoServ[*y + 2][*x].tipo;
 			
 			return Item;
 

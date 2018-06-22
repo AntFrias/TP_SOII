@@ -33,25 +33,51 @@ void TrataPacote(packet pacoteTratar) {
 				break;
 			}
 			
-			case user_Login_falhou: {
+			case user_exit: {
+
+				switch (pacoteTratar.dataPacket.comando) {
+
+
+				case user_Login_falhou: {
+
+					MessageBox(NULL, TEXT("Ja se encontra um jogador com o mesmo nome"), TEXT("ERRO"), MB_OK | MB_ICONERROR);
+					exit(0);
+					
+				}
+				break;
+
+				case user_login_Limite_clientes: {
+
+					MessageBox(NULL, TEXT("O servidor está cheio.\nTente mais tarde"), TEXT("ERRO"), MB_OK | MB_ICONERROR);
+					exit(0);
+				}
+				break;
+				default:
+					MessageBox(NULL, TEXT("O jogador ficou sem Vidas"), TEXT("ERRO"), MB_OK | MB_ICONERROR);
+					exit(0);
+					
+				}
+			}
+			break;
+		/*	case user_Login_falhou: {
 
 				LimpaPacotedEnvio();
-				PacoteEnvio.tipo = user_logout;
-				SetEvent(Cliente.EventEnvia);
+				//PacoteEnvio.tipo = user_logout;
+				//SetEvent(Cliente.EventEnvia);
 				MessageBox(NULL, TEXT("Ja se encontra um jogador com o mesmo nome"), TEXT("ERRO"), MB_OK | MB_ICONERROR);
-				exit(0);
+				//exit(0);
 				break;
 			}
 
 			case user_login_Limite_clientes: {
 				LimpaPacotedEnvio();
-				PacoteEnvio.tipo = user_logout;
-				SetEvent(Cliente.EventEnvia);
+				//PacoteEnvio.tipo = user_logout;
+				//SetEvent(Cliente.EventEnvia);
 				MessageBox(NULL, TEXT("O servidor está cheio.\nTente mais tarde"), TEXT("ERRO"), MB_OK | MB_ICONERROR);
-				exit(0);
+				//exit(0);
 				break;
 			}
-		
+		*/
 			case AtualizacaoJogo: {
 				BitBlt(janelaAux, 0, 0, 845, 810, hdcDasImg.Space, 0, 0, SRCCOPY);
 				for (int i = 0; i < pacoteTratar.numObjetos; i++) {

@@ -23,6 +23,43 @@ HDC HdcWallpaper;
 HDC janelaAux;
 
 
+// funcao vai apagar o jogador do array de jogadores
+jogadorinfo * apagaClienteArrayJogadores(int PosJogador) {
+
+	jogadorinfo *aux;
+
+	int totaljogadores = dadosServidor.NumMaxClientes, j = 0;
+
+	if (dadosServidor.NumMaxClientes > 1) {
+
+		dadosServidor.NumMaxClientes -= 1;
+
+		aux = (jogadorinfo*)malloc(sizeof(jogadorinfo) * dadosServidor.NumMaxClientes);
+
+		if (aux == NULL) {
+
+			exit(-1);
+		}
+
+		for (int i = 0; i < totaljogadores; i++) {
+
+			if (i != PosJogador) {
+
+				aux[j] = ArrayJogadores[i];
+				j++;
+			}
+		}
+	}
+	else {
+
+		free(ArrayJogadores);
+
+		return NULL;
+	}
+
+	return aux;
+
+}
 //////////////////////////////////////////////////////
 int criaStatusServerRegistry(int n) {
 
@@ -110,6 +147,35 @@ int VerificaVidaNave(int tipoObjeto, int PosObjeto) {
 	case NaveBoss:
 		break;
 	case NaveJogador:
+
+		if (ArrayJogadores[PosObjeto].vidas > 0) {
+
+			ArrayJogadores[PosObjeto].vidas -= 1;
+
+			nVidas = objectosTab.NaveEnemyTipo2[PosObjeto].vida;
+
+			return nVidas;
+		}
+		if (ArrayJogadores[PosObjeto].vidas == 0) {
+
+			nVidas = objectosTab.NaveEnemyTipo2[PosObjeto].vida;
+
+			LimpaPosTabuleiroTiro(ArrayJogadores[PosObjeto].posicao[0], ArrayJogadores[PosObjeto].posicao[1], bloco_vazio, LarguraNaveDefault);
+
+			preencheBlocosServidor(&ArrayJogadores[PosObjeto].posicao[0], &ArrayJogadores[PosObjeto].posicao[1], PosObjeto, bloco_vazio, LarguraNaveDefault);
+
+			SetEvent(dadosServidor.EventoAtualizaJogo);
+			
+			Packet Resposta;
+
+			Resposta.tipo = user_exit;
+
+			Resposta.Cliente_id = ArrayJogadores[PosObjeto].IdJogador;
+
+			escrevebuffer(&Resposta, nomeServtoGw);
+
+			ArrayJogadores = apagaClienteArrayJogadores(PosObjeto);
+		}
 		break;
 
 	}
@@ -312,7 +378,7 @@ int GestorNaveEsquiva() {
 				
 					ReleaseMutex(dadosServidor.mutexTabuleiro);
 
-					opcao = CalculaOpcaoNaveInimiga(LancaTiro, 150);
+					opcao = CalculaOpcaoNaveInimiga(LancaTiro, 100);
 					
 					if (opcao == LancaTiro) {
 
@@ -680,7 +746,8 @@ packet trataPacoteLogin(packet *aux) {
 		//se não for vai ver se já existem algum cliente no o mesmo nome
 		if (verificaPlayerNoArray(aux->dataPacket.nome)) {
 
-			resposta.tipo = user_Login_falhou;
+			resposta.tipo = user_exit;
+			resposta.dataPacket.comando = user_Login_falhou;
 
 		}
 		else {
@@ -693,7 +760,8 @@ packet trataPacoteLogin(packet *aux) {
 			}
 			else {
 
-				resposta.tipo = user_login_Limite_clientes;
+				resposta.tipo = user_exit;
+				resposta.dataPacket.comando = user_login_Limite_clientes;
 
 			}
 		}
@@ -722,53 +790,76 @@ void TrataPacotesGwtoServ() {
 
 		switch (aux->tipo) {
 
-			case user_login: 
+		case user_login:
 
-				resposta = trataPacoteLogin(aux);			// trata pacote de login
+			resposta = trataPacoteLogin(aux);			// trata pacote de login
 
-				resposta.Cliente_id = aux->Cliente_id;
+			resposta.Cliente_id = aux->Cliente_id;
 
-				escrevebuffer(&resposta, nomeServtoGw);
+			escrevebuffer(&resposta, nomeServtoGw);
 
-				break;
+			break;
 
-			case IniciaJogoMultiplayer:
-		// talvez necessite de um mutex para o array de clientes
-				if (dadosServidor.NumCliNoArray == 1 && dadosServidor.estadoJogo == 0) {
+		case IniciaJogoMultiplayer:
+			// talvez necessite de um mutex para o array de clientes
+			if (dadosServidor.NumCliNoArray == 1 && dadosServidor.estadoJogo == 0) {
 
-					dadosServidor.estadoJogo = 1;
+				dadosServidor.estadoJogo = 1;
 
-					PosJogador = VerificaPosicaoJogador(aux);
-
-					IniciaAmbienteJogo(PosJogador);
-
-					SetEvent(dadosServidor.EventoIniciaJogo);
-
-					SetEvent(dadosServidor.EventoAtualizaJogo);
-				}
-				else {
-
-					PosJogador = VerificaPosicaoJogador(aux);
-
-					IniciaAmbienteJogo(PosJogador);
-
-					SetEvent(dadosServidor.EventoAtualizaJogo);
-
-				}
-					
-				break;
-
-			case AtualizacaoJogo:
-				
 				PosJogador = VerificaPosicaoJogador(aux);
-				
-				WaitForSingleObject(dadosServidor.mutexTabuleiro, INFINITE);
 
-				verificaComandosJogo(aux->dataPacket.comando, PosJogador, NaveJogador);
+				IniciaAmbienteJogo(PosJogador);
 
-				ReleaseMutex(dadosServidor.mutexTabuleiro);
+				SetEvent(dadosServidor.EventoIniciaJogo);
 
-				break;
+				SetEvent(dadosServidor.EventoAtualizaJogo);
+			}
+			else {
+
+				PosJogador = VerificaPosicaoJogador(aux);
+
+				IniciaAmbienteJogo(PosJogador);
+
+				SetEvent(dadosServidor.EventoAtualizaJogo);
+
+
+			}
+
+			break;
+
+		case AtualizacaoJogo:
+
+			PosJogador = VerificaPosicaoJogador(aux);
+
+			WaitForSingleObject(dadosServidor.mutexTabuleiro, INFINITE);
+
+			verificaComandosJogo(aux->dataPacket.comando, PosJogador, NaveJogador);
+
+			ReleaseMutex(dadosServidor.mutexTabuleiro);
+
+			break;
+
+		case user_exit:
+
+			PosJogador = VerificaPosicaoJogador(aux);
+
+			WaitForSingleObject(dadosServidor.mutexTabuleiro, INFINITE);
+
+			preencheBlocosServidor(&ArrayJogadores[PosJogador].posicao[0], &ArrayJogadores[PosJogador].posicao[1], PosJogador, bloco_vazio, LarguraNaveDefault);
+
+			SetEvent(dadosServidor.EventoAtualizaJogo);
+
+			ReleaseMutex(dadosServidor.mutexTabuleiro);
+
+			ArrayJogadores = apagaClienteArrayJogadores(PosJogador);
+
+			resposta.tipo = user_exit;
+
+			resposta.dataPacket.comando = user_logout;
+
+			escrevebuffer(&resposta, nomeServtoGw);
+	
+			break;
 		}
 	}
 }

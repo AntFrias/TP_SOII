@@ -13,14 +13,15 @@
 #include <winbase.h>
 
 enum EnumDados {
-	user_logout = 0,			//deixer que vai sair
-	user_login,				//Pedido de login pelo Cliente
+	user_logout = 0,
+	user_login,					//Pedido de login pelo Cliente
+	user_exit,
 	user_login_sucesso,			//inicio das respostas do login
 	user_Login_falhou,
 	user_login_Limite_clientes,
 
 	IniciaJogoMultiplayer = 10,
-	JogoIniciado,
+	JogoIniciado,	
 
 	AtualizacaoJogo = 20,			// resposta ao pedido de inicio de jogo
 	cima,
@@ -31,6 +32,7 @@ enum EnumDados {
 	PowerUp1,       //ativa powerUp1
 	PowerUp2,		//ativa powerUp2
 	PowerUp3		//ativa powerUp3
+	
 
 };
 
