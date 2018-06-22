@@ -23,6 +23,43 @@ HDC HdcWallpaper;
 HDC janelaAux;
 
 
+// funcao vai apagar o jogador do array de jogadores
+jogadorinfo * apagaClienteArrayJogadores(int PosJogador) {
+
+	jogadorinfo *aux;
+
+	int totaljogadores = dadosServidor.NumMaxClientes, j = 0;
+
+	if (dadosServidor.NumMaxClientes > 1) {
+
+		dadosServidor.NumMaxClientes -= 1;
+
+		aux = (jogadorinfo*)malloc(sizeof(jogadorinfo) * dadosServidor.NumMaxClientes);
+
+		if (aux == NULL) {
+
+			exit(-1);
+		}
+
+		for (int i = 0; i < totaljogadores; i++) {
+
+			if (i != PosJogador) {
+
+				aux[j] = ArrayJogadores[i];
+				j++;
+			}
+		}
+	}
+	else {
+
+		free(ArrayJogadores);
+
+		return NULL;
+	}
+
+	return aux;
+
+}
 //////////////////////////////////////////////////////
 int criaStatusServerRegistry(int n) {
 
@@ -110,6 +147,35 @@ int VerificaVidaNave(int tipoObjeto, int PosObjeto) {
 	case NaveBoss:
 		break;
 	case NaveJogador:
+
+		if (ArrayJogadores[PosObjeto].vidas > 0) {
+
+			ArrayJogadores[PosObjeto].vidas -= 1;
+
+			nVidas = objectosTab.NaveEnemyTipo2[PosObjeto].vida;
+
+			return nVidas;
+		}
+		if (ArrayJogadores[PosObjeto].vidas == 0) {
+
+			nVidas = objectosTab.NaveEnemyTipo2[PosObjeto].vida;
+
+			LimpaPosTabuleiroTiro(ArrayJogadores[PosObjeto].posicao[0], ArrayJogadores[PosObjeto].posicao[1], bloco_vazio, LarguraNaveDefault);
+
+			preencheBlocosServidor(&ArrayJogadores[PosObjeto].posicao[0], &ArrayJogadores[PosObjeto].posicao[1], PosObjeto, bloco_vazio, LarguraNaveDefault);
+
+			SetEvent(dadosServidor.EventoAtualizaJogo);
+			
+			Packet Resposta;
+
+			Resposta.tipo = user_exit;
+
+			Resposta.Cliente_id = ArrayJogadores[PosObjeto].IdJogador;
+
+			escrevebuffer(&Resposta, nomeServtoGw);
+
+			ArrayJogadores = apagaClienteArrayJogadores(PosObjeto);
+		}
 		break;
 
 	}
@@ -312,7 +378,7 @@ int GestorNaveEsquiva() {
 				
 					ReleaseMutex(dadosServidor.mutexTabuleiro);
 
-					opcao = CalculaOpcaoNaveInimiga(LancaTiro, 150);
+					opcao = CalculaOpcaoNaveInimiga(LancaTiro, 100);
 					
 					if (opcao == LancaTiro) {
 
@@ -609,44 +675,6 @@ void IniciaAmbienteJogo(int pos) {
 		ReleaseMutex(dadosServidor.mutexTabuleiro);
 
 }//
-
-// funcao vai apagar o jogador do array de jogadores
-jogadorinfo * apagaClienteArrayJogadores(int PosJogador) {
-
-	jogadorinfo *aux;
-
-	int totaljogadores = dadosServidor.NumMaxClientes, j = 0;
-
-	if (dadosServidor.NumMaxClientes > 1) {
-
-		dadosServidor.NumMaxClientes -= 1;
-
-		aux = (jogadorinfo*)malloc(sizeof(jogadorinfo) * dadosServidor.NumMaxClientes);
-
-		if (aux == NULL) {
-
-			exit(-1);
-		}
-
-		for (int i = 0; i < totaljogadores; i++) {
-
-			if (i != PosJogador) {
-
-				aux[j] = ArrayJogadores[i];
-				j++;
-			}
-		}
-	}
-	else {
-
-		free(ArrayJogadores);
-		
-		return NULL;
-	}
-
-	return aux;
-
-}
 //func que lista os clientes
 void mostraClinoArray() {
 

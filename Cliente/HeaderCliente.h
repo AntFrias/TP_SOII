@@ -21,7 +21,7 @@ enum EnumDados {
 	user_login_Limite_clientes,
 
 	IniciaJogoMultiplayer = 10,
-	JogoIniciado,
+	JogoIniciado,	
 
 	AtualizacaoJogo = 20,			// resposta ao pedido de inicio de jogo
 	cima,
@@ -32,7 +32,7 @@ enum EnumDados {
 	PowerUp1,       //ativa powerUp1
 	PowerUp2,		//ativa powerUp2
 	PowerUp3		//ativa powerUp3
-
+	
 
 };
 
