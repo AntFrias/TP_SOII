@@ -58,7 +58,7 @@ void trataMovimentacaoTiroInimigas(int PosTiro, int tipo, int ProprietarioMissil
 		
 			LimpaPosTabuleiroTiro(x, y, bloco_vazio, LarguraTiroDefault);
 
-			preencheBlocosServidorTiro(&x, &y, PosTiro, TiroExplosao, LarguraTiroDefault);
+			//preencheBlocosServidorTiro(&x, &y, PosTiro, TiroExplosao, LarguraTiroDefault);
 
 			SetEvent(GestorTiros.AtualizaTabuleiro);
 
@@ -112,7 +112,7 @@ void trataMovimentacaoTiroJogador(int PosTiro, int tipo, int ProprietarioMissil)
 
 						//preencheBlocosServidorTiro(&x, &y, PosTiro, TiroExplosao, LarguraTiroDefault);
 					
-						SetEvent(GestorTiros.AtualizaTabuleiro);
+						//SetEvent(GestorTiros.AtualizaTabuleiro);
 
 						ArrayTiros[PosTiro].tipo = Tirovazio;
 					
@@ -172,9 +172,9 @@ void trataMovimentacaoTiroJogador(int PosTiro, int tipo, int ProprietarioMissil)
 
 							y -= 1;
 
-							preencheBlocosServidorTiro(&x, &y, PosTiro, TiroExplosao, LarguraTiroDefault);
+							//preencheBlocosServidorTiro(&x, &y, PosTiro, TiroExplosao, LarguraTiroDefault);
 
-							SetEvent(GestorTiros.AtualizaTabuleiro);
+							//SetEvent(GestorTiros.AtualizaTabuleiro);
 
 					} 
 				break;
