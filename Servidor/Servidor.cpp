@@ -609,6 +609,44 @@ void IniciaAmbienteJogo(int pos) {
 		ReleaseMutex(dadosServidor.mutexTabuleiro);
 
 }//
+
+// funcao vai apagar o jogador do array de jogadores
+jogadorinfo * apagaClienteArrayJogadores(int PosJogador) {
+
+	jogadorinfo *aux;
+
+	int totaljogadores = dadosServidor.NumMaxClientes, j = 0;
+
+	if (dadosServidor.NumMaxClientes > 1) {
+
+		dadosServidor.NumMaxClientes -= 1;
+
+		aux = (jogadorinfo*)malloc(sizeof(jogadorinfo) * dadosServidor.NumMaxClientes);
+
+		if (aux == NULL) {
+
+			exit(-1);
+		}
+
+		for (int i = 0; i < totaljogadores; i++) {
+
+			if (i != PosJogador) {
+
+				aux[j] = ArrayJogadores[i];
+				j++;
+			}
+		}
+	}
+	else {
+
+		free(ArrayJogadores);
+		
+		return NULL;
+	}
+
+	return aux;
+
+}
 //func que lista os clientes
 void mostraClinoArray() {
 
@@ -722,53 +760,70 @@ void TrataPacotesGwtoServ() {
 
 		switch (aux->tipo) {
 
-			case user_login: 
+		case user_login:
 
-				resposta = trataPacoteLogin(aux);			// trata pacote de login
+			resposta = trataPacoteLogin(aux);			// trata pacote de login
 
-				resposta.Cliente_id = aux->Cliente_id;
+			resposta.Cliente_id = aux->Cliente_id;
 
-				escrevebuffer(&resposta, nomeServtoGw);
+			escrevebuffer(&resposta, nomeServtoGw);
 
-				break;
+			break;
 
-			case IniciaJogoMultiplayer:
-		// talvez necessite de um mutex para o array de clientes
-				if (dadosServidor.NumCliNoArray == 1 && dadosServidor.estadoJogo == 0) {
+		case IniciaJogoMultiplayer:
+			// talvez necessite de um mutex para o array de clientes
+			if (dadosServidor.NumCliNoArray == 1 && dadosServidor.estadoJogo == 0) {
 
-					dadosServidor.estadoJogo = 1;
+				dadosServidor.estadoJogo = 1;
 
-					PosJogador = VerificaPosicaoJogador(aux);
-
-					IniciaAmbienteJogo(PosJogador);
-
-					SetEvent(dadosServidor.EventoIniciaJogo);
-
-					SetEvent(dadosServidor.EventoAtualizaJogo);
-				}
-				else {
-
-					PosJogador = VerificaPosicaoJogador(aux);
-
-					IniciaAmbienteJogo(PosJogador);
-
-					SetEvent(dadosServidor.EventoAtualizaJogo);
-
-				}
-					
-				break;
-
-			case AtualizacaoJogo:
-				
 				PosJogador = VerificaPosicaoJogador(aux);
-				
-				WaitForSingleObject(dadosServidor.mutexTabuleiro, INFINITE);
 
-				verificaComandosJogo(aux->dataPacket.comando, PosJogador, NaveJogador);
+				IniciaAmbienteJogo(PosJogador);
 
-				ReleaseMutex(dadosServidor.mutexTabuleiro);
+				SetEvent(dadosServidor.EventoIniciaJogo);
 
-				break;
+				SetEvent(dadosServidor.EventoAtualizaJogo);
+			}
+			else {
+
+				PosJogador = VerificaPosicaoJogador(aux);
+
+				IniciaAmbienteJogo(PosJogador);
+
+				SetEvent(dadosServidor.EventoAtualizaJogo);
+
+
+			}
+
+			break;
+
+		case AtualizacaoJogo:
+
+			PosJogador = VerificaPosicaoJogador(aux);
+
+			WaitForSingleObject(dadosServidor.mutexTabuleiro, INFINITE);
+
+			verificaComandosJogo(aux->dataPacket.comando, PosJogador, NaveJogador);
+
+			ReleaseMutex(dadosServidor.mutexTabuleiro);
+
+			break;
+
+		case user_logout:
+
+			PosJogador = VerificaPosicaoJogador(aux);
+
+			WaitForSingleObject(dadosServidor.mutexTabuleiro, INFINITE);
+
+			preencheBlocosServidor(&ArrayJogadores[PosJogador].posicao[0], &ArrayJogadores[PosJogador].posicao[1], PosJogador, bloco_vazio, LarguraNaveDefault);
+
+			SetEvent(dadosServidor.EventoAtualizaJogo);
+
+			ReleaseMutex(dadosServidor.mutexTabuleiro);
+
+			ArrayJogadores = apagaClienteArrayJogadores(PosJogador);
+	
+			break;
 		}
 	}
 }

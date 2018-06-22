@@ -36,19 +36,19 @@ void TrataPacote(packet pacoteTratar) {
 			case user_Login_falhou: {
 
 				LimpaPacotedEnvio();
-				PacoteEnvio.tipo = user_logout;
-				SetEvent(Cliente.EventEnvia);
+				//PacoteEnvio.tipo = user_logout;
+				//SetEvent(Cliente.EventEnvia);
 				MessageBox(NULL, TEXT("Ja se encontra um jogador com o mesmo nome"), TEXT("ERRO"), MB_OK | MB_ICONERROR);
-				exit(0);
+				//exit(0);
 				break;
 			}
 
 			case user_login_Limite_clientes: {
 				LimpaPacotedEnvio();
-				PacoteEnvio.tipo = user_logout;
-				SetEvent(Cliente.EventEnvia);
+				//PacoteEnvio.tipo = user_logout;
+				//SetEvent(Cliente.EventEnvia);
 				MessageBox(NULL, TEXT("O servidor está cheio.\nTente mais tarde"), TEXT("ERRO"), MB_OK | MB_ICONERROR);
-				exit(0);
+				//exit(0);
 				break;
 			}
 		
